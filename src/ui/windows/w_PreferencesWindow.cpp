@@ -270,8 +270,7 @@ void PreferencesWindow::on_buttonBox_accepted()
         StyleManager->ApplyStyle(AppConfig.appearanceConfig->UITheme);
     }
 
-    const auto newnew = AppConfig.toJson();
-    GlobalConfig->loadJson(newnew);
+    *GlobalConfig = AppConfig;
     QvBaselib->GetConfig()->loadJson(BaselibConfig.toJson());
     accept();
 }
