@@ -170,14 +170,15 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
         if (AppConfig.behaviorConfig->AutoConnectProfileId->isNull())
             AppConfig.behaviorConfig->AutoConnectProfileId->groupId = DefaultGroupId;
 
-        const auto &autoStartConnId = AppConfig.behaviorConfig->AutoConnectProfileId->connectionId;
-        const auto &autoStartGroupId = AppConfig.behaviorConfig->AutoConnectProfileId->groupId;
+        const auto autoStartConnId = AppConfig.behaviorConfig->AutoConnectProfileId->connectionId;
+        const auto autoStartGroupId = AppConfig.behaviorConfig->AutoConnectProfileId->groupId;
 
         for (const auto &group : QvBaselib->ProfileManager()->GetGroups())
             autoStartSubsCombo->addItem(GetDisplayName(group), group.toString());
 
         autoStartSubsCombo->setCurrentText(GetDisplayName(autoStartGroupId));
 
+        autoStartConnCombo->clear();
         for (const auto &conn : QvBaselib->ProfileManager()->GetConnections(autoStartGroupId))
             autoStartConnCombo->addItem(GetDisplayName(conn), conn.toString());
 
