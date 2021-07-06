@@ -131,10 +131,6 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
 
     // Connection Settings
     {
-        AppConfig.connectionConfig->BypassBittorrent.Observe([](const auto &newval) {
-            if (newval)
-                QvBaselib->Info(tr("Note"), tr("To recognize the protocol of a connection, one must enable sniffing option in an inbound proxy."));
-        });
         AppConfig.connectionConfig->BypassBittorrent.ReadWriteBind(bypassBTCb, "checked", &QCheckBox::stateChanged);
         AppConfig.connectionConfig->ForceDirectConnection.ReadWriteBind(forceDirectConnectionCB, "checked", &QCheckBox::stateChanged);
     }
