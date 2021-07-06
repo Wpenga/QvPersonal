@@ -36,9 +36,8 @@ RuleObject GenerateSingleRouteRule(const QStringList &rules, const QString &outb
 }
 
 // -------------------------- BEGIN CONFIG GENERATIONS
-RoutingObject GenerateRoutes(bool ForceDirectConnection, bool bypassCN, bool bypassLAN, const QString &outTag, const RouteMatrixConfig &routeConfig)
+void ProcessRoutes(RoutingObject &root, bool ForceDirectConnection, bool bypassCN, bool bypassLAN, const QString &outTag, const RouteMatrixConfig &routeConfig)
 {
-    RoutingObject root;
     root.extraOptions.insert(QStringLiteral("domainStrategy"), *routeConfig.domainStrategy);
     root.extraOptions.insert(QStringLiteral("domainMatcher"), *routeConfig.domainMatcher);
     //
@@ -84,8 +83,8 @@ RoutingObject GenerateRoutes(bool ForceDirectConnection, bool bypassCN, bool byp
         }
     }
 
+    rulesList << root.rules;
     root.rules = rulesList;
-    return root;
 }
 
 ProfileContent InternalProfilePreprocessor::PreprocessProfile(const ProfileContent &p)
@@ -127,23 +126,24 @@ ProfileContent InternalProfilePreprocessor::PreprocessProfile(const ProfileConte
     AddInbound(HTTP, "http");
     AddInbound(SOCKS, "socks");
     AddInbound(DokodemoDoor, "dokodemo-door");
-    result.inbounds.last().inboundSettings.streamSettings[QStringLiteral("sockopt")] = //
-        QJsonObject{ { QStringLiteral("tproxy"), [](auto m) {
-                          switch (m)
-                          {
-                              case Qv2ray::Models::DokodemoDoorInboundConfig::TPROXY: return QStringLiteral("tproxy");
-                              case Qv2ray::Models::DokodemoDoorInboundConfig::REDIRECT: return QStringLiteral("redirect");
-                          }
-                          return QStringLiteral("redirect");
-                      }(GlobalConfig->inboundConfig->DokodemoDoorConfig->WorkingMode) } };
+    result.inbounds.last().inboundSettings.streamSettings[QStringLiteral("sockopt")] = QJsonObject //
+        { { QStringLiteral("tproxy"), [](auto m) {
+               switch (m)
+               {
+                   case Qv2ray::Models::DokodemoDoorInboundConfig::TPROXY: return QStringLiteral("tproxy");
+                   case Qv2ray::Models::DokodemoDoorInboundConfig::REDIRECT: return QStringLiteral("redirect");
+               }
+               return QStringLiteral("redirect");
+           }(GlobalConfig->inboundConfig->DokodemoDoorConfig->WorkingMode) } };
 
     const auto routeMatrixConfig = RouteMatrixConfig::fromJson(p.routing.extraOptions[RouteMatrixConfig::EXTRA_OPTIONS_ID].toObject());
 
-    result.routing = GenerateRoutes(GlobalConfig->connectionConfig->ForceDirectConnection, //
-                                    GlobalConfig->connectionConfig->BypassCN,              //
-                                    GlobalConfig->connectionConfig->BypassLAN,             //
-                                    result.outbounds.first().name,                         //
-                                    routeMatrixConfig);
+    ProcessRoutes(result.routing,                                        //
+                  GlobalConfig->connectionConfig->ForceDirectConnection, //
+                  GlobalConfig->connectionConfig->BypassCN,              //
+                  GlobalConfig->connectionConfig->BypassLAN,             //
+                  result.outbounds.first().name,                         //
+                  routeMatrixConfig);
 
     if (GlobalConfig->connectionConfig->BypassBittorrent)
     {
