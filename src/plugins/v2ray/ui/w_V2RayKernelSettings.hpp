@@ -1,6 +1,6 @@
 #pragma once
 
-#include "QvGUIPluginInterface.hpp"
+#include "QvPlugin/Gui/QvGUIPluginInterface.hpp"
 #include "common/SettingsModels.hpp"
 #include "ui_w_V2RayKernelSettings.h"
 
