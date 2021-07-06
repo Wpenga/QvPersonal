@@ -261,6 +261,8 @@ void PreferencesWindow::on_buttonBox_accepted()
         NEEDRESTART
     }
 
+    QvBaselib->ProfileManager()->UpdateRouting(DefaultRoutingId, defaultRouteObject);
+
     if (AppConfig.appearanceConfig->UITheme != GlobalConfig->appearanceConfig->UITheme)
     {
         StyleManager->ApplyStyle(AppConfig.appearanceConfig->UITheme);
