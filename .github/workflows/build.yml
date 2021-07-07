@@ -80,14 +80,12 @@ jobs:
         cmake --build . --parallel
 
     - name: Install
-      if: matrix.config.os != 'macos-latest'
       run: |
         cd build
         cmake --install .
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
-      if: matrix.config.os != 'macos-latest'
       with:
         name: Qv2ray-${{ matrix.config.artifact }}.zip
         path: build/installed
