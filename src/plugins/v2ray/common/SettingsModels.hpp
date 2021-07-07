@@ -35,7 +35,7 @@ struct V2RayCorePluginSettings
         Debug
     };
 
-    Bindable<V2RayLogLevel> LogLevel;
+    Bindable<V2RayLogLevel> LogLevel{ Warning };
     Bindable<QString> CorePath{ QStringLiteral(QV2RAY_DEFAULT_VCORE_PATH) };
     Bindable<QString> AssetsPath{ QStringLiteral(QV2RAY_DEFAULT_VASSETS_PATH) };
     Bindable<int> OutboundMark{ 255 };

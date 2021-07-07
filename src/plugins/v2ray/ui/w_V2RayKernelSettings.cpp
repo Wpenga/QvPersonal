@@ -102,6 +102,8 @@ void V2RayKernelSettings::on_detectCoreBtn_clicked()
             searchPaths << QStandardPaths::locateAll(sp, dn, QStandardPaths::LocateDirectory);
 
 #ifdef Q_OS_WINDOWS
+    // Scoop shim causes problems: https://github.com/lukesampson/scoop/issues/3294
+    searchPaths.removeIf([](const QString &s) { return s.contains(QStringLiteral("shims")); });
     searchPaths << QDir::homePath() + QStringLiteral("/scoop/apps/v2ray/current/");
     searchPaths << QDir::homePath() + QStringLiteral("/source/repos/v2ray-core/");
     searchPaths << QDir::homePath() + QStringLiteral("/source/repos/v2ray/");
@@ -128,7 +130,6 @@ void V2RayKernelSettings::on_detectCoreBtn_clicked()
 #endif
 
     searchPaths << settings.AssetsPath;
-
     searchPaths.removeDuplicates();
 
     QString corePath = settings.CorePath;

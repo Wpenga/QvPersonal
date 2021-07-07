@@ -115,6 +115,8 @@ bool V2RayKernel::Stop()
     // Set this to false BEFORE close the Process, since we need this flag
     // to capture the real kernel CRASH
     kernelStarted = false;
+    vProcess->terminate();
+    vProcess->kill();
     vProcess->close();
     // Block until V2Ray core exits
     // Should we use -1 instead of waiting for 30secs?
