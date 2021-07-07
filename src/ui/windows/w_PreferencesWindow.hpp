@@ -43,7 +43,6 @@ class PreferencesWindow
     QvMessageBusSlotDecl override;
 
   private slots:
-    void on_aboutQt_clicked();
     void on_autoStartConnCombo_currentIndexChanged(int arg1);
     void on_autoStartSubsCombo_currentIndexChanged(int arg1);
     void on_buttonBox_accepted();

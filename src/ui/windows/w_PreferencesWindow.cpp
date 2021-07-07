@@ -273,11 +273,6 @@ void PreferencesWindow::on_buttonBox_accepted()
     accept();
 }
 
-void PreferencesWindow::on_aboutQt_clicked()
-{
-    QApplication::aboutQt();
-}
-
 void PreferencesWindow::on_autoStartSubsCombo_currentIndexChanged(int arg1)
 {
     if (arg1 == -1)

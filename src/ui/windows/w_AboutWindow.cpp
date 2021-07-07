@@ -25,3 +25,8 @@ void AboutWindow::on_openConfigDirCB_clicked()
 {
     QvBaselib->OpenURL(QvBaselib->StorageProvider()->StorageLocation());
 }
+
+void AboutWindow::on_aboutQt_clicked()
+{
+    QApplication::aboutQt();
+}
