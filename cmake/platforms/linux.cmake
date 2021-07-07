@@ -3,11 +3,11 @@ install(FILES ${CMAKE_SOURCE_DIR}/assets/qv2ray.metainfo.xml DESTINATION share/m
 install(FILES ${CMAKE_SOURCE_DIR}/assets/qv2ray.desktop DESTINATION share/applications)
 install(FILES ${CMAKE_SOURCE_DIR}/assets/icons/qv2ray.svg DESTINATION share/icons/hicolor/scalable/apps)
 
-if(QV2RAY_QV2RAYBASE_PROVIDER STREQUAL "package")
+if(QV2RAY_QV2RAYBASE_PROVIDER STREQUAL "module")
     install(TARGETS Qv2rayBase)
 endif()
 
-if(QV2RAY_QNODEEDITOR_PROVIDER STREQUAL "package")
+if(QV2RAY_QNODEEDITOR_PROVIDER STREQUAL "module")
     install(TARGETS nodes)
 endif()
 
