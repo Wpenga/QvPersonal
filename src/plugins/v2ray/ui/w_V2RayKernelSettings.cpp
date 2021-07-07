@@ -57,7 +57,7 @@ void V2RayKernelSettings::on_checkVCoreSettings_clicked()
 
     if (const auto &[result, msg] = ValidateKernel(settings.CorePath, settings.AssetsPath); !result)
     {
-        BuiltinV2RayCorePlugin::MessageBox(tr("V2Ray Core Settings"), *msg);
+        BuiltinV2RayCorePlugin::ShowMessageBox(tr("V2Ray Core Settings"), *msg);
     }
     else
     {
@@ -66,7 +66,7 @@ void V2RayKernelSettings::on_checkVCoreSettings_clicked()
                              tr("Kernel Output: ") +                        //
                              QStringLiteral("\n") +                         //
                              *msg;
-        BuiltinV2RayCorePlugin::MessageBox(tr("V2Ray Core Settings"), content);
+        BuiltinV2RayCorePlugin::ShowMessageBox(tr("V2Ray Core Settings"), content);
     }
 }
 
@@ -159,7 +159,7 @@ void V2RayKernelSettings::on_detectCoreBtn_clicked()
     messages << (coreFound ? QStringLiteral("Found v2ray core at: ") + corePath : QStringLiteral("Cannot find v2ray core."));
     messages << (assetsFound ? QStringLiteral("Found v2ray assets at: ") + assetsPath : QStringLiteral("Cannot find v2ray assets."));
 
-    BuiltinV2RayCorePlugin::MessageBox(QStringLiteral("V2Ray Core Detection"), messages.join(QChar::fromLatin1('\n')));
+    BuiltinV2RayCorePlugin::ShowMessageBox(QStringLiteral("V2Ray Core Detection"), messages.join(QChar::fromLatin1('\n')));
 
     settings.CorePath = corePath;
     settings.AssetsPath = assetsPath;
