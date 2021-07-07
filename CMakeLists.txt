@@ -114,7 +114,6 @@ if(QV2RAY_QV2RAYBASE_PROVIDER STREQUAL "package")
     find_package(Qv2rayBase REQUIRED)
 else()
     add_subdirectory(src/Qv2rayBase)
-    install(TARGETS Qv2rayBase)
 endif()
 
 if(QV2RAY_SINGLEAPPLICATION_PROVIDER STREQUAL "package")
@@ -128,7 +127,6 @@ if(QV2RAY_QNODEEDITOR_PROVIDER STREQUAL "package")
     find_package(NodeEditor REQUIRED)
 else()
     add_subdirectory(3rdparty/QNodeEditor)
-    install(TARGETS nodes)
 endif()
 
 # ==================================================================================

@@ -3,6 +3,14 @@ install(FILES ${CMAKE_SOURCE_DIR}/assets/qv2ray.metainfo.xml DESTINATION share/m
 install(FILES ${CMAKE_SOURCE_DIR}/assets/qv2ray.desktop DESTINATION share/applications)
 install(FILES ${CMAKE_SOURCE_DIR}/assets/icons/qv2ray.svg DESTINATION share/icons/hicolor/scalable/apps)
 
+if(QV2RAY_QV2RAYBASE_PROVIDER STREQUAL "package")
+    install(TARGETS Qv2rayBase)
+endif()
+
+if(QV2RAY_QNODEEDITOR_PROVIDER STREQUAL "package")
+    install(TARGETS nodes)
+endif()
+
 set(QV2RAY_ICON_DIMENSIONS 16 22 32 48 64 128 256 512 1024)
 
 foreach(d ${QV2RAY_ICON_DIMENSIONS})

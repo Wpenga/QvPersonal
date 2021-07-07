@@ -112,4 +112,5 @@ target_link_libraries(QvPlugin-BuiltinV2RaySupport
     protobuf::libprotobuf
     gRPC::grpc++)
 
-qv2ray_configure_plugin(QvPlugin-BuiltinV2RaySupport Widgets)
+qv2ray_configure_plugin(QvPlugin-BuiltinV2RaySupport Widgets
+    INSTALL_PREFIX_MACOS "$<TARGET_BUNDLE_DIR:qv2ray>/Contents/Resources/plugins")
