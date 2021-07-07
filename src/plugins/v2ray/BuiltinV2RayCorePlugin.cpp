@@ -47,10 +47,6 @@ const QvPluginMetadata BuiltinV2RayCorePlugin::GetMetadata() const
              { COMPONENT_KERNEL, COMPONENT_GUI } };
 }
 
-BuiltinV2RayCorePlugin::~BuiltinV2RayCorePlugin()
-{
-}
-
 bool BuiltinV2RayCorePlugin::InitializePlugin()
 {
     m_KernelInterface = std::make_shared<V2RayKernelInterface>();

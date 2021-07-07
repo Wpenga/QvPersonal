@@ -35,9 +35,9 @@ APIWorker::APIWorker()
 {
     workThread = new QThread();
     this->moveToThread(workThread);
-    QvPluginLog(QStringLiteral("API Worker initialised."));
+    BuiltinV2RayCorePlugin::Log(QStringLiteral("API Worker initialised."));
     connect(workThread, &QThread::started, this, &APIWorker::process);
-    connect(workThread, &QThread::finished, [] { QvPluginLog(QStringLiteral("API thread stopped")); });
+    connect(workThread, &QThread::finished, [] { BuiltinV2RayCorePlugin::Log(QStringLiteral("API thread stopped")); });
     started = true;
     workThread->start();
 }
@@ -79,7 +79,7 @@ APIWorker::~APIWorker()
 // Start processing data.
 void APIWorker::process()
 {
-    QvPluginLog(QStringLiteral("API Worker started."));
+    BuiltinV2RayCorePlugin::Log(QStringLiteral("API Worker started."));
     while (started)
     {
         QThread::msleep(1000);
@@ -91,8 +91,8 @@ void APIWorker::process()
             if (!dialed)
             {
 #ifndef QV2RAY_NO_GRPC
-                const QString channelAddress = QStringLiteral("127.0.0.1:") + QString::number(Qv2rayPlugin::TPluginInstance<BuiltinV2RayCorePlugin>()->settings.APIPort);
-                QvPluginLog(QStringLiteral("gRPC Version: ") + QString::fromStdString(grpc::Version()));
+                const QString channelAddress = QStringLiteral("127.0.0.1:") + QString::number(BuiltinV2RayCorePlugin::PluginInstance->settings.APIPort);
+                BuiltinV2RayCorePlugin::Log(QStringLiteral("gRPC Version: ") + QString::fromStdString(grpc::Version()));
                 grpc_channel = grpc::CreateChannel(channelAddress.toStdString(), grpc::InsecureChannelCredentials());
                 stats_service_stub = v2ray::core::app::stats::command::StatsService::NewStub(grpc_channel);
                 dialed = true;
@@ -100,7 +100,7 @@ void APIWorker::process()
             }
             if (apiFailCounter == QV2RAY_API_CALL_FAILEDCHECK_THRESHOLD)
             {
-                QvPluginLog(QStringLiteral("API call failure threshold reached, cancelling further API aclls."));
+                BuiltinV2RayCorePlugin::Log(QStringLiteral("API call failure threshold reached, cancelling further API aclls."));
                 emit OnAPIErrored(tr("Failed to get statistics data, please check if V2Ray is running properly"));
                 apiFailCounter++;
                 QThread::msleep(1000);
@@ -153,7 +153,8 @@ qint64 APIWorker::CallStatsAPIByName(const QString &name)
     const auto status = stats_service_stub->GetStats(&context, request, &response);
     if (!status.ok())
     {
-        QvPluginLog(QStringLiteral("API call returns:") + QString::number(status.error_code()) + QStringLiteral(":") + QString::fromStdString(status.error_message()));
+        BuiltinV2RayCorePlugin::Log(QStringLiteral("API call returns:") + QString::number(status.error_code()) + QStringLiteral(":") +
+                                    QString::fromStdString(status.error_message()));
         return Qv2ray_GRPC_ERROR_RETCODE;
     }
     else

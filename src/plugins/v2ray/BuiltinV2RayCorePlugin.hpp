@@ -10,21 +10,15 @@ using namespace Qv2rayPlugin;
 
 class BuiltinV2RayCorePlugin
     : public QObject
-    , public Qv2rayInterface
+    , public Qv2rayInterface<BuiltinV2RayCorePlugin>
 {
-    Q_INTERFACES(Qv2rayPlugin::Qv2rayInterface)
-    Q_PLUGIN_METADATA(IID Qv2rayInterface_IID)
     Q_OBJECT
+    QV2RAY_PLUGIN(BuiltinV2RayCorePlugin)
 
   public:
     V2RayCorePluginSettings settings;
 
     const QvPluginMetadata GetMetadata() const override;
-    ~BuiltinV2RayCorePlugin();
     bool InitializePlugin() override;
     void SettingsUpdated() override;
-
-  signals:
-    void PluginLog(QString) override;
-    void PluginErrorMessageBox(QString, QString) override;
 };

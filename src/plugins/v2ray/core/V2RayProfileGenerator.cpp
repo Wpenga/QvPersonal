@@ -47,7 +47,7 @@ QByteArray V2RayProfileGenerator::Generate()
         routing[QStringLiteral("domainMatcher")] = dm;
 
     // Override log level
-    const auto settings = Qv2rayPlugin::TPluginInstance<BuiltinV2RayCorePlugin>()->settings;
+    const auto settings = BuiltinV2RayCorePlugin::PluginInstance->settings;
     rootconf[QStringLiteral("log")] = QJsonObject{ { QStringLiteral("loglevel"), [](auto l) {
                                                         switch (l)
                                                         {

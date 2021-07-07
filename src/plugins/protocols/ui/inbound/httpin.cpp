@@ -50,7 +50,7 @@ void HTTPInboundEditor::on_httpRemoveUserBtn_clicked()
     PLUGIN_EDITOR_LOADING_GUARD
     if (httpAccountListBox->currentRow() < 0)
     {
-        PluginInstance->PluginErrorMessageBox(tr("Removing a user"), tr("You haven't selected a user yet."));
+        InternalProtocolSupportPlugin::MessageBox(tr("Removing a user"), tr("You haven't selected a user yet."));
         return;
     }
     const auto item = httpAccountListBox->currentItem();
@@ -83,7 +83,7 @@ void HTTPInboundEditor::on_httpAddUserBtn_clicked()
         const auto _user = list[i].toObject();
         if (_user[QStringLiteral("user")].toString() == user)
         {
-            PluginInstance->PluginErrorMessageBox(tr("Add a user"), tr("This user exists already."));
+            InternalProtocolSupportPlugin::MessageBox(tr("Add a user"), tr("This user exists already."));
             return;
         }
     }

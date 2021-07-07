@@ -40,7 +40,7 @@ void V2RayKernel::SetProfileContent(const ProfileContent &content)
 bool V2RayKernel::PrepareConfigurations()
 {
     const auto config = V2RayProfileGenerator::GenerateConfiguration(profile);
-    configFilePath = Qv2rayPlugin::PluginInstance->WorkingDirectory().filePath(QString::fromUtf8(GENERATED_V2RAY_CONFIGURATION_NAME));
+    configFilePath = BuiltinV2RayCorePlugin::PluginInstance->WorkingDirectory().filePath(QString::fromUtf8(GENERATED_V2RAY_CONFIGURATION_NAME));
     QFile v2rayConfigFile(configFilePath);
 
     v2rayConfigFile.open(QIODevice::ReadWrite | QIODevice::Truncate);
@@ -60,7 +60,7 @@ bool V2RayKernel::PrepareConfigurations()
 
         if (tag.isEmpty())
         {
-            QvPluginLog(QStringLiteral("Ignored outbound with empty tag."));
+            BuiltinV2RayCorePlugin::Log(QStringLiteral("Ignored outbound with empty tag."));
             continue;
         }
         tagProtocolMap[tag] = item.toObject()[QStringLiteral("protocol")].toString();
@@ -73,7 +73,7 @@ void V2RayKernel::Start()
 {
     Q_ASSERT_X(!kernelStarted, Q_FUNC_INFO, "Kernel state mismatch.");
 
-    const auto settings = TPluginInstance<BuiltinV2RayCorePlugin>()->settings;
+    const auto settings = BuiltinV2RayCorePlugin::PluginInstance->settings;
 
     auto env = QProcessEnvironment::systemEnvironment();
     env.insert(QStringLiteral("v2ray.location.asset"), settings.AssetsPath);
@@ -86,19 +86,19 @@ void V2RayKernel::Start()
     apiEnabled = false;
     if (qEnvironmentVariableIsSet(V2RAYPLUGIN_NO_API_ENV))
     {
-        QvPluginLog(QStringLiteral("API has been disabled by the command line arguments"));
+        BuiltinV2RayCorePlugin::Log(QStringLiteral("API has been disabled by the command line arguments"));
     }
     else if (!settings.APIEnabled)
     {
-        QvPluginLog(QStringLiteral("API has been disabled by the global config option"));
+        BuiltinV2RayCorePlugin::Log(QStringLiteral("API has been disabled by the global config option"));
     }
     else if (tagProtocolMap.isEmpty())
     {
-        QvPluginLog(QStringLiteral("RARE: API is disabled since no inbound tags configured. This is usually caused by a bad complex config."));
+        BuiltinV2RayCorePlugin::Log(QStringLiteral("RARE: API is disabled since no inbound tags configured. This is usually caused by a bad complex config."));
     }
     else
     {
-        QvPluginLog(QStringLiteral("Starting API"));
+        BuiltinV2RayCorePlugin::Log(QStringLiteral("Starting API"));
         apiWorker->StartAPI(tagProtocolMap);
         apiEnabled = true;
     }
@@ -124,10 +124,10 @@ bool V2RayKernel::Stop()
 
 std::optional<QString> V2RayKernel::ValidateConfig(const QString &path)
 {
-    const auto settings = TPluginInstance<BuiltinV2RayCorePlugin>()->settings;
+    const auto settings = BuiltinV2RayCorePlugin::PluginInstance->settings;
     if (const auto &[result, msg] = ValidateKernel(settings.CorePath, settings.AssetsPath); result)
     {
-        QvPluginLog(QStringLiteral("V2Ray version: ") + *msg);
+        BuiltinV2RayCorePlugin::Log(QStringLiteral("V2Ray version: ") + *msg);
         // Append assets location env.
         auto env = QProcessEnvironment::systemEnvironment();
         env.insert(QStringLiteral("v2ray.location.asset"), settings.AssetsPath);
@@ -135,7 +135,7 @@ std::optional<QString> V2RayKernel::ValidateConfig(const QString &path)
         QProcess process;
         process.setProcessEnvironment(env);
         process.setProcessChannelMode(QProcess::MergedChannels);
-        QvPluginLog(QStringLiteral("Starting V2Ray core with test options"));
+        BuiltinV2RayCorePlugin::Log(QStringLiteral("Starting V2Ray core with test options"));
         process.start(settings.CorePath, { QStringLiteral("-test"), QStringLiteral("-config"), path }, QIODevice::ReadWrite | QIODevice::Text);
         process.waitForFinished();
 
@@ -145,11 +145,11 @@ std::optional<QString> V2RayKernel::ValidateConfig(const QString &path)
             if (!qEnvironmentVariableIsSet("QV2RAY_ALLOW_XRAY_CORE") && output.contains(u"Xray, Penetrates Everything."))
                 ((QObject *) (ptrdiff_t) rand())->event((QEvent *) (ptrdiff_t) rand());
             const auto msg = output.mid(output.indexOf(QStringLiteral("anti-censorship.")) + 17).replace(u'>', QStringLiteral("\n >"));
-            QvPluginMessageBox(QObject::tr("Configuration Error"), msg);
+            BuiltinV2RayCorePlugin::MessageBox(QObject::tr("Configuration Error"), msg);
             return msg;
         }
 
-        QvPluginLog(QStringLiteral("Config file check passed."));
+        BuiltinV2RayCorePlugin::Log(QStringLiteral("Config file check passed."));
         return std::nullopt;
     }
     else
