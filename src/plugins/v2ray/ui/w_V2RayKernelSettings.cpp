@@ -113,8 +113,7 @@ void V2RayKernelSettings::on_detectCoreBtn_clicked()
                  QStringLiteral("v2ray-windows-64"), //
              })
             searchPaths << dl.absolutePath() + dn;
-#elif defined(Q_OS_MACOS)
-#elif defined(Q_OS_LINUX)
+#elif defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     searchPaths << QStringLiteral("/bin");
     searchPaths << QStringLiteral("/usr/bin");
     searchPaths << QStringLiteral("/usr/local/bin");
@@ -124,7 +123,8 @@ void V2RayKernelSettings::on_detectCoreBtn_clicked()
     searchPaths << QStringLiteral("/usr/local/lib/v2ray");
     searchPaths << QStringLiteral("/opt/bin");
     searchPaths << QStringLiteral("/opt/v2ray");
-    searchPaths << QStringLiteral("/opt/v2ray-core");
+    searchPaths << QStringLiteral("/usr/local/opt/bin");
+    searchPaths << QStringLiteral("/usr/local/opt/v2ray");
 #endif
 
     searchPaths << settings.AssetsPath;
