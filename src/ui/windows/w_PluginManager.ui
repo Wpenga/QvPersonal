@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Plugin Manager</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2" columnstretch="3,5">
+  <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,5">
    <item row="0" column="0">
     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,2,3,0">
      <item>
