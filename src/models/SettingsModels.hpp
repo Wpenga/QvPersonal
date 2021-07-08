@@ -26,7 +26,7 @@ namespace Qv2ray::Models
         Bindable<UIStyleType> DarkModeTrayIcon;
         Bindable<QString> UITheme{ _system_theme };
         Bindable<QString> Language;
-        Bindable<qsizetype> RecentJumpListSize;
+        Bindable<qsizetype> RecentJumpListSize{ 10 };
         Bindable<QList<ProfileId>> RecentConnections;
         Bindable<int> MaximizeLogLines{ 500 };
         QJS_COMPARE(Qv2rayAppearanceConfig, DarkModeTrayIcon, UITheme, Language, RecentJumpListSize, RecentConnections, MaximizeLogLines)
@@ -42,8 +42,8 @@ namespace Qv2ray::Models
             AUTOCONNECT_LAST_CONNECTED = 2
         };
         Bindable<LatencyTestEngineId> DefaultLatencyTestEngine;
-        Bindable<AutoConnectBehavior> AutoConnectBehavior;
-        Bindable<bool> QuietMode;
+        Bindable<AutoConnectBehavior> AutoConnectBehavior{ AUTOCONNECT_LAST_CONNECTED };
+        Bindable<bool> QuietMode{ false };
         Bindable<ProfileId> AutoConnectProfileId;
         Bindable<ProfileId> LastConnectedId;
         Bindable<QString> GeoIPPath;
@@ -82,7 +82,7 @@ namespace Qv2ray::Models
     {
         Bindable<bool> EnableUDP{ true };
         Bindable<QString> UDPLocalAddress{ QStringLiteral("127.0.0.1") };
-        SocksInboundConfig() : ProtocolInboundBase(1080){};
+        SocksInboundConfig() : ProtocolInboundBase(1089){};
 
         QJS_COMPARE(SocksInboundConfig, EnableUDP, UDPLocalAddress, ListenPort, Sniffing, DestinationOverride)
         QJS_JSON(P(EnableUDP, UDPLocalAddress), B(ProtocolInboundBase))
@@ -97,7 +97,7 @@ namespace Qv2ray::Models
 
     struct HTTPInboundConfig : public ProtocolInboundBase
     {
-        HTTPInboundConfig() : ProtocolInboundBase(8080){};
+        HTTPInboundConfig() : ProtocolInboundBase(8889){};
         QJS_COMPARE(HTTPInboundConfig, ListenPort, Sniffing, DestinationOverride)
         QJS_JSON(B(ProtocolInboundBase))
     };
@@ -164,6 +164,6 @@ namespace Qv2ray::Models
         QJS_JSON(P(appearanceConfig, behaviorConfig, connectionConfig, inboundConfig))
     };
 
-} // namespace Qv2ray::models
+} // namespace Qv2ray::Models
 
 using namespace Qv2ray::Models;
