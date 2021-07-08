@@ -80,8 +80,8 @@ namespace Qv2ray::Models
 
     struct SocksInboundConfig : public ProtocolInboundBase
     {
-        Bindable<bool> EnableUDP;
-        Bindable<QString> UDPLocalAddress;
+        Bindable<bool> EnableUDP{ true };
+        Bindable<QString> UDPLocalAddress{ QStringLiteral("127.0.0.1") };
         SocksInboundConfig() : ProtocolInboundBase(1080){};
 
         QJS_COMPARE(SocksInboundConfig, EnableUDP, UDPLocalAddress, ListenPort, Sniffing, DestinationOverride)
