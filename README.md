@@ -13,6 +13,8 @@ This repo is my personal rewrite of Qv2ray using [Qv2rayBase](https://github.com
 - Ubuntu 20.04: **Untested**, build system.
 - Others: **Untested**
 
+> *build system: the CI is done under that OS, although it "should" work there's no runtime guarantee.*
+
 ## Compatibility Issues
 
 - **This version, and all future versions of QvPersonal are not compatible with the configuration format of `Qv2ray/Qv2ray` and `Shadowsocks-NET/Qv2ray`, DO NOT mix these installations in one host machine.**
