@@ -82,7 +82,14 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
-find_package(Qt6 COMPONENTS Core Widgets Svg Gui Network REQUIRED)
+
+if(APPLE OR WIN32)
+    set(QT_VERSION_MINIMUM 6.2)
+else()
+    set(QT_VERSION_MINIMUM 6.1)
+endif()
+
+find_package(Qt6 ${QT_VERSION_MINIMUM} COMPONENTS Core Widgets Svg Gui Network REQUIRED)
 
 set(QAPPLICATION_CLASS "QApplication")
 set(QT_DEFAULT_MAJOR_VERSION 6)
