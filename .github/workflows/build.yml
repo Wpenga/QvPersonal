@@ -26,16 +26,19 @@ jobs:
             cc: "cl.exe", cxx: "cl.exe",
             arch: "win64_msvc2019_64",
             has_msvc: true,
+            has_release: true,
             vcpkgTriplet: x64-windows
           }
         - {
             name: "Ubuntu", artifact: "Linux",
             os: ubuntu-latest,
+            has_release: false,
             vcpkgTriplet: x64-linux
           }
         - {
             name: "macOS", artifact: "macOS",
             os: macos-latest,
+            has_release: true,
             vcpkgTriplet: x64-osx
           }
 
@@ -94,7 +97,7 @@ jobs:
 
     - name: Upload to GitHub Release
       uses: svenstaro/upload-release-action@v2
-      if: github.event_name == 'release'
+      if: github.event_name == 'release' && matrix.config.has_release
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: QvPersonal.7z
