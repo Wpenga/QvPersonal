@@ -2,8 +2,8 @@ name: Build for Desktop
 
 on:
   push:
-  pull_request:
-    branches: [ master ]
+  release:
+    types: [prereleased]
 
 defaults:
   run:
@@ -21,7 +21,7 @@ jobs:
       matrix:
         config:
         - {
-            name: "Windows MSVC", artifact: "Windows-MSVC",
+            name: "Windows MSVC", artifact: "Windows",
             os: windows-latest,
             cc: "cl.exe", cxx: "cl.exe",
             arch: "win64_msvc2019_64",
@@ -38,7 +38,6 @@ jobs:
             os: macos-latest,
             vcpkgTriplet: x64-osx
           }
- 
 
     steps:
     - uses: actions/checkout@v2
@@ -84,8 +83,21 @@ jobs:
         cd build
         cmake --install .
 
+    - name: Generate 7zip
+      run: 7z a QvPersonal.7z -- build/installed
+
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
       with:
-        name: Qv2ray-${{ matrix.config.artifact }}.zip
-        path: build/installed
+        name: QvPersonal-${{ matrix.config.artifact }}.7z
+        path: QvPersonal.7z
+
+    - name: Upload to GitHub Release
+      uses: svenstaro/upload-release-action@v2
+      if: github.event_name == 'release'
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: QvPersonal.7z
+        asset_name: QvPersonal-${{ matrix.config.artifact }}.7z
+        tag: ${{ github.ref }}
+        overwrite: true
