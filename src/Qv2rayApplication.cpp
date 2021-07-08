@@ -44,31 +44,26 @@ Qv2rayExitReason Qv2rayApplication::GetExitReason() const
 
 bool Qv2rayApplication::Initialize()
 {
-    const auto currentVersion = QSslSocket::sslLibraryVersionString();
-    QvLog() << "Current TLS backend version:" << currentVersion;
-
-    if (!QSslSocket::supportsSsl())
-    {
-        // Check TLS backend
-        const auto requiredVersion = QSslSocket::sslLibraryBuildVersionString();
-        QvLog() << "Required TLS backend version:" << requiredVersion;
-        QvLog() << "This is usually caused by a corrupted Qt deployment without tls backend plugins.";
-        QvLog() << "Required=" << requiredVersion << "Current=" << currentVersion;
-
-        return false;
-    }
     QString errorMessage;
     bool canContinue;
     const auto hasError = parseCommandLine(&errorMessage, &canContinue);
-    if (hasError)
+    QvLog() << "Command line:" << errorMessage;
+    if (hasError && !canContinue)
     {
-        QvLog() << "Command line:" << errorMessage;
-        if (!canContinue)
-        {
-            QvLog() << "Fatal, Qv2ray cannot continue.";
-            return false;
-        }
+        QvLog() << "Fatal, Qv2ray cannot continue.";
+        return false;
     }
+
+    Qv2rayBase::Interfaces::StorageContext ctx;
+#ifdef QT_DEBUG
+    ctx.isDebug = true;
+#else
+    ctx.isDebug = false;
+#endif
+
+    const auto result = baseLibrary->Initialize(StartupArguments.noPlugins ? Qv2rayBase::START_NO_PLUGINS : Qv2rayBase::START_NORMAL, ctx, this);
+    if (result != Qv2rayBase::NORMAL)
+        return false;
 
 #ifdef Q_OS_WIN
     const auto appPath = QDir::toNativeSeparators(QCoreApplication::applicationFilePath());
@@ -100,48 +95,26 @@ bool Qv2rayApplication::Initialize()
         return false;
     }
 
-    Qv2rayBase::Interfaces::StorageContext ctx;
-#ifdef QT_DEBUG
-    ctx.isDebug = true;
-#else
-    ctx.isDebug = false;
-#endif
-
-    const auto result = baseLibrary->Initialize(StartupArguments.noPlugins ? Qv2rayBase::START_NO_PLUGINS : Qv2rayBase::START_NORMAL, ctx, this);
-    if (result != Qv2rayBase::NORMAL)
-        return false;
-
-#ifdef Q_OS_LINUX
-    connect(this, &QGuiApplication::commitDataRequest, [this] {
-        QvBaselib->SaveConfigurations();
-        SaveQv2raySettings();
-    });
-#endif
+    connect(this, &QGuiApplication::commitDataRequest, this, &Qv2rayApplication::SaveQv2raySettings, Qt::DirectConnection);
 
 #ifdef Q_OS_WIN
     SetCurrentDirectory(QCoreApplication::applicationDirPath().toStdWString().c_str());
-    // Set font
-    QFont font;
-    font.setPointSize(9);
-    font.setFamily("Segoe UI Variable Display");
-    QGuiApplication::setFont(font);
 #endif
 
     GlobalConfig = new Qv2rayApplicationConfigObject;
+    GlobalConfig->loadJson(QvBaselib->StorageProvider()->GetExtraSettings(QString::fromUtf8(QV2RAY_GUI_EXTRASETTINGS_KEY)));
+
     GUIPluginHost = new Qv2ray::ui::common::GuiPluginAPIHost;
     UIMessageBus = new MessageBus::QvMessageBusObject;
     StyleManager = new QvStyleManager::QvStyleManager;
+    StyleManager->ApplyStyle(GlobalConfig->appearanceConfig->UITheme);
 
-    GlobalConfig->loadJson(QvBaselib->StorageProvider()->GetExtraSettings(QString::fromUtf8(QV2RAY_GUI_EXTRASETTINGS_KEY)));
+    setQuitOnLastWindowClosed(false);
     return true;
 }
 
 Qv2rayExitReason Qv2rayApplication::RunQv2ray()
 {
-    setQuitOnLastWindowClosed(false);
-
-    StyleManager->ApplyStyle(GlobalConfig->appearanceConfig->UITheme);
-
     hTray = new QSystemTrayIcon();
     mainWindow = new MainWindow();
 
@@ -323,6 +296,7 @@ void Qv2rayApplication::ShowTrayMessage(const QString &m, int msecs)
 
 void Qv2rayApplication::SaveQv2raySettings()
 {
+    QvBaselib->SaveConfigurations();
     QvBaselib->StorageProvider()->StoreExtraSettings(QString::fromUtf8(QV2RAY_GUI_EXTRASETTINGS_KEY), GlobalConfig->toJson());
 }
 

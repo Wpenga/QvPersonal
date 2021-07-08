@@ -16,7 +16,6 @@ class AboutWindow : public QDialog
 
   private slots:
     void on_openConfigDirCB_clicked();
-
     void on_aboutQt_clicked();
 
   private:

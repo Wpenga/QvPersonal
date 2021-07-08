@@ -6,6 +6,9 @@
 #include "QvPlugin/Common/QvPluginBase.hpp"
 #include "ui_w_AboutWindow.h"
 
+#include <QFontDatabase>
+#include <QSslSocket>
+
 AboutWindow::AboutWindow(QWidget *parent) : QDialog(parent), ui(new Ui::w_AboutWindow)
 {
     ui->setupUi(this);
@@ -14,6 +17,8 @@ AboutWindow::AboutWindow(QWidget *parent) : QDialog(parent), ui(new Ui::w_AboutW
     ui->qvBuildInfo->setText(QStringLiteral(QV2RAY_BUILD_INFO));
     ui->qvBuildExInfo->setText(QStringLiteral(QV2RAY_BUILD_EXTRA_INFO));
     ui->qvPluginInterfaceVersionLabel->setText(QString::number(Qv2rayPlugin::QV2RAY_PLUGIN_INTERFACE_VERSION));
+    ui->tlsBackendLabel->setText(QSslSocket::activeBackend() + " (" + QSslSocket::sslLibraryVersionString() + ")");
+    // ui->textBrowser->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 }
 
 AboutWindow::~AboutWindow()
