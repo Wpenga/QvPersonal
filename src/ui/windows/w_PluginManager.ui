@@ -13,9 +13,9 @@
   <property name="windowTitle">
    <string>Plugin Manager</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,5">
+  <layout class="QGridLayout" name="gridLayout_2" columnstretch="3,5">
    <item row="0" column="0">
-    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,2,3,0">
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,2,3,0,0,0">
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
@@ -193,6 +193,23 @@
          </widget>
         </item>
        </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Plugin Directory</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="userPluginDirLabel">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+       </property>
       </widget>
      </item>
      <item>

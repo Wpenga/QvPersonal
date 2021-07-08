@@ -17,7 +17,7 @@
 
 #define QV_MODULE_NAME "PlatformApplication"
 
-constexpr auto QV2RAY_GUI_EXTRASETTINGS_KEY = "gui-settings";
+constexpr auto QV2RAY_GUI_EXTRASETTINGS_KEY = "qv2ray-gui-settings";
 
 #ifdef QT_DEBUG
 const static inline auto QV2RAY_URL_SCHEME = "qv2ray-debug";

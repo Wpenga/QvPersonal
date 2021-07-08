@@ -31,7 +31,6 @@ class PluginManageWindow
 
   private slots:
     void on_pluginListWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
-    void on_pluginListWidget_itemClicked(QListWidgetItem *item);
     void on_pluginListWidget_itemChanged(QListWidgetItem *item);
     void on_openPluginFolder_clicked();
 

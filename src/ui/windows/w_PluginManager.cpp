@@ -5,11 +5,10 @@
 #include "Qv2rayBase/Interfaces/IStorageProvider.hpp"
 #include "Qv2rayBase/Plugin/PluginAPIHost.hpp"
 
-#include <QDesktopServices>
-
 PluginManageWindow::PluginManageWindow(QWidget *parent) : QvDialog("PluginManager", parent)
 {
     setupUi(this);
+    userPluginDirLabel->setText(QvBaselib->StorageProvider()->GetUserPluginDirectory().absolutePath());
     for (const auto &plugin : QvBaselib->PluginManagerCore()->AllPlugins())
     {
         plugins[plugin->metadata().InternalID] = plugin;
@@ -82,12 +81,6 @@ void PluginManageWindow::on_pluginListWidget_currentItemChanged(QListWidgetItem 
     pluginComponentsLabel->setText(components.join('\n'));
 }
 
-void PluginManageWindow::on_pluginListWidget_itemClicked(QListWidgetItem *item)
-{
-    Q_UNUSED(item)
-    // on_pluginListWidget_currentItemChanged(item, nullptr);
-}
-
 void PluginManageWindow::on_pluginListWidget_itemChanged(QListWidgetItem *item)
 {
     if (isLoading)
@@ -100,5 +93,5 @@ void PluginManageWindow::on_pluginListWidget_itemChanged(QListWidgetItem *item)
 void PluginManageWindow::on_openPluginFolder_clicked()
 {
     const auto dir = QvBaselib->StorageProvider()->GetUserPluginDirectory();
-    QDesktopServices::openUrl(QUrl::fromLocalFile(dir.absolutePath()));
+    QvBaselib->OpenURL(QUrl::fromLocalFile(dir.absolutePath()));
 }
