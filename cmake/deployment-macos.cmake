@@ -32,6 +32,9 @@ set_target_properties(qv2ray
     RESOURCE ${MACOSX_ICON}
     )
 
+# Qt network backend should be installed before copying the bundle.
+install(DIRECTORY "${Qt6Core_DIR}/../../../plugins/tls/" DESTINATION "$<TARGET_BUNDLE_DIR:qv2ray>/Contents/PlugIns/tls/")
+
 ## Destination paths below are relative to ${CMAKE_INSTALL_PREFIX}
 install(TARGETS qv2ray BUNDLE DESTINATION .)
 
@@ -56,9 +59,6 @@ endif()
 list(APPEND DIRS "${Qt6Core_DIR}/../..")
 list(APPEND DIRS "/usr/lib")
 list(APPEND DIRS "/usr/local/lib")
-
-# Qt network backend.
-install(DIRECTORY "${Qt6Core_DIR}/../../../plugins/tls/" DESTINATION "$<TARGET_BUNDLE_DIR:qv2ray>/Contents/PlugIns/tls/")
 
 set(APP "${CMAKE_INSTALL_PREFIX}/qv2ray.app")
 install(CODE "execute_process(COMMAND \"${Qt6_DIR}/../../../bin/macdeployqt\" \"${APP}\")")
