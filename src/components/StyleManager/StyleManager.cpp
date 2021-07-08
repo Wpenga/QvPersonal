@@ -1,9 +1,9 @@
 #include "StyleManager.hpp"
 
-#include "Qv2rayBase/Common/Utils.hpp"
 #include "DarkmodeDetector/DarkmodeDetector.hpp"
 #include "MessageBus/MessageBus.hpp"
 #include "Qv2rayApplication.hpp"
+#include "Qv2rayBase/Common/Utils.hpp"
 
 #include <QApplication>
 #include <QColor>
@@ -41,7 +41,7 @@ namespace Qv2ray::components::QvStyleManager
 
         for (const auto &styleDir : QvBaselib->GetAssetsPaths(QStringLiteral("uistyles")))
         {
-            for (const auto &fileInfo : QDir(styleDir).entryInfoList())
+            for (const auto &fileInfo : QDir(styleDir).entryInfoList(QDir::Files))
             {
                 if (!fileInfo.isFile())
                     break;
@@ -64,7 +64,11 @@ namespace Qv2ray::components::QvStyleManager
             return false;
         qApp->setStyle(QStringLiteral("fusion"));
         if (style == QV2RAY_SYSTEM_STYLE)
+        {
+            qApp->setStyle(Qv2ray::Models::Qv2rayAppearanceConfig::_system_theme);
             return true;
+        }
+
         if (style == QV2RAY_BUILT_IN_DARK_MODE_NAME)
         {
             QvLog() << "Applying built-in darkmode theme.";

@@ -35,39 +35,55 @@ SubscriptionDecodeResult SimpleBase64Decoder::DecodeData(const QByteArray &data)
     return result;
 }
 
-// OOCv1 Decoder
-SubscriptionDecodeResult OOCv1Decoder::DecodeData(const QByteArray &data) const
+// SIP008 Decoder
+SubscriptionDecodeResult SIP008Decoder::DecodeData(const QByteArray &data) const
 {
     const auto root = QJsonDocument::fromJson(data).object();
     //
-    const auto version = root["version"].toInt();
-    const auto username = root["username"].toString();
-    const auto user_uuid = root["user_uuid"].toString();
+    // const auto version = root["version"].toString();
+    // const auto username = root["username"].toString();
+    // const auto user_uuid = root["user_uuid"].toString();
     const auto servers = root["servers"].toArray();
 
-    if (version == 1)
-    {
-        // ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNzQGhvc3Q6MTIzNA/?plugin=plugin%3Bopt#sssip003
-        SubscriptionDecodeResult result;
-        for (const auto &servVal : servers)
-        {
-            const auto serverObj = servVal.toObject();
+    // ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNzQGhvc3Q6MTIzNA/?plugin=plugin%3Bopt#sssip003
+
+    SubscriptionDecodeResult result;
 #define GetVal(x) const auto x = serverObj[#x].toString()
-            GetVal(server);
-            GetVal(password);
-            GetVal(method);
-            GetVal(plugin);
-            GetVal(plugin_opts);
-            GetVal(remarks);
-            GetVal(id);
-#undef GetVal
-            const auto server_port = serverObj["server_port"].toInt();
-            bool isSIP003 = !plugin.isEmpty();
-            const auto userInfo = SafeBase64Encode(method + ":" + password);
-#pragma message("TODO OOCv1")
-            // ...
+    for (const auto &servVal : servers)
+    {
+        const auto serverObj = servVal.toObject();
+        GetVal(server);
+        GetVal(password);
+        GetVal(method);
+        GetVal(plugin);
+        GetVal(plugin_opts);
+        GetVal(remarks);
+        // GetVal(id);
+
+        const auto server_port = serverObj["server_port"].toInt();
+        bool isSIP003 = !plugin.isEmpty();
+        const auto userInfo = SafeBase64Encode(method + ":" + password);
+        //
+        QUrl link;
+        link.setScheme("ss");
+        link.setUserInfo(userInfo);
+        link.setHost(server);
+        link.setPort(server_port);
+        link.setFragment(remarks);
+        if (isSIP003)
+        {
+            QUrlQuery q;
+            q.addQueryItem("plugin", QUrl::toPercentEncoding(plugin + ";" + plugin_opts));
+            link.setQuery(q);
         }
-        return result;
+        result.links << link.toString(QUrl::FullyEncoded);
     }
+#undef GetVal
+    return result;
+}
+
+// OOCv1 Decoder
+SubscriptionDecodeResult OOCv1Decoder::DecodeData(const QByteArray &) const
+{
     return {};
 }

@@ -16,9 +16,15 @@ namespace Qv2ray::Models
             ALWAYS_ON,
             ALWAYS_OFF
         };
-
+#ifdef Q_OS_WIN
+        const static inline QString _system_theme = "windowsvista";
+#elif defined(Q_OS_MACOS)
+        const static inline QString _system_theme = "macintosh";
+#else
+        const static inline QString _system_theme = "Fusion";
+#endif
         Bindable<UIStyleType> DarkModeTrayIcon;
-        Bindable<QString> UITheme;
+        Bindable<QString> UITheme{ _system_theme };
         Bindable<QString> Language;
         Bindable<qsizetype> RecentJumpListSize;
         Bindable<QList<ProfileId>> RecentConnections;
