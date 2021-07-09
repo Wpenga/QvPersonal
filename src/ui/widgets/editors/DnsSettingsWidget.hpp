@@ -35,8 +35,6 @@ class DnsSettingsWidget
     void on_removeStaticHostBtn_clicked();
     void on_detailsSettingsGB_toggled(bool arg1);
     void on_staticResolvedDomainsTable_cellChanged(int row, int column);
-    void on_fakeDNSIPPool_currentTextChanged(const QString &arg1);
-    void on_fakeDNSIPPoolSize_valueChanged(int arg1);
     void on_dnsDisableCacheCB_stateChanged(int arg1);
     void on_dnsDisableFallbackCB_stateChanged(int arg1);
     void on_dnsQueryStrategyCB_currentTextChanged(const QString &arg1);
@@ -47,7 +45,6 @@ class DnsSettingsWidget
     void ProcessDnsPortEnabledState();
     QvMessageBusSlotDecl;
     Qv2ray::Models::V2RayDNSObject dns;
-    Qv2ray::Models::V2RayFakeDNSObject fakeDNS;
     // int currentServerIndex;
     //
     Qv2ray::ui::widgets::AutoCompleteTextEdit *domainListTxt;

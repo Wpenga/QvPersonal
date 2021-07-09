@@ -82,10 +82,17 @@ namespace Qv2ray::Models
 
     struct V2RayFakeDNSObject
     {
-        Bindable<QString> ipPool{ QStringLiteral("198.18.0.0/15") };
-        Bindable<int> poolSize{ 65535 };
-        QJS_JSON(P(ipPool, poolSize))
-        QJS_COMPARE(V2RayFakeDNSObject, ipPool, poolSize)
+        struct PoolObject
+        {
+            Bindable<QString> ipPool;
+            Bindable<int> poolSize;
+            QJS_COMPARE(PoolObject, ipPool, poolSize)
+            QJS_JSON(F(ipPool, poolSize))
+        };
+
+        Bindable<QList<PoolObject>> pools;
+        QJS_JSON(P(pools))
+        QJS_COMPARE(V2RayFakeDNSObject, pools)
         static auto fromJson(const QJsonObject &o)
         {
             V2RayFakeDNSObject dns;

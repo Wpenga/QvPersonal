@@ -35,10 +35,10 @@ DnsSettingsWidget::DnsSettingsWidget(QWidget *parent) : QWidget(parent)
 {
     setupUi(this);
     QvMessageBusConnect();
-    //
+
     auto sourceStringsIP = GeositeReader::ReadGeoSiteFromFile(GlobalConfig->behaviorConfig->GeoIPPath);
     auto sourceStringsDomain = GeositeReader::ReadGeoSiteFromFile(GlobalConfig->behaviorConfig->GeoSitePath);
-    //
+
     domainListTxt = new AutoCompleteTextEdit("geosite", sourceStringsDomain, this);
     ipListTxt = new AutoCompleteTextEdit("geoip", sourceStringsIP, this);
     connect(domainListTxt, &AutoCompleteTextEdit::textChanged,
@@ -72,7 +72,6 @@ QvMessageBusSlotImpl(DnsSettingsWidget)
 void DnsSettingsWidget::SetDNSObject(const Qv2ray::Models::V2RayDNSObject &_dns, const Qv2ray::Models::V2RayFakeDNSObject &_fakeDNS)
 {
     this->dns = _dns;
-    this->fakeDNS = _fakeDNS;
 
     dnsClientIPTxt->setText(dns.clientIp);
     dnsTagTxt->setText(dns.tag);
@@ -100,8 +99,17 @@ void DnsSettingsWidget::SetDNSObject(const Qv2ray::Models::V2RayDNSObject &_dns,
     dnsDisableFallbackCB->setChecked(dns.disableFallback);
     dnsDisableCacheCB->setChecked(dns.disableCache);
 
-    fakeDNSIPPool->setCurrentText(fakeDNS.ipPool);
-    fakeDNSIPPoolSize->setValue(fakeDNS.poolSize);
+    // WARNING TODO: BAD HACK need list model
+    if (!_fakeDNS.pools->isEmpty())
+    {
+        fakeDNSIPPool->setCurrentText(_fakeDNS.pools->first().ipPool);
+        fakeDNSIPPoolSize->setValue(_fakeDNS.pools->first().poolSize);
+        if (_fakeDNS.pools->size() > 1)
+        {
+            fakeDNSIPv6Pool->setCurrentText(_fakeDNS.pools->at(1).ipPool);
+            fakeDNSIPv6PoolSize->setValue(_fakeDNS.pools->at(1).poolSize);
+        }
+    }
     UPDATE_UI_ENABLED_STATE
 }
 
@@ -157,6 +165,12 @@ std::pair<Qv2ray::Models::V2RayDNSObject, Qv2ray::Models::V2RayFakeDNSObject> Dn
         if (item1 && item2)
             dns.hosts.insert(item1->text(), item2->text());
     }
+
+    Qv2ray::Models::V2RayFakeDNSObject fakeDNS;
+    if (!fakeDNSIPPool->currentText().isEmpty())
+        fakeDNS.pools->append(V2RayFakeDNSObject::PoolObject{ { fakeDNSIPPool->currentText() }, fakeDNSIPPoolSize->value() });
+    if (!fakeDNSIPv6Pool->currentText().isEmpty())
+        fakeDNS.pools->append(V2RayFakeDNSObject::PoolObject{ { fakeDNSIPv6Pool->currentText() }, fakeDNSIPv6PoolSize->value() });
     return { dns, fakeDNS };
 }
 
@@ -285,16 +299,6 @@ void DnsSettingsWidget::on_detailsSettingsGB_toggled(bool arg1)
     if (currentServerIndex >= 0)
         (*dns.servers)[currentServerIndex].QV2RAY_DNS_IS_COMPLEX_DNS = arg1;
     // detailsSettingsGB->setChecked(dns.servers[currentServerIndex].QV2RAY_DNS_IS_COMPLEX_DNS);
-}
-
-void DnsSettingsWidget::on_fakeDNSIPPool_currentTextChanged(const QString &arg1)
-{
-    fakeDNS.ipPool = arg1;
-}
-
-void DnsSettingsWidget::on_fakeDNSIPPoolSize_valueChanged(int arg1)
-{
-    fakeDNS.poolSize = arg1;
 }
 
 void DnsSettingsWidget::on_dnsDisableCacheCB_stateChanged(int arg1)
