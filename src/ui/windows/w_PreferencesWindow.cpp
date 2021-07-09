@@ -42,7 +42,7 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
     themeCombo->addItems(StyleManager->AllStyles());
     //
     // Deep copy
-    AppConfig.loadJson(GlobalConfig->toJson());
+    AppConfig = *GlobalConfig;
     BaselibConfig.loadJson(QvBaselib->GetConfig()->toJson());
 
     AppConfig.appearanceConfig->MaximizeLogLines.ReadWriteBind(maxLogLinesSB, "value", &QSpinBox::valueChanged);
@@ -52,8 +52,8 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
     AppConfig.appearanceConfig->Language.ReadWriteBind(languageComboBox, "currentText", &QComboBox::currentIndexChanged);
     AppConfig.behaviorConfig->QuietMode.ReadWriteBind(quietModeCB, "checked", &QCheckBox::stateChanged);
 
-    AppConfig.inboundConfig->ListenAddress.ReadWriteBind(listenIPTxt, "text", &QLineEdit::textEdited);
-    AppConfig.inboundConfig->ListenAddressV6.ReadWriteBind(listenIPv6Txt, "text", &QLineEdit::textEdited);
+    AppConfig.inboundConfig->ListenAddress1.ReadWriteBind(listenIP1Txt, "text", &QLineEdit::textEdited);
+    AppConfig.inboundConfig->ListenAddress2.ReadWriteBind(listenIP2Txt, "text", &QLineEdit::textEdited);
 
     AppConfig.connectionConfig->BypassLAN.ReadWriteBind(bypassLANCB, "checked", &QCheckBox::toggled);
     AppConfig.connectionConfig->BypassCN.ReadWriteBind(bypassCNCB, "checked", &QCheckBox::toggled);
@@ -228,9 +228,15 @@ void PreferencesWindow::on_buttonBox_accepted()
         return;
     }
 
-    if (!IsValidIPAddress(AppConfig.inboundConfig->ListenAddress))
+    if (!AppConfig.inboundConfig->ListenAddress1->isEmpty() && !IsValidIPAddress(AppConfig.inboundConfig->ListenAddress1))
     {
-        QvBaselib->Warn(tr("Preferences"), tr("Invalid inbound listening address."));
+        QvBaselib->Warn(tr("Preferences"), tr("Listening address 1 is not valid."));
+        return;
+    }
+
+    if (!AppConfig.inboundConfig->ListenAddress2->isEmpty() && !IsValidIPAddress(AppConfig.inboundConfig->ListenAddress2))
+    {
+        QvBaselib->Warn(tr("Preferences"), tr("Listening address 2 is not valid."));
         return;
     }
 
@@ -268,7 +274,7 @@ void PreferencesWindow::on_buttonBox_accepted()
         StyleManager->ApplyStyle(AppConfig.appearanceConfig->UITheme);
     }
 
-    *GlobalConfig = AppConfig;
+    (*GlobalConfig) = AppConfig;
     QvBaselib->GetConfig()->loadJson(BaselibConfig.toJson());
     accept();
 }

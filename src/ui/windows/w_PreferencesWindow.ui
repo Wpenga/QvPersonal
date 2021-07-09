@@ -499,16 +499,16 @@
            <item row="0" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
-              <widget class="QLineEdit" name="listenIPTxt">
+              <widget class="QLineEdit" name="listenIP1Txt">
                <property name="placeholderText">
-                <string>IPv4 address, e.g. '127.0.0.1'</string>
+                <string>Listen Address 1</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="listenIPv6Txt">
+              <widget class="QLineEdit" name="listenIP2Txt">
                <property name="placeholderText">
-                <string>IPv6 address, e.g. ::1</string>
+                <string>Listen Address 2</string>
                </property>
               </widget>
              </item>
@@ -1059,7 +1059,7 @@
   <tabstop>autoStartSubsCombo</tabstop>
   <tabstop>autoStartConnCombo</tabstop>
   <tabstop>scrollArea_2</tabstop>
-  <tabstop>listenIPTxt</tabstop>
+  <tabstop>listenIP1Txt</tabstop>
   <tabstop>socksGroupBox</tabstop>
   <tabstop>socksPortLE</tabstop>
   <tabstop>socksUDPCB</tabstop>

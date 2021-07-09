@@ -125,8 +125,8 @@ namespace Qv2ray::Models
 
     struct Qv2rayInboundConfig
     {
-        Bindable<QString> ListenAddress{ "127.0.0.1" };
-        Bindable<QString> ListenAddressV6{ "::1" };
+        Bindable<QString> ListenAddress1{ "127.0.0.1" };
+        Bindable<QString> ListenAddress2{ "::1" };
 
         Bindable<bool> HasSOCKS{ true };
         Bindable<SocksInboundConfig> SOCKSConfig;
@@ -137,8 +137,8 @@ namespace Qv2ray::Models
         Bindable<bool> HasDokodemoDoor{ false };
         Bindable<DokodemoDoorInboundConfig> DokodemoDoorConfig;
 
-        QJS_COMPARE(Qv2rayInboundConfig, HasSOCKS, SOCKSConfig, HasHTTP, HTTPConfig, HasDokodemoDoor, DokodemoDoorConfig)
-        QJS_JSON(P(HasSOCKS, SOCKSConfig, HasHTTP, HTTPConfig, HasDokodemoDoor, DokodemoDoorConfig))
+        QJS_COMPARE(Qv2rayInboundConfig, ListenAddress1, ListenAddress2, HasSOCKS, SOCKSConfig, HasHTTP, HTTPConfig, HasDokodemoDoor, DokodemoDoorConfig)
+        QJS_JSON(P(ListenAddress1, ListenAddress2, HasSOCKS, SOCKSConfig, HasHTTP, HTTPConfig, HasDokodemoDoor, DokodemoDoorConfig))
     };
 
     struct Qv2rayConnectionConfig
