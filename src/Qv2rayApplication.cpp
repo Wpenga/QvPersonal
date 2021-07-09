@@ -63,9 +63,11 @@ bool Qv2rayApplication::Initialize()
 
     Qv2rayBase::Interfaces::StorageContext ctx;
 #ifdef QT_DEBUG
-    ctx.isDebug = true;
-#else
-    ctx.isDebug = false;
+    ctx << Qv2rayBase::Interfaces::StorageContextFlags::STORAGE_CTX_IS_DEBUG;
+#endif
+
+#ifdef Q_OS_WINDOWS
+    ctx << Qv2rayBase::Interfaces::StorageContextFlags::STORAGE_CTX_HAS_ASIDE_CONFIGURATION;
 #endif
 
     const auto result = baseLibrary->Initialize(StartupArguments.noPlugins ? Qv2rayBase::START_NO_PLUGINS : Qv2rayBase::START_NORMAL, ctx, this);
