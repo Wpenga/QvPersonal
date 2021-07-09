@@ -22,6 +22,7 @@ class ImportConfigWindow
     void on_beginImportBtn_clicked();
     void on_cancelImportBtn_clicked();
     void on_jsonEditBtn_clicked();
+    void on_groupCombo_currentIndexChanged(int index);
 
   private:
     void updateColorScheme() override{};

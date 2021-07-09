@@ -83,8 +83,6 @@ void ImportConfigWindow::on_beginImportBtn_clicked()
                 if (link.isEmpty() || link.startsWith("#") || link.startsWith("//"))
                     continue;
 
-                QString errMessage;
-
                 const auto optConf = QvBaselib->PluginAPIHost()->Outbound_Deserialize(link);
 
                 if (!optConf)
@@ -135,4 +133,9 @@ void ImportConfigWindow::on_jsonEditBtn_clicked()
         connections.insert(alias, ProfileContent::fromJson(result));
         accept();
     }
+}
+
+void ImportConfigWindow::on_groupCombo_currentIndexChanged(int index)
+{
+    selectedGroup = GroupId{ groupCombo->itemData(index).toString() };
 }
