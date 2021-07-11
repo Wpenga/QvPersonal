@@ -311,8 +311,7 @@ namespace Qv2ray::Models
     struct VMessClientObject
     {
         Bindable<QString> id;
-        Bindable<int> alterId{ VMESS_USER_ALTERID_DEFAULT };
         Bindable<QString> security{ QStringLiteral("auto") };
-        QJS_JSON(F(id, alterId, security))
+        QJS_JSON(F(id, security))
     };
 } // namespace Qv2ray::Models

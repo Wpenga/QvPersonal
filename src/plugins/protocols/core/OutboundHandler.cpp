@@ -255,7 +255,7 @@ QString SerializeVMess(const QString &alias, const IOConnectionSettings &connect
     }
     url.setPath(QStringLiteral("/"));
     url.setScheme(QStringLiteral("vmess"));
-    url.setPassword(server.id + "-" + QString::number(server.alterId));
+    url.setPassword(server.id + "-0");
     url.setHost(connection.address);
     url.setPort(connection.port.from);
     url.setUserName(protocol);
@@ -475,18 +475,15 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeVMess(const Q
         const auto host = url.host();
         int port = url.port();
         QString uuid;
-        int aid;
         {
             const auto pswd = url.password();
             const auto index = pswd.lastIndexOf('-');
             uuid = pswd.mid(0, index);
-            aid = pswd.right(pswd.length() - index - 1).toInt();
         }
 
         conn.address = host;
         conn.port = port;
         client.id = uuid;
-        client.alterId = aid;
         client.security = QStringLiteral("auto");
     }
 

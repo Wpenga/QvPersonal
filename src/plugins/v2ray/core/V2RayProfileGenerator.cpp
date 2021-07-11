@@ -233,8 +233,7 @@ void V2RayProfileGenerator::ProcessOutboundConfig(const OutboundObject &out)
 
         QJsonObject singleServer{ { QStringLiteral("address"), out.outboundSettings.address },
                                   { QStringLiteral("port"), out.outboundSettings.port.from },
-                                  { QStringLiteral("users"), QJsonArray{ QJsonObject{ { QStringLiteral("id"), *serv.id },
-                                                                                      { QStringLiteral("alterId"), *serv.alterId },
+                                  { QStringLiteral("users"), QJsonArray{ QJsonObject{ { QStringLiteral("id"), *serv.id }, //
                                                                                       { QStringLiteral("security"), *serv.security } } } } };
 
         root[QStringLiteral("settings")] = QJsonObject{ { QStringLiteral("vnext"), QJsonArray{ singleServer } } };

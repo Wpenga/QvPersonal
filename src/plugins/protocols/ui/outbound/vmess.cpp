@@ -25,12 +25,5 @@ void VmessOutboundEditor::SetContent(const IOProtocolSettings &content)
     vmess.loadJson(content);
 
     vmess.security.ReadWriteBind(securityCombo, "currentText", &QComboBox::currentIndexChanged);
-    vmess.alterId.ReadWriteBind(alterLineEdit, "value", &QSpinBox::valueChanged);
     vmess.id.ReadWriteBind(idLineEdit, "text", &QLineEdit::textEdited);
-
-    if (alterLineEdit->value() > 0)
-    {
-        const auto msg = tr("VMess MD5 with Non-zero AlterID has been deprecated, please use VMessAEAD.");
-        emit InternalProtocolSupportPlugin::ShowMessageBox(tr("Non AEAD VMess detected"), msg);
-    }
 }
