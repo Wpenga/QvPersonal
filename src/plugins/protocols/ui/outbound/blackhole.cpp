@@ -4,7 +4,6 @@ BlackholeOutboundEditor::BlackholeOutboundEditor(QWidget *parent) : Qv2rayPlugin
 {
     setupUi(this);
     setProperty("QV2RAY_INTERNAL_HAS_STREAMSETTINGS", false);
-    setProperty("QV2RAY_INTERNAL_HAS_FORWARD_PROXY", false);
 }
 
 void BlackholeOutboundEditor::changeEvent(QEvent *e)

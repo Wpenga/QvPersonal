@@ -6,7 +6,6 @@ VmessOutboundEditor::VmessOutboundEditor(QWidget *parent) : Qv2rayPlugin::Gui::Q
 {
     setupUi(this);
     setProperty("QV2RAY_INTERNAL_HAS_STREAMSETTINGS", true);
-    setProperty("QV2RAY_INTERNAL_HAS_FORWARD_PROXY", true);
 }
 
 void VmessOutboundEditor::changeEvent(QEvent *e)

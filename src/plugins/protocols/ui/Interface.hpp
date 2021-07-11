@@ -12,6 +12,7 @@
 #include "outbound/loopback.hpp"
 #include "outbound/shadowsocks.hpp"
 #include "outbound/socksout.hpp"
+#include "outbound/trojan.hpp"
 #include "outbound/vless.hpp"
 #include "outbound/vmess.hpp"
 
@@ -36,23 +37,24 @@ class ProtocolGUIInterface : public Gui::PluginGUIInterface
     QList<typed_plugin_editor> createInboundEditors() const override
     {
         return {
-            Qv2rayPlugin::Gui::make_editor_info<HTTPInboundEditor>("http", "HTTP"),
-            Qv2rayPlugin::Gui::make_editor_info<SocksInboundEditor>("socks", "SOCKS"),
-            Qv2rayPlugin::Gui::make_editor_info<DokodemoDoorInboundEditor>("dokodemo-door", "Dokodemo-Door"),
+            make_editor_info<HTTPInboundEditor>("http", "HTTP"),
+            make_editor_info<SocksInboundEditor>("socks", "SOCKS"),
+            make_editor_info<DokodemoDoorInboundEditor>("dokodemo-door", "Dokodemo-Door"),
         };
     }
     QList<typed_plugin_editor> createOutboundEditors() const override
     {
         return {
-            Qv2rayPlugin::Gui::make_editor_info<VmessOutboundEditor>("vmess", "VMess"),                   //
-            Qv2rayPlugin::Gui::make_editor_info<VlessOutboundEditor>("vless", "VLESS"),                   //
-            Qv2rayPlugin::Gui::make_editor_info<ShadowsocksOutboundEditor>("shadowsocks", "Shadowsocks"), //
-            Qv2rayPlugin::Gui::make_editor_info<HttpOutboundEditor>("http", "HTTP"),                      //
-            Qv2rayPlugin::Gui::make_editor_info<SocksOutboundEditor>("socks", "SOCKS"),                   //
-            Qv2rayPlugin::Gui::make_editor_info<FreedomOutboundEditor>("freedom", "Freedom"),             //
-            Qv2rayPlugin::Gui::make_editor_info<BlackholeOutboundEditor>("blackhole", "Blackhole"),       //
-            Qv2rayPlugin::Gui::make_editor_info<DnsOutboundEditor>("dns", "DNS"),                         //
-            Qv2rayPlugin::Gui::make_editor_info<LoopbackSettingsEditor>("loopback", "Loopback"),          //
+            make_editor_info<VmessOutboundEditor>("vmess", "VMess"),                   //
+            make_editor_info<VlessOutboundEditor>("vless", "VLESS"),                   //
+            make_editor_info<TrojanOutboundEditor>("trojan", "Trojan"),                //
+            make_editor_info<ShadowsocksOutboundEditor>("shadowsocks", "Shadowsocks"), //
+            make_editor_info<HttpOutboundEditor>("http", "HTTP"),                      //
+            make_editor_info<SocksOutboundEditor>("socks", "SOCKS"),                   //
+            make_editor_info<FreedomOutboundEditor>("freedom", "Freedom"),             //
+            make_editor_info<BlackholeOutboundEditor>("blackhole", "Blackhole"),       //
+            make_editor_info<DnsOutboundEditor>("dns", "DNS"),                         //
+            make_editor_info<LoopbackSettingsEditor>("loopback", "Loopback"),          //
         };
     }
     std::unique_ptr<Qv2rayPlugin::Gui::PluginMainWindowWidget> createMainWindowWidget() const override

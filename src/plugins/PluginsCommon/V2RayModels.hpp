@@ -307,11 +307,16 @@ namespace Qv2ray::Models
     };
 
     // VMess Server
-    constexpr auto VMESS_USER_ALTERID_DEFAULT = 0;
     struct VMessClientObject
     {
         Bindable<QString> id;
         Bindable<QString> security{ QStringLiteral("auto") };
         QJS_JSON(F(id, security))
+    };
+
+    struct TrojanclientObject
+    {
+        Bindable<QString> password;
+        QJS_JSON(F(password))
     };
 } // namespace Qv2ray::Models

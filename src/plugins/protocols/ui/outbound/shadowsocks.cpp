@@ -4,7 +4,6 @@ ShadowsocksOutboundEditor::ShadowsocksOutboundEditor(QWidget *parent) : Qv2rayPl
 {
     setupUi(this);
     setProperty("QV2RAY_INTERNAL_HAS_STREAMSETTINGS", true);
-    setProperty("QV2RAY_INTERNAL_HAS_FORWARD_PROXY", true);
 }
 
 void ShadowsocksOutboundEditor::changeEvent(QEvent *e)

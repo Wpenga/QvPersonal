@@ -152,6 +152,7 @@ class NodeDispatcher
     QtNodes::FlowScene *chainScene;
     //
     bool isOperationLocked;
+#pragma message("TODO: DO NOT USE QMap, we need ordering")
     QMap<QString, std::shared_ptr<InboundObject>> inbounds;
     QMap<QString, std::shared_ptr<RuleObject>> rules;
     QMap<QString, std::shared_ptr<OutboundObject>> outbounds;

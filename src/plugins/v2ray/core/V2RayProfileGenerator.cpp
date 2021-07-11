@@ -60,14 +60,21 @@ QByteArray V2RayProfileGenerator::Generate()
                                                         }
                                                     }(settings.LogLevel) } };
 
-    if (!rootconf.contains(QStringLiteral("browserForwarder")) || rootconf.value(QStringLiteral("browserForwarder")).toObject().isEmpty())
-        if (!settings.BrowserForwarderSettings.listenAddr->isEmpty())
-            rootconf[QStringLiteral("browserForwarder")] = settings.BrowserForwarderSettings.toJson();
+    // Browser Forwarder
+    {
+        if (!rootconf.contains(QStringLiteral("browserForwarder")) || rootconf.value(QStringLiteral("browserForwarder")).toObject().isEmpty())
+            if (!settings.BrowserForwarderSettings.listenAddr->isEmpty())
+                rootconf[QStringLiteral("browserForwarder")] = settings.BrowserForwarderSettings.toJson();
+    }
 
-#pragma message("TODO: empty observatory causing high CPU usage.")
+    // Observatory
+    {
+        if (!rootconf.contains(QStringLiteral("observatory")) || rootconf.value(QStringLiteral("observatory")).toObject().isEmpty())
+            rootconf[QStringLiteral("observatory")] = settings.ObservatorySettings.toJson();
 
-    //    if (!rootconf.contains(QStringLiteral("observatory")) || rootconf.value(QStringLiteral("observatory")).toObject().isEmpty())
-    //        rootconf[QStringLiteral("observatory")] = settings.ObservatorySettings.toJson();
+        if (rootconf[QStringLiteral("observatory")][QStringLiteral("subjectSelector")].toArray().isEmpty())
+            rootconf.remove(QStringLiteral("observatory"));
+    }
 
     if (settings.APIEnabled)
     {
@@ -206,6 +213,18 @@ void V2RayProfileGenerator::ProcessOutboundConfig(const OutboundObject &out)
 
     if (out.outboundSettings.muxSettings.enabled)
         root[QStringLiteral("mux")] = out.outboundSettings.muxSettings.toJson();
+
+    if (out.outboundSettings.protocol == QStringLiteral("trojan"))
+    {
+        Qv2ray::Models::TrojanclientObject trojan;
+        trojan.loadJson(out.outboundSettings.protocolSettings);
+
+        QJsonObject singleServer{ { QStringLiteral("password"), *trojan.password },
+                                  { QStringLiteral("address"), out.outboundSettings.address },
+                                  { QStringLiteral("port"), out.outboundSettings.port.from } };
+
+        root[QStringLiteral("settings")] = QJsonObject{ { QStringLiteral("servers"), QJsonArray{ singleServer } } };
+    }
 
     if (out.outboundSettings.protocol == QStringLiteral("http") || out.outboundSettings.protocol == QStringLiteral("socks"))
     {

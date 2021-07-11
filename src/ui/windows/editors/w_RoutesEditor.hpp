@@ -70,6 +70,5 @@ class RouteEditor
     bool isLoading = false;
     QString domainStrategy;
     //
-    ProfileContent root;
     ProfileContent original;
 };

@@ -76,21 +76,22 @@ void RouteEditor::updateColorScheme()
     }
 }
 
-RouteEditor::RouteEditor(const ProfileContent &connection, QWidget *parent) : QvDialog("RouteEditor", parent), root(connection), original(connection)
+RouteEditor::RouteEditor(const ProfileContent &connection, QWidget *parent) : QvDialog("RouteEditor", parent), original(connection)
 {
     setupUi(this);
     QvMessageBusConnect();
-    //
-    isLoading = true;
     setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
+    isLoading = true;
     RouteEditor::updateColorScheme();
-    //
+    dnsWidget = new DnsSettingsWidget(this);
+
     // Do not change the order.
     nodeDispatcher = std::make_shared<NodeDispatcher>();
     ruleWidget = new RoutingEditorWidget(nodeDispatcher, ruleEditorUIWidget);
     chainWidget = new ChainEditorWidget(nodeDispatcher, chainEditorUIWidget);
-    dnsWidget = new DnsSettingsWidget(this);
+
     nodeDispatcher->InitializeScenes(ruleWidget->getScene(), chainWidget->getScene());
+
     connect(nodeDispatcher.get(), &NodeDispatcher::OnOutboundCreated, this, &RouteEditor::OnDispatcherOutboundCreated);
     connect(nodeDispatcher.get(), &NodeDispatcher::OnOutboundDeleted, this, &RouteEditor::OnDispatcherOutboundDeleted);
     connect(nodeDispatcher.get(), &NodeDispatcher::OnRuleCreated, this, &RouteEditor::OnDispatcherRuleCreated);
@@ -111,24 +112,24 @@ RouteEditor::RouteEditor(const ProfileContent &connection, QWidget *parent) : Qv
     SetUpLayout(ruleEditorUIWidget, ruleWidget);
     SetUpLayout(chainEditorUIWidget, chainWidget);
     SetUpLayout(dnsEditorUIWidget, dnsWidget);
-    //
-    nodeDispatcher->LoadFullConfig(root);
-    dnsWidget->SetDNSObject(V2RayDNSObject::fromJson(root.routing.dns), V2RayFakeDNSObject::fromJson(root.routing.fakedns));
-    //
-    domainStrategy = root.routing.extraOptions[QStringLiteral("domainStrategy")].toString();
+
+    nodeDispatcher->LoadFullConfig(connection);
+    dnsWidget->SetDNSObject(V2RayDNSObject::fromJson(connection.routing.dns), V2RayFakeDNSObject::fromJson(connection.routing.fakedns));
+
+    domainStrategy = connection.routing.extraOptions[QStringLiteral("domainStrategy")].toString();
     domainStrategyCombo->setCurrentText(domainStrategy);
-    //
+
+    if (!connection.outbounds.isEmpty())
+        defaultOutboundTag = connection.outbounds.first().name;
+
     // Set default outboung combo text AFTER adding all outbounds.
-
-    if (!root.outbounds.isEmpty())
-        defaultOutboundTag = root.outbounds.first().name;
     defaultOutboundCombo->setCurrentText(defaultOutboundTag);
-    //
-    const auto browserForwarder = root.extraOptions[QStringLiteral("browserForwarder")].toObject();
-    bfListenIPTxt->setText(browserForwarder[QStringLiteral("listenAddr")].toString());
-    bfListenPortTxt->setValue(browserForwarder[QStringLiteral("listenPort")].toInt());
 
-    const auto observatory = root.extraOptions[QStringLiteral("observatory")].toObject();
+    const auto browserForwarder = connection.extraOptions[QStringLiteral("browserForwarder")].toObject();
+    bfListenIPTxt->setText(browserForwarder[QStringLiteral("listenAddr")].toString(QStringLiteral("127.0.0.1")));
+    bfListenPortTxt->setValue(browserForwarder[QStringLiteral("listenPort")].toInt(4430));
+
+    const auto observatory = connection.extraOptions[QStringLiteral("observatory")].toObject();
     obSubjectSelectorTxt->setPlainText(observatory[QStringLiteral("subjectSelector")].toVariant().toStringList().join('\n'));
 
     for (const auto &group : QvBaselib->ProfileManager()->GetGroups())
@@ -201,10 +202,8 @@ void RouteEditor::OnDispatcherObjectTagChanged(const NodeItemType &t, const QStr
     else if (t == NodeItemType::RULE)
     {
         for (auto i = 0; i < ruleListWidget->count(); i++)
-        {
             if (ruleListWidget->item(i)->text() == original)
                 ruleListWidget->item(i)->setText(current);
-        }
     }
     else if (t == NodeItemType::OUTBOUND)
     {
@@ -225,6 +224,7 @@ ProfileContent RouteEditor::OpenEditor()
     if (result != QDialog::Accepted)
         return original;
 
+    ProfileContent root;
     const auto &[m_inbounds, m_rules, m_outbounds] = nodeDispatcher->GetData();
 #pragma message("TODO: Process keys")
     root.inbounds = m_inbounds.values();

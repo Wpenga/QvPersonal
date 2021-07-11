@@ -4,8 +4,7 @@ FreedomOutboundEditor::FreedomOutboundEditor(QWidget *parent) : Qv2rayPlugin::Gu
 {
     setupUi(this);
     // Should freedom outbound use StreamSettings?
-    setProperty("QV2RAY_INTERNAL_HAS_STREAMSETTINGS", true);
-    setProperty("QV2RAY_INTERNAL_HAS_FORWARD_PROXY", true);
+    setProperty("QV2RAY_INTERNAL_HAS_STREAMSETTINGS", false);
 }
 
 void FreedomOutboundEditor::changeEvent(QEvent *e)
