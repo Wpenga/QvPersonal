@@ -163,8 +163,9 @@ class MainWindow
     bool qvLogAutoScoll = true;
     //
     ProfileId lastConnected;
-    void MWSetSystemProxy();
-    void MWClearSystemProxy();
+#pragma message("TODO: Cleanup")
+    //    void MWSetSystemProxy();
+    //    void MWClearSystemProxy();
     void MWShowWindow();
     void MWHideWindow();
     void CheckSubscriptionsUpdate();

@@ -43,72 +43,74 @@ void MainWindow::MWHideWindow()
     tray_action_ToggleVisibility->setText(tr("Show"));
 }
 
-void MainWindow::MWSetSystemProxy()
-{
-    const auto inboundInfo = QvBaselib->KernelManager()->GetCurrentConnectionInboundInfo();
-    bool httpEnabled = false;
-    bool socksEnabled = false;
-    int httpPort = 0;
-    int socksPort = 0;
-    QString httpAddress;
-    QString socksAddress;
+#pragma message("TODO: cleanup")
+// void MainWindow::MWSetSystemProxy()
+//{
+//    const auto inboundInfo = QvBaselib->KernelManager()->GetCurrentConnectionInboundInfo();
+//    bool httpEnabled = false;
+//    bool socksEnabled = false;
+//    int httpPort = 0;
+//    int socksPort = 0;
+//    QString httpAddress;
+//    QString socksAddress;
 
-    for (const auto &[protocol, listenAddr, listenPort] : inboundInfo)
-    {
-        if (protocol == "http")
-        {
-            httpEnabled = true;
-            httpAddress = listenAddr;
-            httpPort = listenPort.from;
-        }
-        else if (protocol == "socks")
-        {
-            socksEnabled = true;
-            socksAddress = listenAddr;
-            socksPort = listenPort.from;
-        }
-    }
+//    for (const auto &[protocol, listenAddr, listenPort] : inboundInfo)
+//    {
+//        if (protocol == "http")
+//        {
+//            httpEnabled = true;
+//            httpAddress = listenAddr;
+//            httpPort = listenPort.from;
+//        }
+//        else if (protocol == "socks")
+//        {
+//            socksEnabled = true;
+//            socksAddress = listenAddr;
+//            socksPort = listenPort.from;
+//        }
+//    }
 
-    QString proxyAddress;
-    if (httpEnabled)
-        proxyAddress = httpAddress;
-    else if (socksEnabled)
-        proxyAddress = socksAddress;
+//    QString proxyAddress;
+//    if (httpEnabled)
+//        proxyAddress = httpAddress;
+//    else if (socksEnabled)
+//        proxyAddress = socksAddress;
 
-    const QHostAddress ha(proxyAddress);
-    if (ha.isEqual(QHostAddress::AnyIPv4)) // "0.0.0.0"
-        proxyAddress = "127.0.0.1";
-    else if (ha.isEqual(QHostAddress::AnyIPv6)) // "::"
-        proxyAddress = "::1";
+//    const QHostAddress ha(proxyAddress);
+//    if (ha.isEqual(QHostAddress::AnyIPv4)) // "0.0.0.0"
+//        proxyAddress = "127.0.0.1";
+//    else if (ha.isEqual(QHostAddress::AnyIPv6)) // "::"
+//        proxyAddress = "::1";
 
-    if (!proxyAddress.isEmpty())
-    {
-        QvLog() << "ProxyAddress:" << proxyAddress;
-        QvLog() << "HTTP Port:" << httpPort;
-        QvLog() << "SOCKS Port:" << socksPort;
-        SetSystemProxy(proxyAddress, httpPort, socksPort);
-        qvAppTrayIcon->setIcon(Q_TRAYICON("tray-systemproxy"));
-        if (!GlobalConfig->behaviorConfig->QuietMode)
-        {
-            QvApp->ShowTrayMessage(tr("System proxy configured."));
-        }
-    }
-    else
-    {
-        QvLog() << "Neither of HTTP nor SOCKS is enabled, cannot set system proxy.";
-        QvBaselib->Warn(tr("Cannot set system proxy"), tr("Both HTTP and SOCKS inbounds are not enabled"));
-    }
-}
+//    if (!proxyAddress.isEmpty())
+//    {
+//        QvLog() << "ProxyAddress:" << proxyAddress;
+//        QvLog() << "HTTP Port:" << httpPort;
+//        QvLog() << "SOCKS Port:" << socksPort;
+//        SetSystemProxy(proxyAddress, httpPort, socksPort);
+//        qvAppTrayIcon->setIcon(Q_TRAYICON("tray-systemproxy"));
+//        if (!GlobalConfig->behaviorConfig->QuietMode)
+//        {
+//            QvApp->ShowTrayMessage(tr("System proxy configured."));
+//        }
+//    }
+//    else
+//    {
+//        QvLog() << "Neither of HTTP nor SOCKS is enabled, cannot set system proxy.";
+//        QvBaselib->Warn(tr("Cannot set system proxy"), tr("Both HTTP and SOCKS inbounds are not enabled"));
+//    }
+//}
 
-void MainWindow::MWClearSystemProxy()
-{
-    ClearSystemProxy();
-    qvAppTrayIcon->setIcon(QvBaselib->KernelManager()->CurrentConnection().isNull() ? Q_TRAYICON("tray") : Q_TRAYICON("tray-connected"));
-    if (!GlobalConfig->behaviorConfig->QuietMode)
-    {
-        QvApp->ShowTrayMessage(tr("System proxy removed."));
-    }
-}
+#pragma message("TODO: cleanup")
+// void MainWindow::MWClearSystemProxy()
+//{
+//    ClearSystemProxy();
+//    qvAppTrayIcon->setIcon(QvBaselib->KernelManager()->CurrentConnection().isNull() ? Q_TRAYICON("tray") : Q_TRAYICON("tray-connected"));
+//    if (!GlobalConfig->behaviorConfig->QuietMode)
+//    {
+//        QvApp->ShowTrayMessage(tr("System proxy removed."));
+//    }
+//}
 
 bool MainWindow::StartAutoConnectionEntry()
 {
