@@ -100,7 +100,6 @@ class MainWindow
     void OnPluginButtonClicked();
 
   protected:
-    void timerEvent(QTimerEvent *event) override;
     void keyPressEvent(QKeyEvent *e) override;
     void keyReleaseEvent(QKeyEvent *e) override;
     void closeEvent(QCloseEvent *) override;
@@ -147,27 +146,19 @@ class MainWindow
     DECL_ACTION(sortMenu, sortAction_SortByData_Asc);
     DECL_ACTION(sortMenu, sortAction_SortByData_Dsc);
     DECL_ACTION(graphWidgetMenu, action_RCM_CopyGraph);
-    DECL_ACTION(logRCM_Menu, action_RCM_SwitchCoreLog);
-    DECL_ACTION(logRCM_Menu, action_RCM_SwitchQv2rayLog);
     DECL_ACTION(logRCM_Menu, action_RCM_CopySelected);
     DECL_ACTION(logRCM_Menu, action_RCM_CopyRecentLogs);
 #undef DECL_ACTION
 
-    QTextDocument *vCoreLogDocument = new QTextDocument(this);
-    QTextDocument *qvLogDocument = new QTextDocument(this);
-    //
-    int qvLogTimerId = -1;
-    bool qvLogAutoScoll = true;
-    //
-    ProfileId lastConnected;
     void MWShowWindow();
     void MWHideWindow();
     void CheckSubscriptionsUpdate();
     bool StartAutoConnectionEntry();
-    //
     void updateColorScheme();
-    //
+
+    bool qvLogAutoScoll = true;
+    ProfileId lastConnected;
+
     QList<Qv2rayPlugin::Gui::PluginMainWindowWidget *> pluginWidgets;
-    //
     Qv2ray::ui::widgets::models::ConnectionListHelper *modelHelper;
 };

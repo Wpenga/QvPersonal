@@ -95,8 +95,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     infoWidget = new ConnectionInfoWidget(this);
     connectionInfoLayout->addWidget(infoWidget);
-
-    masterLogBrowser->setDocument(vCoreLogDocument);
     vCoreLogHighlighter = new LogHighlighter::LogHighlighter(masterLogBrowser->document());
 
     // For charts
@@ -177,12 +175,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     //
     logRCM_Menu->addAction(action_RCM_CopySelected);
     logRCM_Menu->addAction(action_RCM_CopyRecentLogs);
-    logRCM_Menu->addSeparator();
-    logRCM_Menu->addAction(action_RCM_SwitchCoreLog);
-    logRCM_Menu->addAction(action_RCM_SwitchQv2rayLog);
     connect(masterLogBrowser, &QTextBrowser::customContextMenuRequested, [this](QPoint) { logRCM_Menu->popup(QCursor::pos()); });
-    connect(action_RCM_SwitchCoreLog, &QAction::triggered, [this] { masterLogBrowser->setDocument(vCoreLogDocument); });
-    connect(action_RCM_SwitchQv2rayLog, &QAction::triggered, [this] { masterLogBrowser->setDocument(qvLogDocument); });
     connect(action_RCM_CopyRecentLogs, &QAction::triggered, this, &MainWindow::Action_CopyRecentLogs);
     connect(action_RCM_CopySelected, &QAction::triggered, masterLogBrowser, &QTextBrowser::copy);
     //
@@ -193,9 +186,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     {
         auto font = masterLogBrowser->font();
         font.setPointSize(9);
-        masterLogBrowser->setFont(font);
-        qvLogDocument->setDefaultFont(font);
-        vCoreLogDocument->setDefaultFont(font);
+        masterLogBrowser->document()->setDefaultFont(font);
     }
     //
     // Globally invokable signals.
@@ -288,7 +279,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         MWHideWindow();
 
     CheckSubscriptionsUpdate();
-    qvLogTimerId = startTimer(1000);
 
     for (const auto &[pluginInterface, guiInterface] : GUIPluginHost->GUI_QueryByComponent(Qv2rayPlugin::GUI_COMPONENT_MAIN_WINDOW_ACTIONS))
     {
@@ -347,19 +337,6 @@ void MainWindow::ProcessCommand(QString command, QStringList commands, QMap<QStr
         w->processCommands(command, commands, args);
         w->exec();
         delete w;
-    }
-}
-
-void MainWindow::timerEvent(QTimerEvent *event)
-{
-    if (event->timerId() == qvLogTimerId)
-    {
-#pragma message("TODO Use Qt Message Logger")
-        //        auto log = ReadLog().trimmed();
-        //        if (!log.isEmpty())
-        //        {
-        //            FastAppendTextDocument(NEWLINE + log, qvLogDocument);
-        //        }
     }
 }
 
@@ -661,15 +638,15 @@ void MainWindow::OnStatsAvailable(const ProfileId &id, const StatisticsObject &d
 void MainWindow::OnKernelLogAvailable(const ProfileId &id, const QString &log)
 {
     Q_UNUSED(id);
-    FastAppendTextDocument(log.trimmed(), vCoreLogDocument);
+    FastAppendTextDocument(log.trimmed(), masterLogBrowser->document());
 
     // From https://gist.github.com/jemyzhang/7130092
     const auto maxLines = GlobalConfig->appearanceConfig->MaximizeLogLines;
-    auto block = vCoreLogDocument->begin();
+    auto block = masterLogBrowser->document()->begin();
 
     while (block.isValid())
     {
-        if (vCoreLogDocument->blockCount() > maxLines)
+        if (masterLogBrowser->document()->blockCount() > maxLines)
         {
             QTextCursor cursor(block);
             block = block.next();
@@ -931,7 +908,7 @@ void MainWindow::Action_CopyRecentLogs()
     {
         result.append(lines[i]);
     }
-    qApp->clipboard()->setText(result.join(NEWLINE));
+    qApp->clipboard()->setText(result.join('\n'));
 }
 
 void MainWindow::on_connectionTreeView_doubleClicked(const QModelIndex &index)
