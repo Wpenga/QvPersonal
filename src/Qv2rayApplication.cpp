@@ -111,7 +111,7 @@ bool Qv2rayApplication::Initialize()
 #endif
 
     GlobalConfig = new Qv2rayApplicationConfigObject;
-    GlobalConfig->loadJson(QvBaselib->StorageProvider()->GetExtraSettings(QString::fromUtf8(QV2RAY_GUI_EXTRASETTINGS_KEY)));
+    GlobalConfig->loadJson(QvStorageProvider->GetExtraSettings(QString::fromUtf8(QV2RAY_GUI_EXTRASETTINGS_KEY)));
 
     GUIPluginHost = new Qv2ray::ui::common::GuiPluginAPIHost;
     UIMessageBus = new MessageBus::QvMessageBusObject;
@@ -306,7 +306,7 @@ void Qv2rayApplication::ShowTrayMessage(const QString &m, int msecs)
 void Qv2rayApplication::SaveQv2raySettings()
 {
     QvBaselib->SaveConfigurations();
-    QvBaselib->StorageProvider()->StoreExtraSettings(QString::fromUtf8(QV2RAY_GUI_EXTRASETTINGS_KEY), GlobalConfig->toJson());
+    QvStorageProvider->StoreExtraSettings(QString::fromUtf8(QV2RAY_GUI_EXTRASETTINGS_KEY), GlobalConfig->toJson());
 }
 
 void Qv2rayApplication::onMessageReceived(quint32 clientId, const QByteArray &_msg)
@@ -360,12 +360,12 @@ void Qv2rayApplication::onMessageReceived(quint32 clientId, const QByteArray &_m
             }
             case Qv2rayStartupArguments::RECONNECT:
             {
-                QvBaselib->ProfileManager()->StartConnection(QvBaselib->KernelManager()->CurrentConnection());
+                QvProfileManager->StartConnection(QvKernelManager->CurrentConnection());
                 break;
             }
             case Qv2rayStartupArguments::DISCONNECT:
             {
-                QvBaselib->ProfileManager()->StopConnection();
+                QvProfileManager->StopConnection();
                 break;
             }
             case Qv2rayStartupArguments::QV2RAY_LINK:

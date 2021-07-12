@@ -18,7 +18,7 @@ ImportConfigWindow::ImportConfigWindow(QWidget *parent) : QvDialog("ImportWindow
     setupUi(this);
     QvMessageBusConnect();
     auto defaultItemIndex = 0;
-    for (const auto &gid : QvBaselib->ProfileManager()->GetGroups())
+    for (const auto &gid : QvProfileManager->GetGroups())
     {
         groupCombo->addItem(GetDisplayName(gid), gid.toString());
         if (gid == DefaultGroupId)
@@ -83,7 +83,7 @@ void ImportConfigWindow::on_beginImportBtn_clicked()
                 if (link.isEmpty() || link.startsWith("#") || link.startsWith("//"))
                     continue;
 
-                const auto optConf = QvBaselib->PluginAPIHost()->Outbound_Deserialize(link);
+                const auto optConf = QvPluginAPIHost->Outbound_Deserialize(link);
 
                 if (!optConf)
                 {

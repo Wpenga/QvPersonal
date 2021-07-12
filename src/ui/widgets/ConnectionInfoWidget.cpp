@@ -34,7 +34,7 @@ void ConnectionInfoWidget::updateColorScheme()
 
     qrLabel->setPixmap(IsComplexConfig(connectionId) ? QvApp->Qv2rayLogo : (isRealPixmapShown ? qrPixmap : qrPixmapBlured));
 
-    const auto isCurrentItem = QvBaselib->KernelManager()->CurrentConnection().connectionId == connectionId;
+    const auto isCurrentItem = QvKernelManager->CurrentConnection().connectionId == connectionId;
     connectBtn->setIcon(QIcon(isCurrentItem ? STYLE_RESX("stop") : STYLE_RESX("start")));
 }
 
@@ -52,12 +52,12 @@ ConnectionInfoWidget::ConnectionInfoWidget(QWidget *parent) : QWidget(parent)
     qrLabel->installEventFilter(this);
     qrLabel->setScaledContents(true);
 
-    connect(QvBaselib->KernelManager(), &Qv2rayBase::Profile::KernelManager::OnConnected, this, &ConnectionInfoWidget::OnConnected);
-    connect(QvBaselib->KernelManager(), &Qv2rayBase::Profile::KernelManager::OnDisconnected, this, &ConnectionInfoWidget::OnDisConnected);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnGroupRenamed, this, &ConnectionInfoWidget::OnGroupRenamed);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnConnectionModified, this, &ConnectionInfoWidget::OnConnectionModified);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnConnectionLinkedWithGroup, this, &ConnectionInfoWidget::OnConnectionModified_Pair);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnConnectionRemovedFromGroup, this, &ConnectionInfoWidget::OnConnectionModified_Pair);
+    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnConnected, this, &ConnectionInfoWidget::OnConnected);
+    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnDisconnected, this, &ConnectionInfoWidget::OnDisConnected);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupRenamed, this, &ConnectionInfoWidget::OnGroupRenamed);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionModified, this, &ConnectionInfoWidget::OnConnectionModified);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionLinkedWithGroup, this, &ConnectionInfoWidget::OnConnectionModified_Pair);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionRemovedFromGroup, this, &ConnectionInfoWidget::OnConnectionModified_Pair);
 }
 
 void ConnectionInfoWidget::ShowDetails(const ProfileId &idpair)
@@ -88,7 +88,7 @@ void ConnectionInfoWidget::ShowDetails(const ProfileId &idpair)
         }
         else
         {
-            const auto root = QvBaselib->ProfileManager()->GetConnection(connectionId);
+            const auto root = QvProfileManager->GetConnection(connectionId);
             if (!root.outbounds.isEmpty())
             {
                 const auto &[protocol, host, port] = GetOutboundInfo(root.outbounds.first());
@@ -100,7 +100,7 @@ void ConnectionInfoWidget::ShowDetails(const ProfileId &idpair)
             qrLabel->setPixmap(qrPixmapBlured);
         }
 
-        const auto isCurrentItem = QvBaselib->KernelManager()->CurrentConnection().connectionId == connectionId;
+        const auto isCurrentItem = QvKernelManager->CurrentConnection().connectionId == connectionId;
         connectBtn->setIcon(QIcon(isCurrentItem ? STYLE_RESX("stop") : STYLE_RESX("start")));
 
         isRealPixmapShown = false;
@@ -111,7 +111,7 @@ void ConnectionInfoWidget::ShowDetails(const ProfileId &idpair)
         groupNameLabel->setText(GetDisplayName(groupId));
 
         QStringList shareLinks;
-        for (const auto &connection : QvBaselib->ProfileManager()->GetConnections(groupId))
+        for (const auto &connection : QvProfileManager->GetConnections(groupId))
         {
             const auto link = ConvertConfigToString(connection);
             if (link)
@@ -119,7 +119,7 @@ void ConnectionInfoWidget::ShowDetails(const ProfileId &idpair)
         }
 
         groupShareTxt->setPlainText(shareLinks.join('\n'));
-        const auto &groupMetaData = QvBaselib->ProfileManager()->GetGroupObject(groupId);
+        const auto &groupMetaData = QvProfileManager->GetGroupObject(groupId);
         groupSubsLinkTxt->setText(groupMetaData.subscription_config.isSubscription ? groupMetaData.subscription_config.address : tr("Not a subscription"));
     }
 }
@@ -151,13 +151,13 @@ void ConnectionInfoWidget::OnGroupRenamed(const GroupId &id, const QString &oldN
 
 void ConnectionInfoWidget::on_connectBtn_clicked()
 {
-    if (QvBaselib->ProfileManager()->IsConnected({ connectionId, groupId }))
+    if (QvProfileManager->IsConnected({ connectionId, groupId }))
     {
-        QvBaselib->ProfileManager()->StopConnection();
+        QvProfileManager->StopConnection();
     }
     else
     {
-        QvBaselib->ProfileManager()->StartConnection({ connectionId, groupId });
+        QvProfileManager->StartConnection({ connectionId, groupId });
     }
 }
 
@@ -176,9 +176,9 @@ void ConnectionInfoWidget::on_deleteBtn_clicked()
     if (QvBaselib->Ask(tr("Delete an item"), tr("Are you sure to delete the current item?")) == Qv2rayBase::MessageOpt::Yes)
     {
         if (!connectionId.isNull())
-            QvBaselib->ProfileManager()->RemoveFromGroup(connectionId, groupId);
+            QvProfileManager->RemoveFromGroup(connectionId, groupId);
         else
-            QvBaselib->ProfileManager()->DeleteGroup(groupId, false);
+            QvProfileManager->DeleteGroup(groupId, false);
     }
 }
 
@@ -223,10 +223,10 @@ void ConnectionInfoWidget::on_latencyBtn_clicked()
 {
     if (!connectionId.isNull())
     {
-        QvBaselib->ProfileManager()->StartLatencyTest(connectionId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
+        QvProfileManager->StartLatencyTest(connectionId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
     }
     else
     {
-        QvBaselib->ProfileManager()->StartLatencyTest(groupId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
+        QvProfileManager->StartLatencyTest(groupId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
     }
 }

@@ -75,7 +75,7 @@ void OutboundNodeModel::onNodeHoverEnter()
     }
     else if (dataptr->objectType == OutboundObject::EXTERNAL)
     {
-        const auto root = QvBaselib->ProfileManager()->GetConnection(dataptr->externalId);
+        const auto root = QvProfileManager->GetConnection(dataptr->externalId);
         emit dispatcher->OnInboundOutboundNodeHovered(dataptr->name, GetOutboundInfo(root.outbounds.first()));
     }
 }

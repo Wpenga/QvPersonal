@@ -76,10 +76,10 @@ void MainWindow::OnRecentConnectionsMenuReadyToShow()
     tray_RecentConnectionsMenu->addSeparator();
     for (const auto &conn : *GlobalConfig->appearanceConfig->RecentConnections)
     {
-        if (QvBaselib->ProfileManager()->IsValidId(conn))
+        if (QvProfileManager->IsValidId(conn))
         {
             const auto name = GetDisplayName(conn.connectionId) + " (" + GetDisplayName(conn.groupId) + ")";
-            tray_RecentConnectionsMenu->addAction(name, this, [=]() { emit QvBaselib->ProfileManager()->StartConnection(conn); });
+            tray_RecentConnectionsMenu->addAction(name, this, [=]() { emit QvProfileManager->StartConnection(conn); });
         }
     }
 }
@@ -108,7 +108,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     UpdateActionTranslations();
     //
     //
-    connect(QvBaselib->KernelManager(), &Qv2rayBase::Profile::KernelManager::OnCrashed,
+    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnCrashed,
             [this](const ProfileId &, const QString &reason) {
                 MWShowWindow();
                 qApp->processEvents();
@@ -117,15 +117,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
                                      tr("To solve the problem, read the kernel log in the log text browser."));
             });
 
-    connect(QvBaselib->KernelManager(), &Qv2rayBase::Profile::KernelManager::OnConnected, this, &MainWindow::OnConnected);
-    connect(QvBaselib->KernelManager(), &Qv2rayBase::Profile::KernelManager::OnDisconnected, this, &MainWindow::OnDisconnected);
-    connect(QvBaselib->KernelManager(), &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, this, &MainWindow::OnStatsAvailable);
-    connect(QvBaselib->KernelManager(), &Qv2rayBase::Profile::KernelManager::OnKernelLogAvailable, this, &MainWindow::OnKernelLogAvailable);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnSubscriptionAsyncUpdateFinished,
-            [](const GroupId &gid)
-            {
-                QvApp->ShowTrayMessage(tr("Subscription \"%1\" has been updated").arg(GetDisplayName(gid))); //
-            });
+    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnConnected, this, &MainWindow::OnConnected);
+    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnDisconnected, this, &MainWindow::OnDisconnected);
+    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, this, &MainWindow::OnStatsAvailable);
+    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnKernelLogAvailable, this, &MainWindow::OnKernelLogAvailable);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnSubscriptionAsyncUpdateFinished, [](const GroupId &gid) {
+        QvApp->ShowTrayMessage(tr("Subscription \"%1\" has been updated").arg(GetDisplayName(gid))); //
+    });
 
     connect(infoWidget, &ConnectionInfoWidget::OnEditRequested, this, &MainWindow::OnEditRequested);
     connect(infoWidget, &ConnectionInfoWidget::OnJsonEditRequested, this, &MainWindow::OnEditJsonRequested);
@@ -159,9 +157,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     //
     connect(tray_action_ToggleVisibility, &QAction::triggered, this, &MainWindow::MWToggleVisibility);
     connect(tray_action_Preferences, &QAction::triggered, this, &MainWindow::on_preferencesBtn_clicked);
-    connect(tray_action_Start, &QAction::triggered, [this] { QvBaselib->ProfileManager()->StartConnection(lastConnected); });
-    connect(tray_action_Stop, &QAction::triggered, QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::StopConnection);
-    connect(tray_action_Restart, &QAction::triggered, QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::RestartConnection);
+    connect(tray_action_Start, &QAction::triggered, [this] { QvProfileManager->StartConnection(lastConnected); });
+    connect(tray_action_Stop, &QAction::triggered, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::StopConnection);
+    connect(tray_action_Restart, &QAction::triggered, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::RestartConnection);
     connect(tray_action_Quit, &QAction::triggered, this, &MainWindow::Action_Exit);
     connect(tray_ClearRecentConnectionsAction, &QAction::triggered, [this]() {
         GlobalConfig->appearanceConfig->RecentConnections->clear();
@@ -191,9 +189,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     //
     // Globally invokable signals.
     //
-    connect(this, &MainWindow::StartConnection, QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::RestartConnection);
-    connect(this, &MainWindow::StopConnection, QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::StopConnection);
-    connect(this, &MainWindow::RestartConnection, QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::RestartConnection);
+    connect(this, &MainWindow::StartConnection, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::RestartConnection);
+    connect(this, &MainWindow::StopConnection, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::StopConnection);
+    connect(this, &MainWindow::RestartConnection, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::RestartConnection);
     //
     // Actions for right click the connection list
     //
@@ -256,13 +254,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // Find and start if there is an auto-connection
     const auto connectionStarted = StartAutoConnectionEntry();
 
-    if (!connectionStarted && !QvBaselib->ProfileManager()->GetConnections().isEmpty())
+    if (!connectionStarted && !QvProfileManager->GetConnections().isEmpty())
     {
         // Select the first connection.
-        const auto groups = QvBaselib->ProfileManager()->GetGroups();
+        const auto groups = QvProfileManager->GetGroups();
         if (!groups.isEmpty())
         {
-            const auto connections = QvBaselib->ProfileManager()->GetConnections(groups.first());
+            const auto connections = QvProfileManager->GetConnections(groups.first());
             if (!connections.empty())
             {
                 const auto index = modelHelper->GetConnectionPairIndex({ connections.first(), groups.first() });
@@ -501,7 +499,7 @@ void MainWindow::Action_DeleteConnections()
             continue;
         }
 
-        for (const auto &conns : QvBaselib->ProfileManager()->GetConnections(identifier.groupId))
+        for (const auto &conns : QvProfileManager->GetConnections(identifier.groupId))
             connlist.append(ProfileId{ conns, identifier.groupId });
 
         const auto message = tr("Do you want to remove this group as well?") + NEWLINE + tr("Group: ") + GetDisplayName(identifier.groupId);
@@ -516,10 +514,10 @@ void MainWindow::Action_DeleteConnections()
         return;
 
     for (const auto &conn : connlist)
-        QvBaselib->ProfileManager()->RemoveFromGroup(conn.connectionId, conn.groupId);
+        QvProfileManager->RemoveFromGroup(conn.connectionId, conn.groupId);
 
     for (const auto &group : groupsList)
-        QvBaselib->ProfileManager()->DeleteGroup(group, false);
+        QvProfileManager->DeleteGroup(group, false);
 }
 
 void MainWindow::on_importConfigButton_clicked()
@@ -527,7 +525,7 @@ void MainWindow::on_importConfigButton_clicked()
     ImportConfigWindow w(this);
     const auto &[group, connections] = w.DoImportConnections();
     for (auto it = connections.keyValueBegin(); it != connections.constKeyValueEnd(); it++)
-        QvBaselib->ProfileManager()->CreateConnection(it->second, it->first, group);
+        QvProfileManager->CreateConnection(it->second, it->first, group);
 }
 
 void MainWindow::Action_EditComplex()
@@ -536,7 +534,7 @@ void MainWindow::Action_EditComplex()
     if (widget->IsConnection())
     {
         const auto id = widget->Identifier();
-        ProfileContent root = QvBaselib->ProfileManager()->GetConnection(id.connectionId);
+        ProfileContent root = QvProfileManager->GetConnection(id.connectionId);
         bool isChanged = false;
         //
         QvLog() << "Opening route editor.";
@@ -545,7 +543,7 @@ void MainWindow::Action_EditComplex()
         isChanged = routeWindow.result() == QDialog::Accepted;
         if (isChanged)
         {
-            QvBaselib->ProfileManager()->UpdateConnection(id.connectionId, root);
+            QvProfileManager->UpdateConnection(id.connectionId, root);
         }
     }
 }
@@ -604,7 +602,7 @@ void MainWindow::on_connectionFilterTxt_textEdited(const QString &arg1)
 
 void MainWindow::OnStatsAvailable(const ProfileId &id, const StatisticsObject &data)
 {
-    if (!QvBaselib->ProfileManager()->IsConnected(id))
+    if (!QvProfileManager->IsConnected(id))
         return;
 
     // This may not be, or may not precisely be, speed per second if the backend
@@ -616,23 +614,20 @@ void MainWindow::OnStatsAvailable(const ProfileId &id, const StatisticsObject &d
     pointData[SpeedWidget::OUTBOUND_DIRECT_DOWN] = data.directDown;
 
     speedChartWidget->AddPointData(pointData);
-    auto totalSpeedUp = FormatBytes(data.proxyUp) + "/s";
-    auto totalSpeedDown = FormatBytes(data.proxyDown) + "/s";
 
     const auto &[totalUp, totalDown] = GetConnectionUsageAmount(id.connectionId, StatisticsObject::PROXY);
     auto totalDataUp = FormatBytes(totalUp);
     auto totalDataDown = FormatBytes(totalDown);
-    //
+    auto totalSpeedUp = FormatBytes(data.proxyUp) + "/s";
+    auto totalSpeedDown = FormatBytes(data.proxyDown) + "/s";
+
     netspeedLabel->setText(totalSpeedUp + NEWLINE + totalSpeedDown);
     dataamountLabel->setText(totalDataUp + NEWLINE + totalDataDown);
-    //
-    qvAppTrayIcon->setToolTip(QString("Qv2ray %1\n"
-                                      "Connected: %2\n"
-                                      "Up: %3 Down: %4")
-                                  .arg(QStringLiteral(QV2RAY_VERSION_STRING))
-                                  .arg(GetDisplayName(id.connectionId))
-                                  .arg(totalSpeedUp)
-                                  .arg(totalSpeedDown));
+
+    qvAppTrayIcon->setToolTip(QStringLiteral("Qv2ray %1\n"
+                                             "Connected: %2\n"
+                                             "Up: %3 Down: %4")
+                                  .arg(QStringLiteral(QV2RAY_VERSION_STRING), GetDisplayName(id.connectionId), totalSpeedUp, totalSpeedDown));
 }
 
 void MainWindow::OnKernelLogAvailable(const ProfileId &id, const QString &log)
@@ -662,14 +657,14 @@ void MainWindow::OnKernelLogAvailable(const ProfileId &id, const QString &log)
 
 void MainWindow::OnEditRequested(const ConnectionId &id)
 {
-    const auto original = QvBaselib->ProfileManager()->GetConnection(id);
+    const auto original = QvProfileManager->GetConnection(id);
     if (IsComplexConfig(id))
     {
         QvLog() << "INFO: Opening route editor.";
         RouteEditor editor(original, this);
         ProfileContent root = editor.OpenEditor();
         if (editor.result() == QDialog::Accepted)
-            QvBaselib->ProfileManager()->UpdateConnection(id, root);
+            QvProfileManager->UpdateConnection(id, root);
     }
     else
     {
@@ -680,12 +675,12 @@ void MainWindow::OnEditRequested(const ConnectionId &id)
         OutboundEditor editor(out, this);
         ProfileContent root{ editor.OpenEditor() };
         if (editor.result() == QDialog::Accepted)
-            QvBaselib->ProfileManager()->UpdateConnection(id, root);
+            QvProfileManager->UpdateConnection(id, root);
     }
 }
 void MainWindow::OnEditJsonRequested(const ConnectionId &id)
 {
-    JsonEditor w(QvBaselib->ProfileManager()->GetConnection(id).toJson(), this);
+    JsonEditor w(QvProfileManager->GetConnection(id).toJson(), this);
     auto root = w.OpenEditor();
 
     ProfileContent newRoot;
@@ -693,7 +688,7 @@ void MainWindow::OnEditJsonRequested(const ConnectionId &id)
 
     if (w.result() == QDialog::Accepted)
     {
-        QvBaselib->ProfileManager()->UpdateConnection(id, newRoot);
+        QvProfileManager->UpdateConnection(id, newRoot);
     }
 }
 
@@ -707,7 +702,7 @@ void MainWindow::OnLogScrollbarValueChanged(int value)
 
 void MainWindow::on_locateBtn_clicked()
 {
-    auto id = QvBaselib->KernelManager()->CurrentConnection();
+    auto id = QvKernelManager->CurrentConnection();
     if (!id.isNull())
     {
         const auto index = modelHelper->GetConnectionPairIndex(id);
@@ -744,8 +739,8 @@ void MainWindow::Action_DuplicateConnection()
 
     for (const auto &conn : connlist)
     {
-        const auto profile = QvBaselib->ProfileManager()->GetConnection(conn.connectionId);
-        QvBaselib->ProfileManager()->CreateConnection(profile, GetDisplayName(conn.connectionId) + tr(" (Copy)"), conn.groupId);
+        const auto profile = QvProfileManager->GetConnection(conn.connectionId);
+        QvProfileManager->CreateConnection(profile, GetDisplayName(conn.connectionId) + tr(" (Copy)"), conn.groupId);
     }
 }
 
@@ -810,9 +805,9 @@ void MainWindow::Action_ResetStats()
         if (widget)
         {
             if (widget->IsConnection())
-                QvBaselib->ProfileManager()->ClearConnectionUsage(widget->Identifier());
+                QvProfileManager->ClearConnectionUsage(widget->Identifier());
             else
-                QvBaselib->ProfileManager()->ClearGroupUsage(widget->Identifier().groupId);
+                QvProfileManager->ClearGroupUsage(widget->Identifier().groupId);
         }
     }
 }
@@ -828,8 +823,8 @@ void MainWindow::Action_UpdateSubscription()
             if (widget->IsConnection())
                 return;
             const auto gid = widget->Identifier().groupId;
-            if (QvBaselib->ProfileManager()->GetGroupObject(gid).subscription_config.isSubscription)
-                QvBaselib->ProfileManager()->UpdateSubscriptionAsync(gid);
+            if (QvProfileManager->GetGroupObject(gid).subscription_config.isSubscription)
+                QvProfileManager->UpdateSubscriptionAsync(gid);
             else
                 QvBaselib->Info(tr("Update Subscription"), tr("Selected group is not a subscription"));
         }
@@ -846,9 +841,9 @@ void MainWindow::Action_TestLatency()
         if (!widget)
             continue;
         if (widget->IsConnection())
-            QvBaselib->ProfileManager()->StartLatencyTest(widget->Identifier().connectionId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
+            QvProfileManager->StartLatencyTest(widget->Identifier().connectionId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
         else
-            QvBaselib->ProfileManager()->StartLatencyTest(widget->Identifier().groupId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
+            QvProfileManager->StartLatencyTest(widget->Identifier().groupId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
     }
 }
 
@@ -873,7 +868,7 @@ void MainWindow::on_newConnectionBtn_clicked()
         const auto alias = w.GetFriendlyName();
         const auto item = connectionTreeView->currentIndex();
         const auto id = item.isValid() ? GetIndexWidget(item)->Identifier().groupId : DefaultGroupId;
-        QvBaselib->ProfileManager()->CreateConnection(root, alias, id);
+        QvProfileManager->CreateConnection(root, alias, id);
     }
 }
 
@@ -885,7 +880,7 @@ void MainWindow::on_newComplexConnectionBtn_clicked()
     {
         const auto item = connectionTreeView->currentIndex();
         const auto id = item.isValid() ? GetIndexWidget(item)->Identifier().groupId : DefaultGroupId;
-        QvBaselib->ProfileManager()->CreateConnection(root, QStringLiteral("New Connection"), id);
+        QvProfileManager->CreateConnection(root, QStringLiteral("New Connection"), id);
     }
 }
 

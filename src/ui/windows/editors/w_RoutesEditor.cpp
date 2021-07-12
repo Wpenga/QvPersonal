@@ -132,7 +132,7 @@ RouteEditor::RouteEditor(const ProfileContent &connection, QWidget *parent) : Qv
     const auto observatory = connection.extraOptions[QStringLiteral("observatory")].toObject();
     obSubjectSelectorTxt->setPlainText(observatory[QStringLiteral("subjectSelector")].toVariant().toStringList().join('\n'));
 
-    for (const auto &group : QvBaselib->ProfileManager()->GetGroups())
+    for (const auto &group : QvProfileManager->GetGroups())
     {
         importGroupBtn->addItem(GetDisplayName(group), group.toString());
     }
@@ -404,7 +404,7 @@ void RouteEditor::on_importExistingBtn_clicked()
 {
     const auto ImportConnection = [this](const ConnectionId &_id)
     {
-        const auto root = QvBaselib->ProfileManager()->GetConnection(_id);
+        const auto root = QvProfileManager->GetConnection(_id);
         auto outbound = root.outbounds.first();
         outbound.name = GetDisplayName(_id);
         auto _ = nodeDispatcher->CreateOutbound(outbound);
@@ -419,7 +419,7 @@ void RouteEditor::on_importExistingBtn_clicked()
         const auto group = GroupId{ importGroupBtn->currentData(Qt::UserRole).toString() };
         if (QvBaselib->Ask(tr("Importing All Connections"), tr("Do you want to import all the connections?")) != Qv2rayBase::MessageOpt::Yes)
             return;
-        for (const auto &connId : QvBaselib->ProfileManager()->GetConnections(group))
+        for (const auto &connId : QvProfileManager->GetConnections(group))
         {
             ImportConnection(connId);
         }
@@ -435,7 +435,7 @@ void RouteEditor::on_linkExistingBtn_clicked()
 {
     const auto ImportConnection = [this](const ConnectionId &id)
     {
-        const auto root = QvBaselib->ProfileManager()->GetConnection(id);
+        const auto root = QvProfileManager->GetConnection(id);
         if (root.outbounds.size() > 0)
             Q_UNUSED(nodeDispatcher->CreateOutbound(root.outbounds.constFirst()));
     };
@@ -448,7 +448,7 @@ void RouteEditor::on_linkExistingBtn_clicked()
         const auto group = GroupId{ importGroupBtn->currentData(Qt::UserRole).toString() };
         if (QvBaselib->Ask(tr("Importing All Connections"), tr("Do you want to import all the connections?")) != Qv2rayBase::MessageOpt::Yes)
             return;
-        for (const auto &connId : QvBaselib->ProfileManager()->GetConnections(group))
+        for (const auto &connId : QvProfileManager->GetConnections(group))
         {
             ImportConnection(connId);
         }
@@ -464,7 +464,7 @@ void RouteEditor::on_importGroupBtn_currentIndexChanged(int)
 {
     const auto group = GroupId{ importGroupBtn->currentData(Qt::UserRole).toString() };
     importConnBtn->clear();
-    for (const auto &connId : QvBaselib->ProfileManager()->GetConnections(group))
+    for (const auto &connId : QvProfileManager->GetConnections(group))
     {
         importConnBtn->addItem(GetDisplayName(connId), connId.toString());
     }

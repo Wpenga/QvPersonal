@@ -12,7 +12,7 @@
 AboutWindow::AboutWindow(QWidget *parent) : QDialog(parent), ui(new Ui::w_AboutWindow)
 {
     ui->setupUi(this);
-    ui->configdirLabel->setText(QvBaselib->StorageProvider()->StorageLocation());
+    ui->configdirLabel->setText(QvStorageProvider->StorageLocation());
     ui->qvVersion->setText(QStringLiteral(QV2RAY_VERSION_STRING));
     ui->qvBuildInfo->setText(QStringLiteral(QV2RAY_BUILD_INFO));
     ui->qvBuildExInfo->setText(QStringLiteral(QV2RAY_BUILD_EXTRA_INFO));
@@ -28,7 +28,7 @@ AboutWindow::~AboutWindow()
 
 void AboutWindow::on_openConfigDirCB_clicked()
 {
-    QvBaselib->OpenURL(QvBaselib->StorageProvider()->StorageLocation());
+    QvBaselib->OpenURL(QvStorageProvider->StorageLocation());
 }
 
 void AboutWindow::on_aboutQt_clicked()

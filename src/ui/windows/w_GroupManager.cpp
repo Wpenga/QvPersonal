@@ -39,7 +39,7 @@ GroupManager::GroupManager(QWidget *parent) : QvDialog("GroupManager", parent)
     setupUi(this);
     QvMessageBusConnect();
 
-    for (const auto &[pluginInfo, info] : QvBaselib->PluginAPIHost()->Subscription_GetAllAdapters())
+    for (const auto &[pluginInfo, info] : QvPluginAPIHost->Subscription_GetAllAdapters())
     {
         subscriptionTypeCB->addItem(pluginInfo->metadata().Name + ": " + info.displayName, info.type.toString());
     }
@@ -63,14 +63,14 @@ GroupManager::GroupManager(QWidget *parent) : QvDialog("GroupManager", parent)
 
     connect(exportConnectionAction, &QAction::triggered, this, &GroupManager::onRCMExportConnectionTriggered);
     connect(deleteConnectionAction, &QAction::triggered, this, &GroupManager::onRCMDeleteConnectionTriggered);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnConnectionLinkedWithGroup, [this] { reloadConnectionsList(currentGroupId); });
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnGroupCreated, this, &GroupManager::reloadGroupRCMActions);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnGroupDeleted, this, &GroupManager::reloadGroupRCMActions);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnGroupRenamed, this, &GroupManager::reloadGroupRCMActions);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionLinkedWithGroup, [this] { reloadConnectionsList(currentGroupId); });
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupCreated, this, &GroupManager::reloadGroupRCMActions);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupDeleted, this, &GroupManager::reloadGroupRCMActions);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupRenamed, this, &GroupManager::reloadGroupRCMActions);
 
     GroupManager::updateColorScheme();
 
-    for (const auto &group : QvBaselib->ProfileManager()->GetGroups())
+    for (const auto &group : QvProfileManager->GetGroups())
     {
         auto item = new QListWidgetItem(GetDisplayName(group));
         item->setData(Qt::UserRole, group.toString());
@@ -94,7 +94,7 @@ void GroupManager::onRCMDeleteConnectionTriggered()
 {
     const auto list = GET_SELECTED_CONNECTION_IDS(SELECTED_ROWS_INDEX);
     for (const auto &item : list)
-        QvBaselib->ProfileManager()->RemoveFromGroup(ConnectionId(item), currentGroupId);
+        QvProfileManager->RemoveFromGroup(ConnectionId(item), currentGroupId);
     reloadConnectionsList(currentGroupId);
 }
 
@@ -155,7 +155,7 @@ void GroupManager::reloadGroupRCMActions()
     connectionListRCMenu_CopyToMenu->clear();
     connectionListRCMenu_MoveToMenu->clear();
     connectionListRCMenu_LinkToMenu->clear();
-    for (const auto &group : QvBaselib->ProfileManager()->GetGroups())
+    for (const auto &group : QvProfileManager->GetGroups())
     {
         auto cpAction = new QAction(GetDisplayName(group), connectionListRCMenu_CopyToMenu);
         auto mvAction = new QAction(GetDisplayName(group), connectionListRCMenu_MoveToMenu);
@@ -181,7 +181,7 @@ void GroupManager::reloadConnectionsList(const GroupId &group)
         return;
     connectionsTable->clearContents();
     connectionsTable->model()->removeRows(0, connectionsTable->rowCount());
-    const auto &connections = QvBaselib->ProfileManager()->GetConnections(group);
+    const auto &connections = QvProfileManager->GetConnections(group);
     for (auto i = 0; i < connections.count(); i++)
     {
         const auto &conn = connections.at(i);
@@ -191,11 +191,11 @@ void GroupManager::reloadConnectionsList(const GroupId &group)
         displayNameItem->setData(Qt::UserRole, conn.toString());
         auto typeItem = new QTableWidgetItem(GetConnectionProtocolDescription(conn));
         //
-        const auto [type, host, port] = GetOutboundInfo(QvBaselib->ProfileManager()->GetConnection(conn).outbounds.first());
+        const auto [type, host, port] = GetOutboundInfo(QvProfileManager->GetConnection(conn).outbounds.first());
         auto hostPortItem = new QTableWidgetItem(host + ":" + port);
         //
         QStringList groupsNamesString;
-        for (const auto &group : QvBaselib->ProfileManager()->GetGroups(conn))
+        for (const auto &group : QvProfileManager->GetGroups(conn))
         {
             groupsNamesString.append(GetDisplayName(group));
         }
@@ -217,7 +217,7 @@ void GroupManager::onRCMActionTriggered_Copy()
     for (const auto &connId : list)
     {
         const auto &connectionId = ConnectionId(connId);
-        QvBaselib->ProfileManager()->CreateConnection(QvBaselib->ProfileManager()->GetConnection(connectionId), GetDisplayName(connectionId), groupId);
+        QvProfileManager->CreateConnection(QvProfileManager->GetConnection(connectionId), GetDisplayName(connectionId), groupId);
     }
     reloadConnectionsList(currentGroupId);
 }
@@ -230,7 +230,7 @@ void GroupManager::onRCMActionTriggered_Link()
     const auto list = GET_SELECTED_CONNECTION_IDS(SELECTED_ROWS_INDEX);
     for (const auto &connId : list)
     {
-        QvBaselib->ProfileManager()->LinkWithGroup(ConnectionId(connId), groupId);
+        QvProfileManager->LinkWithGroup(ConnectionId(connId), groupId);
     }
     reloadConnectionsList(currentGroupId);
 }
@@ -243,7 +243,7 @@ void GroupManager::onRCMActionTriggered_Move()
     const auto list = GET_SELECTED_CONNECTION_IDS(SELECTED_ROWS_INDEX);
     for (const auto &connId : list)
     {
-        QvBaselib->ProfileManager()->MoveToGroup(ConnectionId(connId), currentGroupId, groupId);
+        QvProfileManager->MoveToGroup(ConnectionId(connId), currentGroupId, groupId);
     }
     reloadConnectionsList(currentGroupId);
 }
@@ -269,7 +269,7 @@ GroupManager::~GroupManager(){};
 void GroupManager::on_addGroupButton_clicked()
 {
     auto const key = tr("New Group") + " - " + GenerateRandomString(5);
-    auto id = QvBaselib->ProfileManager()->CreateGroup(key);
+    auto id = QvProfileManager->CreateGroup(key);
     //
     auto item = new QListWidgetItem(key);
     item->setData(Qt::UserRole, id.toString());
@@ -294,7 +294,7 @@ void GroupManager::on_updateButton_clicked()
     {
         this->setEnabled(false);
         qApp->processEvents();
-        QvBaselib->ProfileManager()->UpdateSubscription(currentGroupId);
+        QvProfileManager->UpdateSubscription(currentGroupId);
         this->setEnabled(true);
         on_groupList_itemClicked(groupList->currentItem());
     }
@@ -304,7 +304,7 @@ void GroupManager::on_removeGroupButton_clicked()
 {
     if (QvBaselib->Ask(tr("Remove a Group"), tr("All connections will be moved to default group, do you want to continue?")) == Qv2rayBase::MessageOpt::Yes)
     {
-        QvBaselib->ProfileManager()->DeleteGroup(currentGroupId, true);
+        QvProfileManager->DeleteGroup(currentGroupId, true);
         auto item = groupList->currentItem();
         int index = groupList->row(item);
         groupList->removeItemWidget(item);
@@ -329,8 +329,8 @@ void GroupManager::on_buttonBox_accepted()
     if (!currentGroupId.isNull())
     {
 
-        const auto routingId = QvBaselib->ProfileManager()->GetGroupObject(currentGroupId).route_id;
-        auto routing = QvBaselib->ProfileManager()->GetRouting(routingId);
+        const auto routingId = QvProfileManager->GetGroupObject(currentGroupId).route_id;
+        auto routing = QvProfileManager->GetRouting(routingId);
 
         const auto &[dns, fakedns] = dnsSettingsWidget->GetDNSObject();
         routing.overrideDNS = dnsSettingsGB->isChecked();
@@ -340,7 +340,7 @@ void GroupManager::on_buttonBox_accepted()
         const auto routematrix = routeSettingsWidget->GetRouteConfig();
         routing.extraOptions.insert(RouteMatrixConfig::EXTRA_OPTIONS_ID, routematrix.toJson());
 
-        QvBaselib->ProfileManager()->UpdateRouting(routingId, routing);
+        QvProfileManager->UpdateRouting(routingId, routing);
     }
     // Nothing?
 }
@@ -360,7 +360,7 @@ void GroupManager::on_groupList_itemClicked(QListWidgetItem *item)
     currentGroupId = GroupId(item->data(Qt::UserRole).toString());
     groupNameTxt->setText(GetDisplayName(currentGroupId));
     //
-    const auto _group = QvBaselib->ProfileManager()->GetGroupObject(currentGroupId);
+    const auto _group = QvProfileManager->GetGroupObject(currentGroupId);
     groupIsSubscriptionGroup->setChecked(_group.subscription_config.isSubscription);
     subAddrTxt->setText(_group.subscription_config.address);
     lastUpdatedLabel->setText(TimeToString(_group.updated));
@@ -400,9 +400,9 @@ void GroupManager::on_groupList_itemClicked(QListWidgetItem *item)
     }
     //
     // Load DNS / Route config
-    const auto routeId = QvBaselib->ProfileManager()->GetGroupRoutingId(currentGroupId);
+    const auto routeId = QvProfileManager->GetGroupRoutingId(currentGroupId);
     {
-        const auto routingObject = QvBaselib->ProfileManager()->GetRouting(routeId);
+        const auto routingObject = QvProfileManager->GetRouting(routeId);
         dnsSettingsWidget->SetDNSObject(V2RayDNSObject::fromJson(routingObject.dns), V2RayFakeDNSObject::fromJson(routingObject.fakedns));
         dnsSettingsGB->setChecked(routingObject.overrideDNS);
         //
@@ -416,40 +416,40 @@ void GroupManager::on_groupList_itemClicked(QListWidgetItem *item)
 
 void GroupManager::on_IncludeRelation_currentTextChanged(const QString &)
 {
-    auto subscription = QvBaselib->ProfileManager()->GetGroupObject(currentGroupId).subscription_config;
+    auto subscription = QvProfileManager->GetGroupObject(currentGroupId).subscription_config;
     subscription.includeRelation = (SubscriptionConfigObject::SubscriptionFilterRelation) IncludeRelation->currentIndex();
-    QvBaselib->ProfileManager()->SetSubscriptionData(currentGroupId, subscription);
+    QvProfileManager->SetSubscriptionData(currentGroupId, subscription);
 }
 
 void GroupManager::on_ExcludeRelation_currentTextChanged(const QString &)
 {
-    auto subscription = QvBaselib->ProfileManager()->GetGroupObject(currentGroupId).subscription_config;
+    auto subscription = QvProfileManager->GetGroupObject(currentGroupId).subscription_config;
     subscription.excludeRelation = (SubscriptionConfigObject::SubscriptionFilterRelation) ExcludeRelation->currentIndex();
-    QvBaselib->ProfileManager()->SetSubscriptionData(currentGroupId, subscription);
+    QvProfileManager->SetSubscriptionData(currentGroupId, subscription);
 }
 
 void GroupManager::on_IncludeKeywords_textChanged()
 {
     QStringList keywords = IncludeKeywords->toPlainText().replace("\r", "").split("\n");
-    auto subscription = QvBaselib->ProfileManager()->GetGroupObject(currentGroupId).subscription_config;
+    auto subscription = QvProfileManager->GetGroupObject(currentGroupId).subscription_config;
     subscription.includeKeywords = keywords;
-    QvBaselib->ProfileManager()->SetSubscriptionData(currentGroupId, subscription);
+    QvProfileManager->SetSubscriptionData(currentGroupId, subscription);
 }
 
 void GroupManager::on_ExcludeKeywords_textChanged()
 {
     QStringList keywords = ExcludeKeywords->toPlainText().replace("\r", "").split("\n");
-    auto subscription = QvBaselib->ProfileManager()->GetGroupObject(currentGroupId).subscription_config;
+    auto subscription = QvProfileManager->GetGroupObject(currentGroupId).subscription_config;
     subscription.excludeKeywords = keywords;
-    QvBaselib->ProfileManager()->SetSubscriptionData(currentGroupId, subscription);
+    QvProfileManager->SetSubscriptionData(currentGroupId, subscription);
 }
 
 void GroupManager::on_groupList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *priv)
 {
     if (priv)
     {
-        const auto routingId = QvBaselib->ProfileManager()->GetGroupObject(currentGroupId).route_id;
-        auto routing = QvBaselib->ProfileManager()->GetRouting(routingId);
+        const auto routingId = QvProfileManager->GetGroupObject(currentGroupId).route_id;
+        auto routing = QvProfileManager->GetRouting(routingId);
 
         const auto &[dns, fakedns] = dnsSettingsWidget->GetDNSObject();
         routing.overrideDNS = dnsSettingsGB->isChecked();
@@ -459,7 +459,7 @@ void GroupManager::on_groupList_currentItemChanged(QListWidgetItem *current, QLi
         const auto routematrix = routeSettingsWidget->GetRouteConfig();
         routing.extraOptions.insert(RouteMatrixConfig::EXTRA_OPTIONS_ID, routematrix.toJson());
 
-        QvBaselib->ProfileManager()->UpdateRouting(routingId, routing);
+        QvProfileManager->UpdateRouting(routingId, routing);
     }
     if (current)
     {
@@ -469,16 +469,16 @@ void GroupManager::on_groupList_currentItemChanged(QListWidgetItem *current, QLi
 
 void GroupManager::on_subAddrTxt_textEdited(const QString &arg1)
 {
-    auto subscription = QvBaselib->ProfileManager()->GetGroupObject(currentGroupId).subscription_config;
+    auto subscription = QvProfileManager->GetGroupObject(currentGroupId).subscription_config;
     subscription.address = arg1;
-    QvBaselib->ProfileManager()->SetSubscriptionData(currentGroupId, subscription);
+    QvProfileManager->SetSubscriptionData(currentGroupId, subscription);
 }
 
 void GroupManager::on_updateIntervalSB_valueChanged(double arg1)
 {
-    auto subscription = QvBaselib->ProfileManager()->GetGroupObject(currentGroupId).subscription_config;
+    auto subscription = QvProfileManager->GetGroupObject(currentGroupId).subscription_config;
     subscription.updateInterval = arg1;
-    QvBaselib->ProfileManager()->SetSubscriptionData(currentGroupId, subscription);
+    QvProfileManager->SetSubscriptionData(currentGroupId, subscription);
 }
 
 void GroupManager::on_connectionsList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
@@ -492,15 +492,15 @@ void GroupManager::on_connectionsList_currentItemChanged(QListWidgetItem *curren
 
 void GroupManager::on_groupIsSubscriptionGroup_clicked(bool checked)
 {
-    auto subscription = QvBaselib->ProfileManager()->GetGroupObject(currentGroupId).subscription_config;
+    auto subscription = QvProfileManager->GetGroupObject(currentGroupId).subscription_config;
     subscription.isSubscription = checked;
-    QvBaselib->ProfileManager()->SetSubscriptionData(currentGroupId, subscription);
+    QvProfileManager->SetSubscriptionData(currentGroupId, subscription);
 }
 
 void GroupManager::on_groupNameTxt_textEdited(const QString &arg1)
 {
     groupList->selectedItems().first()->setText(arg1);
-    QvBaselib->ProfileManager()->RenameGroup(currentGroupId, arg1.trimmed());
+    QvProfileManager->RenameGroup(currentGroupId, arg1.trimmed());
 }
 
 void GroupManager::on_deleteSelectedConnBtn_clicked()
@@ -532,7 +532,7 @@ void GroupManager::on_connectionsTable_customContextMenuRequested(const QPoint &
 
 void GroupManager::on_subscriptionTypeCB_currentIndexChanged(int)
 {
-    auto subscription = QvBaselib->ProfileManager()->GetGroupObject(currentGroupId).subscription_config;
+    auto subscription = QvProfileManager->GetGroupObject(currentGroupId).subscription_config;
     subscription.type = SubscriptionDecoderId{ subscriptionTypeCB->currentData().toString() };
-    QvBaselib->ProfileManager()->SetSubscriptionData(currentGroupId, subscription);
+    QvProfileManager->SetSubscriptionData(currentGroupId, subscription);
 }

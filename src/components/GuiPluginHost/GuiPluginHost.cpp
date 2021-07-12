@@ -7,14 +7,14 @@ namespace Qv2ray::ui::common
 {
     GuiPluginAPIHost::GuiPluginAPIHost()
     {
-        apiHost = QvBaselib->PluginAPIHost();
+        apiHost = QvPluginAPIHost;
     }
 
     QList<std::pair<Qv2rayPlugin::Qv2rayInterfaceImpl *, Qv2rayPlugin::Gui::PluginGUIInterface *>> GuiPluginAPIHost::GUI_QueryByComponent(
         Qv2rayPlugin::PLUGIN_GUI_COMPONENT_TYPE c) const
     {
         QList<std::pair<Qv2rayPlugin::Qv2rayInterfaceImpl *, Qv2rayPlugin::Gui::PluginGUIInterface *>> guiInterfaces;
-        for (const auto &plugin : QvBaselib->PluginManagerCore()->GetPlugins(Qv2rayPlugin::COMPONENT_GUI))
+        for (const auto &plugin : QvPluginManagerCore->GetPlugins(Qv2rayPlugin::COMPONENT_GUI))
         {
             const auto guiInterface = plugin->pinterface->GetGUIInterface();
             if (guiInterface->GetComponents().contains(c))

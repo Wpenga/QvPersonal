@@ -144,7 +144,7 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
     }
 
     {
-        const auto defaultRouteObject = QvBaselib->ProfileManager()->GetRouting();
+        const auto defaultRouteObject = QvProfileManager->GetRouting();
         dnsSettingsWidget = new DnsSettingsWidget(this);
         dnsSettingsWidget->SetDNSObject(V2RayDNSObject::fromJson(defaultRouteObject.dns), V2RayFakeDNSObject::fromJson(defaultRouteObject.fakedns));
         dnsSettingsLayout->addWidget(dnsSettingsWidget);
@@ -169,13 +169,13 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
         const auto autoStartConnId = AppConfig.behaviorConfig->AutoConnectProfileId->connectionId;
         const auto autoStartGroupId = AppConfig.behaviorConfig->AutoConnectProfileId->groupId;
 
-        for (const auto &group : QvBaselib->ProfileManager()->GetGroups())
+        for (const auto &group : QvProfileManager->GetGroups())
             autoStartSubsCombo->addItem(GetDisplayName(group), group.toString());
 
         autoStartSubsCombo->setCurrentText(GetDisplayName(autoStartGroupId));
 
         autoStartConnCombo->clear();
-        for (const auto &conn : QvBaselib->ProfileManager()->GetConnections(autoStartGroupId))
+        for (const auto &conn : QvProfileManager->GetConnections(autoStartGroupId))
             autoStartConnCombo->addItem(GetDisplayName(conn), conn.toString());
 
         autoStartConnCombo->setCurrentText(GetDisplayName(autoStartConnId));
@@ -246,7 +246,7 @@ void PreferencesWindow::on_buttonBox_accepted()
         return;
     }
 
-    auto defaultRouteObject = QvBaselib->ProfileManager()->GetRouting();
+    auto defaultRouteObject = QvProfileManager->GetRouting();
     if (const auto newval = routeSettingsWidget->GetRouteConfig().toJson(); newval != defaultRouteObject.extraOptions[RouteMatrixConfig::EXTRA_OPTIONS_ID].toObject())
     {
         defaultRouteObject.extraOptions.insert(RouteMatrixConfig::EXTRA_OPTIONS_ID, newval);
@@ -267,7 +267,7 @@ void PreferencesWindow::on_buttonBox_accepted()
         NEEDRESTART
     }
 
-    QvBaselib->ProfileManager()->UpdateRouting(DefaultRoutingId, defaultRouteObject);
+    QvProfileManager->UpdateRouting(DefaultRoutingId, defaultRouteObject);
 
     if (AppConfig.appearanceConfig->UITheme != GlobalConfig->appearanceConfig->UITheme)
     {
@@ -288,7 +288,7 @@ void PreferencesWindow::on_autoStartSubsCombo_currentIndexChanged(int arg1)
     }
     else
     {
-        auto list = QvBaselib->ProfileManager()->GetConnections(GroupId(autoStartSubsCombo->currentData().toString()));
+        auto list = QvProfileManager->GetConnections(GroupId(autoStartSubsCombo->currentData().toString()));
         autoStartConnCombo->clear();
 
         for (const auto &id : list)

@@ -46,7 +46,7 @@ void MainWindow::MWHideWindow()
 #pragma message("TODO: cleanup")
 // void MainWindow::MWSetSystemProxy()
 //{
-//    const auto inboundInfo = QvBaselib->KernelManager()->GetCurrentConnectionInboundInfo();
+//    const auto inboundInfo = QvKernelManager->GetCurrentConnectionInboundInfo();
 //    bool httpEnabled = false;
 //    bool socksEnabled = false;
 //    int httpPort = 0;
@@ -107,8 +107,8 @@ bool MainWindow::StartAutoConnectionEntry()
     switch (GlobalConfig->behaviorConfig->AutoConnectBehavior)
     {
         case Qv2rayBehaviorConfig::AUTOCONNECT_NONE: return false;
-        case Qv2rayBehaviorConfig::AUTOCONNECT_FIXED: return QvBaselib->ProfileManager()->StartConnection(GlobalConfig->behaviorConfig->AutoConnectProfileId);
-        case Qv2rayBehaviorConfig::AUTOCONNECT_LAST_CONNECTED: return QvBaselib->ProfileManager()->StartConnection(GlobalConfig->behaviorConfig->LastConnectedId);
+        case Qv2rayBehaviorConfig::AUTOCONNECT_FIXED: return QvProfileManager->StartConnection(GlobalConfig->behaviorConfig->AutoConnectProfileId);
+        case Qv2rayBehaviorConfig::AUTOCONNECT_LAST_CONNECTED: return QvProfileManager->StartConnection(GlobalConfig->behaviorConfig->LastConnectedId);
     }
     Q_UNREACHABLE();
 }
@@ -118,9 +118,9 @@ void MainWindow::CheckSubscriptionsUpdate()
     QList<std::pair<QString, GroupId>> updateList;
     QStringList updateNamesList;
 
-    for (const auto &entry : QvBaselib->ProfileManager()->GetGroups())
+    for (const auto &entry : QvProfileManager->GetGroups())
     {
-        const auto info = QvBaselib->ProfileManager()->GetGroupObject(entry);
+        const auto info = QvProfileManager->GetGroupObject(entry);
         if (!info.subscription_config.isSubscription)
             continue;
         //
@@ -150,12 +150,12 @@ void MainWindow::CheckSubscriptionsUpdate()
             if (result == Qv2rayBase::MessageOpt::Yes)
             {
                 QvLog() << "Updating subscription:" << name;
-                QvBaselib->ProfileManager()->UpdateSubscriptionAsync(id);
+                QvProfileManager->UpdateSubscriptionAsync(id);
             }
             else if (result == Qv2rayBase::MessageOpt::Ignore)
             {
                 QvLog() << "Ignored subscription update:" << name;
-                QvBaselib->ProfileManager()->IgnoreSubscriptionUpdate(id);
+                QvProfileManager->IgnoreSubscriptionUpdate(id);
             }
         }
     }
@@ -164,7 +164,7 @@ void MainWindow::CheckSubscriptionsUpdate()
 void MainWindow::updateColorScheme()
 {
     vCoreLogHighlighter->loadRules(StyleManager->isDarkMode());
-    qvAppTrayIcon->setIcon(QvBaselib->KernelManager()->CurrentConnection().isNull() ? Q_TRAYICON("tray") : Q_TRAYICON("tray-connected"));
+    qvAppTrayIcon->setIcon(QvKernelManager->CurrentConnection().isNull() ? Q_TRAYICON("tray") : Q_TRAYICON("tray-connected"));
     //
     importConfigButton->setIcon(QIcon(STYLE_RESX("add")));
     updownImageBox->setStyleSheet("image: url(" + STYLE_RESX("netspeed_arrow") + ")");

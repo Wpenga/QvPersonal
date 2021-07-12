@@ -61,11 +61,11 @@ void InboundOutboundWidget::on_editBtn_clicked()
         {
             QvBaselib->Warn(tr("Editing Extenal Connection"), tr("All inbound and routing information will be lost after saving!"));
             const auto externalId = outboundObject->externalId;
-            const auto root = QvBaselib->ProfileManager()->GetConnection(externalId);
+            const auto root = QvProfileManager->GetConnection(externalId);
             OutboundEditor editor{ root.outbounds.first(), parentWidget() };
             const auto newoutbound = editor.OpenEditor();
             if (editor.result() == QDialog::Accepted)
-                QvBaselib->ProfileManager()->UpdateConnection(externalId, ProfileContent{ newoutbound });
+                QvProfileManager->UpdateConnection(externalId, ProfileContent{ newoutbound });
         }
         else
         {
@@ -91,12 +91,12 @@ void InboundOutboundWidget::on_editJsonBtn_clicked()
         if (isExternalOutbound)
         {
             const auto externalId = outboundObject->externalId;
-            auto root = QvBaselib->ProfileManager()->GetConnection(externalId);
+            auto root = QvProfileManager->GetConnection(externalId);
 
             JsonEditor editor{ root.outbounds.first().toJson(), parentWidget() };
             root.outbounds.first().loadJson(editor.OpenEditor());
             if (editor.result() == QDialog::Accepted)
-                QvBaselib->ProfileManager()->UpdateConnection(externalId, root);
+                QvProfileManager->UpdateConnection(externalId, root);
         }
         else
         {

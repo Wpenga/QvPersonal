@@ -5,15 +5,15 @@
 #include "Qv2rayBase/Interfaces/IStorageProvider.hpp"
 #include "Qv2rayBase/Plugin/PluginAPIHost.hpp"
 
-PluginManageWindow::PluginManageWindow(QWidget *parent) : QvDialog("PluginManager", parent)
+PluginManageWindow::PluginManageWindow(QWidget *parent) : QvDialog(QStringLiteral("PluginManager"), parent)
 {
     setupUi(this);
-    userPluginDirLabel->setText(QvBaselib->StorageProvider()->GetUserPluginDirectory().absolutePath());
-    for (const auto &plugin : QvBaselib->PluginManagerCore()->AllPlugins())
+    userPluginDirLabel->setText(QvStorageProvider->GetUserPluginDirectory().absolutePath());
+    for (const auto &plugin : QvPluginManagerCore->AllPlugins())
     {
         plugins[plugin->metadata().InternalID] = plugin;
         auto item = new QListWidgetItem(pluginListWidget);
-        item->setCheckState(QvBaselib->PluginManagerCore()->GetPluginEnabled(plugin->id()) ? Qt::Checked : Qt::Unchecked);
+        item->setCheckState(QvPluginManagerCore->GetPluginEnabled(plugin->id()) ? Qt::Checked : Qt::Unchecked);
         item->setData(Qt::UserRole, plugin->metadata().InternalID.toString());
         item->setText(plugin->metadata().Name);
         if (plugin->hasComponent(Qv2rayPlugin::COMPONENT_GUI))
@@ -40,7 +40,7 @@ void PluginManageWindow::on_pluginListWidget_currentItemChanged(QListWidgetItem 
     Q_UNUSED(previous)
     if (currentPluginInfo && currentSettingsWidget)
     {
-        QvBaselib->PluginManagerCore()->SetPluginSettings(currentPluginInfo->id(), currentSettingsWidget->GetSettings());
+        QvPluginManagerCore->SetPluginSettings(currentPluginInfo->id(), currentSettingsWidget->GetSettings());
         pluginSettingsLayout->removeWidget(currentSettingsWidget.get());
         currentSettingsWidget.reset();
     }
@@ -87,11 +87,11 @@ void PluginManageWindow::on_pluginListWidget_itemChanged(QListWidgetItem *item)
         return;
     bool isEnabled = item->checkState() == Qt::Checked;
     const auto pluginInternalName = PluginId{ item->data(Qt::UserRole).toString() };
-    QvBaselib->PluginManagerCore()->SetPluginEnabled(pluginInternalName, isEnabled);
+    QvPluginManagerCore->SetPluginEnabled(pluginInternalName, isEnabled);
 }
 
 void PluginManageWindow::on_openPluginFolder_clicked()
 {
-    const auto dir = QvBaselib->StorageProvider()->GetUserPluginDirectory();
+    const auto dir = QvStorageProvider->GetUserPluginDirectory();
     QvBaselib->OpenURL(QUrl::fromLocalFile(dir.absolutePath()));
 }

@@ -7,24 +7,24 @@
 #include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 #include "ui/widgets/ConnectionItemWidget.hpp"
 
-const auto NumericString = [](auto i) { return QString("%1").arg(i, 30, 10, QLatin1Char('0')); };
+const auto NumericString = [](auto i) { return QStringLiteral("%1").arg(i, 30, 10, QLatin1Char('0')); };
 
 ConnectionListHelper::ConnectionListHelper(QTreeView *view, QObject *parent) : QObject(parent)
 {
     parentView = view;
     model = new QStandardItemModel();
     view->setModel(model);
-    for (const auto &group : QvBaselib->ProfileManager()->GetGroups())
+    for (const auto &group : QvProfileManager->GetGroups())
     {
         addGroupItem(group);
-        for (const auto &connection : QvBaselib->ProfileManager()->GetConnections(group))
+        for (const auto &connection : QvProfileManager->GetConnections(group))
         {
             addConnectionItem({ connection, group });
         }
     }
 
     const auto renamedLambda = [&](const ConnectionId &id, const QString &, const QString &newName) {
-        for (const auto &gid : QvBaselib->ProfileManager()->GetGroups(id))
+        for (const auto &gid : QvProfileManager->GetGroups(id))
         {
             ProfileId pair{ id, gid };
             if (pairs.contains(pair))
@@ -33,7 +33,7 @@ ConnectionListHelper::ConnectionListHelper(QTreeView *view, QObject *parent) : Q
     };
 
     const auto latencyLambda = [&](const ConnectionId &id, const int avg) {
-        for (const auto &gid : QvBaselib->ProfileManager()->GetGroups(id))
+        for (const auto &gid : QvProfileManager->GetGroups(id))
         {
             ProfileId pair{ id, gid };
             if (pairs.contains(pair))
@@ -49,14 +49,14 @@ ConnectionListHelper::ConnectionListHelper(QTreeView *view, QObject *parent) : Q
         }
     };
 
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnConnectionRemovedFromGroup, this, &ConnectionListHelper::OnConnectionDeleted);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnConnectionCreated, this, &ConnectionListHelper::OnConnectionCreated);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnConnectionLinkedWithGroup, this, &ConnectionListHelper::OnConnectionLinkedWithGroup);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnGroupCreated, this, &ConnectionListHelper::OnGroupCreated);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnGroupDeleted, this, &ConnectionListHelper::OnGroupDeleted);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnConnectionRenamed, renamedLambda);
-    connect(QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::OnLatencyTestFinished, latencyLambda);
-    connect(QvBaselib->KernelManager(), &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, statsLambda);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionRemovedFromGroup, this, &ConnectionListHelper::OnConnectionDeleted);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionCreated, this, &ConnectionListHelper::OnConnectionCreated);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionLinkedWithGroup, this, &ConnectionListHelper::OnConnectionLinkedWithGroup);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupCreated, this, &ConnectionListHelper::OnGroupCreated);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupDeleted, this, &ConnectionListHelper::OnGroupDeleted);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionRenamed, renamedLambda);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnLatencyTestFinished, latencyLambda);
+    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, statsLambda);
 }
 
 ConnectionListHelper::~ConnectionListHelper()
@@ -72,11 +72,11 @@ void ConnectionListHelper::Sort(ConnectionInfoRole role, Qt::SortOrder order)
 
 void ConnectionListHelper::Filter(const QString &key)
 {
-    for (const auto &groupId : QvBaselib->ProfileManager()->GetGroups())
+    for (const auto &groupId : QvProfileManager->GetGroups())
     {
         const auto groupItem = model->indexFromItem(groups[groupId]);
         bool isTotallyHide = true;
-        for (const auto &connectionId : QvBaselib->ProfileManager()->GetConnections(groupId))
+        for (const auto &connectionId : QvProfileManager->GetConnections(groupId))
         {
             const auto connectionItem = model->indexFromItem(pairs[{ connectionId, groupId }]);
             const auto willTotallyHide = static_cast<ConnectionItemWidget *>(parentView->indexWidget(connectionItem))->NameMatched(key);
