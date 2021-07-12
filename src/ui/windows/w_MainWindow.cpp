@@ -143,14 +143,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     tray_action_Stop->setEnabled(false);
     tray_action_Restart->setEnabled(false);
     //
-    tray_SystemProxyMenu->setEnabled(false);
-    tray_SystemProxyMenu->addAction(tray_action_SetSystemProxy);
-    tray_SystemProxyMenu->addAction(tray_action_ClearSystemProxy);
-    //
     tray_RootMenu->addAction(tray_action_ToggleVisibility);
     tray_RootMenu->addSeparator();
     tray_RootMenu->addAction(tray_action_Preferences);
-    tray_RootMenu->addMenu(tray_SystemProxyMenu);
     //
     tray_RootMenu->addSeparator();
     tray_RootMenu->addMenu(tray_RecentConnectionsMenu);
@@ -170,18 +165,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(tray_action_Stop, &QAction::triggered, QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::StopConnection);
     connect(tray_action_Restart, &QAction::triggered, QvBaselib->ProfileManager(), &Qv2rayBase::Profile::ProfileManager::RestartConnection);
     connect(tray_action_Quit, &QAction::triggered, this, &MainWindow::Action_Exit);
-
-#pragma message("TODO: cleanup")
-    //    connect(tray_action_SetSystemProxy, &QAction::triggered, this, &MainWindow::MWSetSystemProxy);
-    //    connect(tray_action_ClearSystemProxy, &QAction::triggered, this, &MainWindow::MWClearSystemProxy);
-    connect(tray_ClearRecentConnectionsAction, &QAction::triggered,
-            [this]()
-            {
-                GlobalConfig->appearanceConfig->RecentConnections->clear();
-                ReloadRecentConnectionList();
-                if (!GlobalConfig->behaviorConfig->QuietMode)
-                    QvApp->ShowTrayMessage(tr("Recent Connection list cleared."));
-            });
+    connect(tray_ClearRecentConnectionsAction, &QAction::triggered, [this]() {
+        GlobalConfig->appearanceConfig->RecentConnections->clear();
+        ReloadRecentConnectionList();
+        if (!GlobalConfig->behaviorConfig->QuietMode)
+            QvApp->ShowTrayMessage(tr("Recent Connection list cleared."));
+    });
     connect(qvAppTrayIcon, &QSystemTrayIcon::activated, this, &MainWindow::on_activatedTray);
     //
     // Actions for right click the log text browser
@@ -191,14 +180,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     logRCM_Menu->addSeparator();
     logRCM_Menu->addAction(action_RCM_SwitchCoreLog);
     logRCM_Menu->addAction(action_RCM_SwitchQv2rayLog);
-    connect(masterLogBrowser, &QTextBrowser::customContextMenuRequested, [this](const QPoint &) { logRCM_Menu->popup(QCursor::pos()); });
+    connect(masterLogBrowser, &QTextBrowser::customContextMenuRequested, [this](QPoint) { logRCM_Menu->popup(QCursor::pos()); });
     connect(action_RCM_SwitchCoreLog, &QAction::triggered, [this] { masterLogBrowser->setDocument(vCoreLogDocument); });
     connect(action_RCM_SwitchQv2rayLog, &QAction::triggered, [this] { masterLogBrowser->setDocument(qvLogDocument); });
     connect(action_RCM_CopyRecentLogs, &QAction::triggered, this, &MainWindow::Action_CopyRecentLogs);
     connect(action_RCM_CopySelected, &QAction::triggered, masterLogBrowser, &QTextBrowser::copy);
     //
     speedChartWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(speedChartWidget, &QWidget::customContextMenuRequested, [this](const QPoint &) { graphWidgetMenu->popup(QCursor::pos()); });
+    connect(speedChartWidget, &QWidget::customContextMenuRequested, [this](QPoint) { graphWidgetMenu->popup(QCursor::pos()); });
     //
     masterLogBrowser->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     {
@@ -596,7 +585,6 @@ void MainWindow::OnDisconnected(const ProfileId &id)
     tray_action_Start->setEnabled(true);
     tray_action_Stop->setEnabled(false);
     tray_action_Restart->setEnabled(false);
-    tray_SystemProxyMenu->setEnabled(false);
     lastConnected = id;
     locateBtn->setEnabled(false);
     if (!GlobalConfig->behaviorConfig->QuietMode)
@@ -607,11 +595,6 @@ void MainWindow::OnDisconnected(const ProfileId &id)
     netspeedLabel->setText("0.00 B/s" NEWLINE "0.00 B/s");
     dataamountLabel->setText("0.00 B" NEWLINE "0.00 B");
     connetionStatusLabel->setText(tr("Not Connected"));
-#pragma message("TODO Move To Command Plugin")
-    //    if (GlobalConfig.inboundConfig->systemProxySettings->setSystemProxy)
-    //    {
-    //        MWClearSystemProxy();
-    //    }
 }
 
 void MainWindow::OnConnected(const ProfileId &id)
@@ -621,7 +604,6 @@ void MainWindow::OnConnected(const ProfileId &id)
     tray_action_Start->setEnabled(false);
     tray_action_Stop->setEnabled(true);
     tray_action_Restart->setEnabled(true);
-    tray_SystemProxyMenu->setEnabled(true);
     lastConnected = id;
     locateBtn->setEnabled(true);
     on_clearlogButton_clicked();
@@ -636,11 +618,6 @@ void MainWindow::OnConnected(const ProfileId &id)
     GlobalConfig->appearanceConfig->RecentConnections->removeAll(id);
     GlobalConfig->appearanceConfig->RecentConnections->push_front(id);
     ReloadRecentConnectionList();
-#pragma message("TODO Move To Command Plugin")
-    //    if (GlobalConfig.inboundConfig->systemProxySettings->setSystemProxy)
-    //    {
-    //        MWSetSystemProxy();
-    //    }
 }
 
 void MainWindow::on_connectionFilterTxt_textEdited(const QString &arg1)
@@ -675,7 +652,7 @@ void MainWindow::OnStatsAvailable(const ProfileId &id, const StatisticsObject &d
     qvAppTrayIcon->setToolTip(QString("Qv2ray %1\n"
                                       "Connected: %2\n"
                                       "Up: %3 Down: %4")
-                                  .arg(QV2RAY_VERSION_STRING)
+                                  .arg(QStringLiteral(QV2RAY_VERSION_STRING))
                                   .arg(GetDisplayName(id.connectionId))
                                   .arg(totalSpeedUp)
                                   .arg(totalSpeedDown));
@@ -772,14 +749,12 @@ void MainWindow::Action_RenameConnection()
 void MainWindow::Action_DuplicateConnection()
 {
     QList<ProfileId> connlist;
-
+    connlist.reserve(connectionTreeView->selectionModel()->selectedIndexes().size());
     for (const auto &item : connectionTreeView->selectionModel()->selectedIndexes())
     {
         auto widget = GetIndexWidget(item);
         if (widget->IsConnection())
-        {
             connlist.append(widget->Identifier());
-        }
     }
 
     QvLog() << "Selected" << connlist.count() << "items.";

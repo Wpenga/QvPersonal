@@ -115,7 +115,6 @@ class MainWindow
     // Declare Actions
 #define DECL_ACTION(parent, name) QAction *name = new QAction(parent)
     QMenu *tray_RootMenu = new QMenu(this);
-    QMenu *tray_SystemProxyMenu = new QMenu(this);
     QMenu *tray_RecentConnectionsMenu = new QMenu(this);
     QMenu *sortMenu = new QMenu(this);
     QMenu *logRCM_Menu = new QMenu(this);
@@ -130,8 +129,6 @@ class MainWindow
     DECL_ACTION(tray_RootMenu, tray_action_Start);
     DECL_ACTION(tray_RootMenu, tray_action_Restart);
     DECL_ACTION(tray_RootMenu, tray_action_Stop);
-    DECL_ACTION(tray_RootMenu, tray_action_SetSystemProxy);
-    DECL_ACTION(tray_RootMenu, tray_action_ClearSystemProxy);
     DECL_ACTION(connectionListRCM_Menu, action_RCM_Start);
     DECL_ACTION(connectionListRCM_Menu, action_RCM_SetAutoConnection);
     DECL_ACTION(connectionListRCM_Menu, action_RCM_UpdateSubscription);
@@ -163,9 +160,6 @@ class MainWindow
     bool qvLogAutoScoll = true;
     //
     ProfileId lastConnected;
-#pragma message("TODO: Cleanup")
-    //    void MWSetSystemProxy();
-    //    void MWClearSystemProxy();
     void MWShowWindow();
     void MWHideWindow();
     void CheckSubscriptionsUpdate();

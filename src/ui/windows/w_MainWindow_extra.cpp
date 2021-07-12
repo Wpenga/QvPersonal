@@ -53,7 +53,6 @@ void MainWindow::MWHideWindow()
 //    int socksPort = 0;
 //    QString httpAddress;
 //    QString socksAddress;
-
 //    for (const auto &[protocol, listenAddr, listenPort] : inboundInfo)
 //    {
 //        if (protocol == "http")
@@ -98,17 +97,6 @@ void MainWindow::MWHideWindow()
 //    {
 //        QvLog() << "Neither of HTTP nor SOCKS is enabled, cannot set system proxy.";
 //        QvBaselib->Warn(tr("Cannot set system proxy"), tr("Both HTTP and SOCKS inbounds are not enabled"));
-//    }
-//}
-
-#pragma message("TODO: cleanup")
-// void MainWindow::MWClearSystemProxy()
-//{
-//    ClearSystemProxy();
-//    qvAppTrayIcon->setIcon(QvBaselib->KernelManager()->CurrentConnection().isNull() ? Q_TRAYICON("tray") : Q_TRAYICON("tray-connected"));
-//    if (!GlobalConfig->behaviorConfig->QuietMode)
-//    {
-//        QvApp->ShowTrayMessage(tr("System proxy removed."));
 //    }
 //}
 
@@ -203,7 +191,6 @@ void MainWindow::updateColorScheme()
 
 void MainWindow::UpdateActionTranslations()
 {
-    tray_SystemProxyMenu->setTitle(tr("System Proxy"));
     tray_RecentConnectionsMenu->setTitle(tr("Recent Connections"));
     tray_ClearRecentConnectionsAction->setText(tr("Clear Recent Connections"));
     //
@@ -213,8 +200,6 @@ void MainWindow::UpdateActionTranslations()
     tray_action_Start->setText(tr("Connect"));
     tray_action_Restart->setText(tr("Reconnect"));
     tray_action_Stop->setText(tr("Disconnect"));
-    tray_action_SetSystemProxy->setText(tr("Enable System Proxy"));
-    tray_action_ClearSystemProxy->setText(tr("Disable System Proxy"));
     //
     action_RCM_Start->setText(tr("Connect to this"));
     action_RCM_SetAutoConnection->setText(tr("Set as automatically connected"));
