@@ -269,7 +269,7 @@ std::optional<std::pair<QString, IOConnectionSettings>> BuiltinSerializer::Deser
         return DeserializeSS(link);
 
     if (link.startsWith(QStringLiteral("vmess://")))
-        return link.contains('@') ? DeserializeOldVMess(link) : DeserializeVMess(link);
+        return link.contains('@') ? DeserializeVMess(link) : DeserializeOldVMess(link);
 
     if (link.startsWith(QStringLiteral("vless://")))
         return DeserializeVLESS(link);
