@@ -6,19 +6,17 @@ This repo is my personal rewrite of Qv2ray using [Qv2rayBase](https://github.com
 
 ## Compile Dependencies
 
-- Qt6
-  - 6.1 for Linux
-  - 6.2 for Windows and macOS (for QtNetwork TLS backend plugins)
+- Qt 6.2
 - CMake 3.20.0 (cmake_path command for Windows plugin deployment)
-- gRPC, Protobuf (V2RayCorePlugin, can be omitted if not used)
+- gRPC, Protobuf (used by `V2RayCorePlugin`, can be omitted if not used)
 - OpenSSL (for OpenSSL QtNetwork TLS backend plugin)
 
-## OS support status:
+## OS Support Status:
 
 - ArchLinux: **Tested and Working**
 - Windows 10/11: **Tested and Working**, build system.
 - macOS 12 Beta: **Tested and Working**
-- macOS 11: **Untested**, build system.
+- macOS 11: **Tested and Working**, build system.
 - Ubuntu 20.04: **Untested**, build system.
 - Others: **Untested**
 
