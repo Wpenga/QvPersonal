@@ -5,7 +5,7 @@
 #include "ui_httpout.h"
 
 class HttpOutboundEditor
-    : public Qv2rayPlugin::Gui::QvPluginEditor
+    : public Qv2rayPlugin::Gui::PluginProtocolEditor
     , private Ui::httpOutEditor
 {
     Q_OBJECT
@@ -13,16 +13,16 @@ class HttpOutboundEditor
   public:
     explicit HttpOutboundEditor(QWidget *parent = nullptr);
 
-    void SetContent(const IOProtocolSettings &source) override
+    void Load() override
     {
-        http.loadJson(source);
+        http.loadJson(settings);
         http.user.ReadWriteBind(http_UserNameTxt, "text", &QLineEdit::textEdited);
         http.pass.ReadWriteBind(http_PasswordTxt, "text", &QLineEdit::textEdited);
     }
 
-    const IOProtocolSettings GetContent() const override
+    void Store() override
     {
-        return IOProtocolSettings{ http.toJson() };
+        settings = IOProtocolSettings{ http.toJson() };
     }
 
   protected:

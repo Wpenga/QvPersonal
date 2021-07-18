@@ -10,11 +10,9 @@ class SimplePluginSettingsWidget
 
   public:
     explicit SimplePluginSettingsWidget(QWidget *parent = nullptr);
-    void SetSettings(const QJsonObject &) override{};
-    QJsonObject GetSettings() override
-    {
-        return {};
-    };
+
+    virtual void Load() override;
+    virtual void Store() override;
 
   protected:
     void changeEvent(QEvent *e) override;

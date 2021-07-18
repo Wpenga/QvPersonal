@@ -44,7 +44,7 @@ class V2RayProfileGenerator
         for (const auto &out : profile.outbounds)
             if (out.name == name)
                 return out;
-        return {};
+        return OutboundObject{};
     }
 
     const ProfileContent profile;

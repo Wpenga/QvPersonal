@@ -5,7 +5,7 @@
 #include "ui_trojan.h"
 
 class TrojanOutboundEditor
-    : public Qv2rayPlugin::Gui::QvPluginEditor
+    : public Qv2rayPlugin::Gui::PluginProtocolEditor
     , private Ui::TrojanOutEditor
 {
     Q_OBJECT
@@ -15,13 +15,13 @@ class TrojanOutboundEditor
 
   protected:
     void changeEvent(QEvent *e) override;
-    virtual void SetContent(const IOProtocolSettings &j) override
+    virtual void Load() override
     {
-        trojan.loadJson(j);
+        trojan.loadJson(settings);
     }
-    virtual const IOProtocolSettings GetContent() const override
+    void Store() override
     {
-        return IOProtocolSettings{ trojan.toJson() };
+        settings = IOProtocolSettings{ trojan.toJson() };
     }
 
   private:

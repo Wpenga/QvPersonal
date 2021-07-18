@@ -10,10 +10,10 @@ namespace Qv2ray::ui::common
         apiHost = QvPluginAPIHost;
     }
 
-    QList<std::pair<Qv2rayPlugin::Qv2rayInterfaceImpl *, Qv2rayPlugin::Gui::PluginGUIInterface *>> GuiPluginAPIHost::GUI_QueryByComponent(
+    QList<std::pair<Qv2rayPlugin::Qv2rayInterfaceImpl *, Qv2rayPlugin::Gui::Qv2rayGUIInterface *>> GuiPluginAPIHost::GUI_QueryByComponent(
         Qv2rayPlugin::PLUGIN_GUI_COMPONENT_TYPE c) const
     {
-        QList<std::pair<Qv2rayPlugin::Qv2rayInterfaceImpl *, Qv2rayPlugin::Gui::PluginGUIInterface *>> guiInterfaces;
+        QList<std::pair<Qv2rayPlugin::Qv2rayInterfaceImpl *, Qv2rayPlugin::Gui::Qv2rayGUIInterface *>> guiInterfaces;
         for (const auto &plugin : QvPluginManagerCore->GetPlugins(Qv2rayPlugin::COMPONENT_GUI))
         {
             const auto guiInterface = plugin->pinterface->GetGUIInterface();

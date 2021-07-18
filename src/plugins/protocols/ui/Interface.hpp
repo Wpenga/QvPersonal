@@ -18,7 +18,7 @@
 
 using namespace Qv2rayPlugin;
 
-class ProtocolGUIInterface : public Gui::PluginGUIInterface
+class ProtocolGUIInterface : public Gui::Qv2rayGUIInterface
 {
   public:
     explicit ProtocolGUIInterface(){};
@@ -30,11 +30,11 @@ class ProtocolGUIInterface : public Gui::PluginGUIInterface
             GUI_COMPONENT_OUTBOUND_EDITOR //
         };
     }
-    std::unique_ptr<Gui::PluginSettingsWidget> createSettingsWidgets() const override
+    std::unique_ptr<Gui::PluginSettingsWidget> GetSettingsWidget() const override
     {
         return std::make_unique<SimplePluginSettingsWidget>();
     }
-    QList<typed_plugin_editor> createInboundEditors() const override
+    QList<QPair<Qv2rayPlugin::Gui::ProtocolInfoObject, Qv2rayPlugin::Gui::PluginProtocolEditor *>> GetInboundEditors() const override
     {
         return {
             make_editor_info<HTTPInboundEditor>("http", "HTTP"),
@@ -42,7 +42,7 @@ class ProtocolGUIInterface : public Gui::PluginGUIInterface
             make_editor_info<DokodemoDoorInboundEditor>("dokodemo-door", "Dokodemo-Door"),
         };
     }
-    QList<typed_plugin_editor> createOutboundEditors() const override
+    QList<QPair<Qv2rayPlugin::Gui::ProtocolInfoObject, Qv2rayPlugin::Gui::PluginProtocolEditor *>> GetOutboundEditors() const override
     {
         return {
             make_editor_info<VmessOutboundEditor>("vmess", "VMess"),                   //
@@ -57,7 +57,7 @@ class ProtocolGUIInterface : public Gui::PluginGUIInterface
             make_editor_info<LoopbackSettingsEditor>("loopback", "Loopback"),          //
         };
     }
-    std::unique_ptr<Qv2rayPlugin::Gui::PluginMainWindowWidget> createMainWindowWidget() const override
+    std::unique_ptr<Qv2rayPlugin::Gui::PluginMainWindowWidget> GetMainWindowWidget() const override
     {
         return nullptr;
     }

@@ -47,5 +47,5 @@ class OutboundEditor
     //
     StreamSettingsWidget *streamSettingsWidget;
     //
-    QMap<QString, Qv2rayPlugin::Gui::QvPluginEditor *> pluginWidgets;
+    QMap<QString, Qv2rayPlugin::Gui::PluginProtocolEditor *> pluginWidgets;
 };

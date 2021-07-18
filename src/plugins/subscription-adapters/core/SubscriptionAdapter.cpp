@@ -25,18 +25,18 @@ QString SafeBase64Encode(const QString &string)
 }
 
 // Simple Base64 Decoder
-SubscriptionDecodeResult SimpleBase64Decoder::DecodeData(const QByteArray &data) const
+SubscriptionResult SimpleBase64Decoder::DecodeSubscription(const QByteArray &data) const
 {
     auto source = QString::fromUtf8(data).trimmed();
     const auto resultList = source.contains("://") ? source : SafeBase64Decode(source);
     //
-    SubscriptionDecodeResult result;
+    SubscriptionResult result;
     result.links = SplitLines(resultList);
     return result;
 }
 
 // SIP008 Decoder
-SubscriptionDecodeResult SIP008Decoder::DecodeData(const QByteArray &data) const
+SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) const
 {
     const auto root = QJsonDocument::fromJson(data).object();
     //
@@ -47,7 +47,7 @@ SubscriptionDecodeResult SIP008Decoder::DecodeData(const QByteArray &data) const
 
     // ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNzQGhvc3Q6MTIzNA/?plugin=plugin%3Bopt#sssip003
 
-    SubscriptionDecodeResult result;
+    SubscriptionResult result;
 #define GetVal(x) const auto x = serverObj[#x].toString()
     for (const auto &servVal : servers)
     {
@@ -83,7 +83,7 @@ SubscriptionDecodeResult SIP008Decoder::DecodeData(const QByteArray &data) const
 }
 
 // OOCv1 Decoder
-SubscriptionDecodeResult OOCv1Decoder::DecodeData(const QByteArray &) const
+SubscriptionResult OOCv1Decoder::DecodeSubscription(const QByteArray &) const
 {
     return {};
 }

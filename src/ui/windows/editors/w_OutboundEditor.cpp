@@ -76,8 +76,9 @@ OutboundObject OutboundEditor::generateConnectionJson()
     {
         if (protocol == outboundProtocol)
         {
-            settings = widget->GetContent();
-            const auto hasStreamSettings = GetProperty(widget, "QV2RAY_INTERNAL_HAS_STREAMSETTINGS");
+            widget->Store();
+            settings = widget->settings;
+            const auto hasStreamSettings = widget->property("QV2RAY_INTERNAL_HAS_STREAMSETTINGS").toBool();
             if (!hasStreamSettings)
                 streaming = {};
             processed = true;
@@ -117,7 +118,8 @@ void OutboundEditor::reloadGUI()
         if (it->first == outboundProtocol)
         {
             outBoundTypeCombo->setCurrentIndex(outBoundTypeCombo->findData(it->first));
-            it->second->SetContent(settings);
+            it->second->settings = settings;
+            it->second->Load();
             ipLineEdit->setText(serverAddress);
             portLineEdit->setText(QString::number(serverPort));
             processed = true;
@@ -171,6 +173,6 @@ void OutboundEditor::on_outBoundTypeCombo_currentIndexChanged(int)
     if (!newWidget)
         return;
     outboundTypeStackView->setCurrentWidget(newWidget);
-    const auto hasStreamSettings = GetProperty(newWidget, "QV2RAY_INTERNAL_HAS_STREAMSETTINGS");
+    const auto hasStreamSettings = newWidget->property("QV2RAY_INTERNAL_HAS_STREAMSETTINGS").toBool();
     streamSettingsWidget->setEnabled(hasStreamSettings);
 }

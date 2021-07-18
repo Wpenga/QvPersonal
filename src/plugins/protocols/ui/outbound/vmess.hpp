@@ -5,7 +5,7 @@
 #include "ui_vmess.h"
 
 class VmessOutboundEditor
-    : public Qv2rayPlugin::Gui::QvPluginEditor
+    : public Qv2rayPlugin::Gui::PluginProtocolEditor
     , private Ui::vmessOutEditor
 {
     Q_OBJECT
@@ -13,10 +13,10 @@ class VmessOutboundEditor
   public:
     explicit VmessOutboundEditor(QWidget *parent = nullptr);
 
-    void SetContent(const IOProtocolSettings &content) override;
-    const IOProtocolSettings GetContent() const override
+    void Load() override;
+    void Store() override
     {
-        return IOProtocolSettings{ vmess.toJson() };
+        settings = IOProtocolSettings{ vmess.toJson() };
     }
 
   private:

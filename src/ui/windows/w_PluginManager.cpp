@@ -40,7 +40,8 @@ void PluginManageWindow::on_pluginListWidget_currentItemChanged(QListWidgetItem 
     Q_UNUSED(previous)
     if (currentPluginInfo && currentSettingsWidget)
     {
-        QvPluginManagerCore->SetPluginSettings(currentPluginInfo->id(), currentSettingsWidget->GetSettings());
+        currentSettingsWidget->Store();
+        QvPluginManagerCore->SetPluginSettings(currentPluginInfo->id(), currentSettingsWidget->settings);
         pluginSettingsLayout->removeWidget(currentSettingsWidget.get());
         currentSettingsWidget.reset();
     }
@@ -66,7 +67,8 @@ void PluginManageWindow::on_pluginListWidget_currentItemChanged(QListWidgetItem 
         if (pluginUIInterface->GetComponents().contains(Qv2rayPlugin::GUI_COMPONENT_SETTINGS))
         {
             currentSettingsWidget = pluginUIInterface->GetSettingsWidget();
-            currentSettingsWidget->SetSettings(currentPluginInfo->pinterface->GetSettings());
+            currentSettingsWidget->settings = currentPluginInfo->pinterface->GetSettings();
+            currentSettingsWidget->Load();
             pluginSettingsLayout->addWidget(currentSettingsWidget.get());
             hasSettings = true;
         }

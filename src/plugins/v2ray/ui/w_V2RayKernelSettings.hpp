@@ -16,10 +16,9 @@ class V2RayKernelSettings
   protected:
     void changeEvent(QEvent *e) override;
 
-    // PluginSettingsWidget interface
   public:
-    virtual void SetSettings(const QJsonObject &) override;
-    virtual QJsonObject GetSettings() override;
+    virtual void Load() override;
+    virtual void Store() override;
 
   private slots:
     void on_selectVCoreBtn_clicked();
@@ -30,5 +29,5 @@ class V2RayKernelSettings
     void on_resetVAssetBtn_clicked();
 
   private:
-    V2RayCorePluginSettings settings;
+    V2RayCorePluginSettings settingsObject;
 };

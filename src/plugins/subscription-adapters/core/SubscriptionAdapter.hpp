@@ -4,38 +4,50 @@
 
 using namespace Qv2rayPlugin;
 
-class SIP008Decoder : public SubscriptionDecoder
+class SIP008Decoder : public SubscriptionProvider
 {
   public:
-    explicit SIP008Decoder() : SubscriptionDecoder(){};
-    SubscriptionDecodeResult DecodeData(const QByteArray &data) const override;
+    explicit SIP008Decoder() : SubscriptionProvider(){};
+    SubscriptionResult DecodeSubscription(const QByteArray &data) const override;
+    SubscriptionResult FetchDecodeSubscription(const SubscriptionProviderSettings &) const override
+    {
+        return {};
+    }
 };
 
-class OOCv1Decoder : public SubscriptionDecoder
+class OOCv1Decoder : public SubscriptionProvider
 {
   public:
-    explicit OOCv1Decoder() : SubscriptionDecoder(){};
-    SubscriptionDecodeResult DecodeData(const QByteArray &data) const override;
+    explicit OOCv1Decoder() : SubscriptionProvider(){};
+    SubscriptionResult DecodeSubscription(const QByteArray &data) const override;
+    SubscriptionResult FetchDecodeSubscription(const SubscriptionProviderSettings &) const override
+    {
+        return {};
+    }
 };
 
-class SimpleBase64Decoder : public SubscriptionDecoder
+class SimpleBase64Decoder : public SubscriptionProvider
 {
   public:
-    explicit SimpleBase64Decoder() : SubscriptionDecoder(){};
-    SubscriptionDecodeResult DecodeData(const QByteArray &data) const override;
+    explicit SimpleBase64Decoder() : SubscriptionProvider(){};
+    SubscriptionResult DecodeSubscription(const QByteArray &data) const override;
+    SubscriptionResult FetchDecodeSubscription(const SubscriptionProviderSettings &) const override
+    {
+        return {};
+    }
 };
 
-class BuiltinSubscriptionAdapterInterface : public ISubscriptionHandler
+class BuiltinSubscriptionAdapterInterface : public IPluginSubscriptionInterface
 {
   public:
     explicit BuiltinSubscriptionAdapterInterface() = default;
 
-    QList<SubscriptionInfoObject> GetInfo() const override
+    QList<SubscriptionProviderInfo> GetInfo() const override
     {
         return {
-            { SubscriptionDecoderId{ "sip008" }, "SIP008", []() { return std::make_unique<SIP008Decoder>(); } },
-            { SubscriptionDecoderId{ "ooc-v1" }, "Open Online Config v1", []() { return std::make_unique<OOCv1Decoder>(); } },
-            { SubscriptionDecoderId{ "simple_base64" }, "Base64 Links", []() { return std::make_unique<SimpleBase64Decoder>(); } },
+            { SubscriptionProviderId{ "sip008" }, "SIP008", []() { return std::make_unique<SIP008Decoder>(); } },
+            { SubscriptionProviderId{ "ooc-v1" }, "Open Online Config v1", []() { return std::make_unique<OOCv1Decoder>(); } },
+            { SubscriptionProviderId{ "simple_base64" }, "Base64 Links", []() { return std::make_unique<SimpleBase64Decoder>(); } },
         };
     }
 };

@@ -22,7 +22,7 @@ class InternalSubscriptionSupportPlugin
                                  "Qv2ray Core Workgroup",                 //
                                  PluginId{ "builtin_subscription" },      //
                                  "Basic subscription support for Qv2ray", //
-                                 "Qv2ray Repository",                     //
+                                 QUrl{ "Qv2ray Repository" },             //
                                  { COMPONENT_SUBSCRIPTION_ADAPTER } };
     }
 

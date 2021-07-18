@@ -4,7 +4,7 @@
 #include "ui_freedom.h"
 
 class FreedomOutboundEditor
-    : public Qv2rayPlugin::Gui::QvPluginEditor
+    : public Qv2rayPlugin::Gui::PluginProtocolEditor
     , private Ui::freedomOutEditor
 {
     Q_OBJECT
@@ -12,18 +12,14 @@ class FreedomOutboundEditor
   public:
     explicit FreedomOutboundEditor(QWidget *parent = nullptr);
 
-    void SetContent(const IOProtocolSettings &content) override
+    void Load() override
     {
-        this->content = content;
-        PLUGIN_EDITOR_LOADING_SCOPE({
-            DSCB->setCurrentText(content["domainStrategy"].toString());
-            redirectTxt->setText(content["redirect"].toString());
-        })
+        isLoading = true;
+        DSCB->setCurrentText(settings["domainStrategy"].toString());
+        redirectTxt->setText(settings["redirect"].toString());
+        isLoading = false;
     };
-    const IOProtocolSettings GetContent() const override
-    {
-        return content;
-    };
+    void Store() override{};
 
   protected:
     void changeEvent(QEvent *e) override;
@@ -31,4 +27,7 @@ class FreedomOutboundEditor
   private slots:
     void on_DSCB_currentTextChanged(const QString &arg1);
     void on_redirectTxt_textEdited(const QString &arg1);
+
+  private:
+    bool isLoading = false;
 };

@@ -5,7 +5,7 @@
 #include "ui_shadowsocks.h"
 
 class ShadowsocksOutboundEditor
-    : public Qv2rayPlugin::Gui::QvPluginEditor
+    : public Qv2rayPlugin::Gui::PluginProtocolEditor
     , private Ui::shadowsocksOutEditor
 {
     Q_OBJECT
@@ -13,16 +13,16 @@ class ShadowsocksOutboundEditor
   public:
     explicit ShadowsocksOutboundEditor(QWidget *parent = nullptr);
 
-    void SetContent(const IOProtocolSettings &content) override
+    void Load() override
     {
-        shadowsocks.loadJson(content);
+        shadowsocks.loadJson(settings);
         shadowsocks.method.ReadWriteBind(ss_encryptionMethod, "currentText", &QComboBox::currentTextChanged);
         shadowsocks.password.ReadWriteBind(ss_passwordTxt, "text", &QLineEdit::textEdited);
     }
-    const IOProtocolSettings GetContent() const override
+
+    void Store() override
     {
-        auto result = content;
-        return IOProtocolSettings{ shadowsocks.toJson() };
+        settings = IOProtocolSettings{ shadowsocks.toJson() };
     }
 
   protected:

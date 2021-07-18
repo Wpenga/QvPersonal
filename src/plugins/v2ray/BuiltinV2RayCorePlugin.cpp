@@ -4,8 +4,10 @@
 #include "core/V2RayKernel.hpp"
 #include "ui/w_V2RayKernelSettings.hpp"
 
-class GuiInterface : public Qv2rayPlugin::Gui::PluginGUIInterface
+class GuiInterface : public Qv2rayPlugin::Gui::Qv2rayGUIInterface
 {
+  public:
+    GuiInterface() = default;
 
     // PluginGUIInterface interface
   public:
@@ -19,22 +21,25 @@ class GuiInterface : public Qv2rayPlugin::Gui::PluginGUIInterface
     }
 
   protected:
-    virtual std::unique_ptr<Gui::PluginSettingsWidget> createSettingsWidgets() const override
+    virtual std::unique_ptr<Gui::PluginSettingsWidget> GetSettingsWidget() const override
     {
         return std::make_unique<V2RayKernelSettings>();
     }
-    virtual QList<typed_plugin_editor> createInboundEditors() const override
+    virtual PluginEditorDescriptor GetInboundEditors() const override
     {
         return {};
     }
-    virtual QList<typed_plugin_editor> createOutboundEditors() const override
+    virtual PluginEditorDescriptor GetOutboundEditors() const override
     {
         return {};
     }
-    virtual std::unique_ptr<Gui::PluginMainWindowWidget> createMainWindowWidget() const override
+    virtual std::unique_ptr<Gui::PluginMainWindowWidget> GetMainWindowWidget() const override
     {
         return nullptr;
     }
+
+  private:
+    Q_DISABLE_COPY(GuiInterface)
 };
 
 const QvPluginMetadata BuiltinV2RayCorePlugin::GetMetadata() const

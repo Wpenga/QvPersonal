@@ -2,10 +2,17 @@
 
 #include "BuiltinProtocolPlugin.hpp"
 
-HTTPInboundEditor::HTTPInboundEditor(QWidget *parent) : Qv2rayPlugin::Gui::QvPluginEditor(parent)
+HTTPInboundEditor::HTTPInboundEditor(QWidget *parent) : Qv2rayPlugin::Gui::PluginProtocolEditor(parent)
 {
     setupUi(this);
     setProperty("QV2RAY_INTERNAL_HAS_STREAMSETTINGS", true);
+}
+
+void HTTPInboundEditor::Store()
+{
+    // Remove useless, misleading 'accounts' array.
+    if (settings["accounts"].toArray().count() == 0)
+        settings.remove("accounts");
 }
 
 void HTTPInboundEditor::changeEvent(QEvent *e)
@@ -18,43 +25,45 @@ void HTTPInboundEditor::changeEvent(QEvent *e)
     }
 }
 
-void HTTPInboundEditor::SetContent(const IOProtocolSettings &content)
+void HTTPInboundEditor::Load()
 {
-    PLUGIN_EDITOR_LOADING_SCOPE({
-        this->content = content; // HTTP
-        httpTimeoutSpinBox->setValue(content[QStringLiteral("timeout")].toInt());
-        httpTransparentCB->setChecked(content[QStringLiteral("allowTransparent")].toBool());
-        httpAccountListBox->clear();
+    isLoading = true;
+    httpTimeoutSpinBox->setValue(settings[QStringLiteral("timeout")].toInt());
+    httpTransparentCB->setChecked(settings[QStringLiteral("allowTransparent")].toBool());
+    httpAccountListBox->clear();
 
-        for (const auto &user : content[QStringLiteral("accounts")].toArray())
-        {
-            httpAccountListBox->addItem(user.toObject()[QStringLiteral("user")].toString() + ":" + user.toObject()[QStringLiteral("pass")].toString());
-        }
-    })
+    for (const auto &user : settings[QStringLiteral("accounts")].toArray())
+    {
+        httpAccountListBox->addItem(user.toObject()[QStringLiteral("user")].toString() + ":" + user.toObject()[QStringLiteral("pass")].toString());
+    }
+    isLoading = false;
 }
 
 void HTTPInboundEditor::on_httpTimeoutSpinBox_valueChanged(int arg1)
 {
-    PLUGIN_EDITOR_LOADING_GUARD
-    content[QStringLiteral("timeout")] = arg1;
+    if (isLoading)
+        return;
+    settings[QStringLiteral("timeout")] = arg1;
 }
 
 void HTTPInboundEditor::on_httpTransparentCB_stateChanged(int arg1)
 {
-    PLUGIN_EDITOR_LOADING_GUARD
-    content[QStringLiteral("allowTransparent")] = arg1 == Qt::Checked;
+    if (isLoading)
+        return;
+    settings[QStringLiteral("allowTransparent")] = arg1 == Qt::Checked;
 }
 
 void HTTPInboundEditor::on_httpRemoveUserBtn_clicked()
 {
-    PLUGIN_EDITOR_LOADING_GUARD
+    if (isLoading)
+        return;
     if (httpAccountListBox->currentRow() < 0)
     {
         InternalProtocolSupportPlugin::ShowMessageBox(tr("Removing a user"), tr("You haven't selected a user yet."));
         return;
     }
     const auto item = httpAccountListBox->currentItem();
-    auto list = content[QStringLiteral("accounts")].toArray();
+    auto list = settings[QStringLiteral("accounts")].toArray();
 
     for (int i = 0; i < list.count(); i++)
     {
@@ -63,7 +72,7 @@ void HTTPInboundEditor::on_httpRemoveUserBtn_clicked()
         if (entry == item->text().trimmed())
         {
             list.removeAt(i);
-            content[QStringLiteral("accounts")] = list;
+            settings[QStringLiteral("accounts")] = list;
             httpAccountListBox->takeItem(httpAccountListBox->currentRow());
             return;
         }
@@ -72,11 +81,12 @@ void HTTPInboundEditor::on_httpRemoveUserBtn_clicked()
 
 void HTTPInboundEditor::on_httpAddUserBtn_clicked()
 {
-    PLUGIN_EDITOR_LOADING_GUARD
+    if (isLoading)
+        return;
     const auto user = httpAddUserTxt->text();
     const auto pass = httpAddPasswordTxt->text();
     //
-    auto list = content[QStringLiteral("accounts")].toArray();
+    auto list = settings[QStringLiteral("accounts")].toArray();
 
     for (int i = 0; i < list.count(); i++)
     {
@@ -92,5 +102,5 @@ void HTTPInboundEditor::on_httpAddUserBtn_clicked()
     httpAddPasswordTxt->clear();
     list.append(QJsonObject{ { "user", user }, { "pass", pass } });
     httpAccountListBox->addItem(user + ":" + pass);
-    content[QStringLiteral("accounts")] = list;
+    settings[QStringLiteral("accounts")] = list;
 }

@@ -475,12 +475,12 @@ void RouteEditor::on_importGroupBtn_currentIndexChanged(int)
 void RouteEditor::on_addBalancerBtn_clicked()
 {
 #pragma message("TODO: Outbound")
-    Q_UNUSED(nodeDispatcher->CreateOutbound({}));
+    Q_UNUSED(nodeDispatcher->CreateOutbound(OutboundObject{}));
 }
 
 void RouteEditor::on_addChainBtn_clicked()
 {
-    Q_UNUSED(nodeDispatcher->CreateOutbound({}));
+    Q_UNUSED(nodeDispatcher->CreateOutbound(OutboundObject{}));
 }
 
 void RouteEditor::on_debugPainterCB_clicked(bool checked)

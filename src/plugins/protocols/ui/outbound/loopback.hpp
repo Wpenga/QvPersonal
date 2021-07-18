@@ -4,7 +4,7 @@
 #include "ui_loopback.h"
 
 class LoopbackSettingsEditor
-    : public Qv2rayPlugin::Gui::QvPluginEditor
+    : public Qv2rayPlugin::Gui::PluginProtocolEditor
     , private Ui::loopback
 {
     Q_OBJECT
@@ -12,19 +12,17 @@ class LoopbackSettingsEditor
   public:
     explicit LoopbackSettingsEditor(QWidget *parent = nullptr);
 
-    void SetContent(const IOProtocolSettings &_content)
+    void Load() override
     {
-        content = _content;
-        inboundTagTxt->setText(content["inboundTag"].toString());
+        inboundTagTxt->setText(settings["inboundTag"].toString());
     }
 
-    const IOProtocolSettings GetContent() const
+    void Store() override
     {
-        return content;
     }
 
   protected:
-    void changeEvent(QEvent *e);
+    void changeEvent(QEvent *e) override;
 
   private slots:
     void on_inboundTagTxt_textEdited(const QString &arg1);

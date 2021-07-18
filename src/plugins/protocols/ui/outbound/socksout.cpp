@@ -1,6 +1,6 @@
 #include "socksout.hpp"
 
-SocksOutboundEditor::SocksOutboundEditor(QWidget *parent) : Qv2rayPlugin::Gui::QvPluginEditor(parent)
+SocksOutboundEditor::SocksOutboundEditor(QWidget *parent) : Qv2rayPlugin::Gui::PluginProtocolEditor(parent)
 {
     setupUi(this);
     setProperty("QV2RAY_INTERNAL_HAS_STREAMSETTINGS", true);

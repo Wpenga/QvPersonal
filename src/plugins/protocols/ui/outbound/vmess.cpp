@@ -2,7 +2,7 @@
 
 #include "BuiltinProtocolPlugin.hpp"
 
-VmessOutboundEditor::VmessOutboundEditor(QWidget *parent) : Qv2rayPlugin::Gui::QvPluginEditor(parent)
+VmessOutboundEditor::VmessOutboundEditor(QWidget *parent) : Qv2rayPlugin::Gui::PluginProtocolEditor(parent)
 {
     setupUi(this);
     setProperty("QV2RAY_INTERNAL_HAS_STREAMSETTINGS", true);
@@ -18,10 +18,9 @@ void VmessOutboundEditor::changeEvent(QEvent *e)
     }
 }
 
-void VmessOutboundEditor::SetContent(const IOProtocolSettings &content)
+void VmessOutboundEditor::Load()
 {
-    this->content = content;
-    vmess.loadJson(content);
+    vmess.loadJson(settings);
 
     vmess.security.ReadWriteBind(securityCombo, "currentText", &QComboBox::currentIndexChanged);
     vmess.id.ReadWriteBind(idLineEdit, "text", &QLineEdit::textEdited);

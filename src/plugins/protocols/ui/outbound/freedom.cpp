@@ -1,6 +1,6 @@
 #include "freedom.hpp"
 
-FreedomOutboundEditor::FreedomOutboundEditor(QWidget *parent) : Qv2rayPlugin::Gui::QvPluginEditor(parent)
+FreedomOutboundEditor::FreedomOutboundEditor(QWidget *parent) : Qv2rayPlugin::Gui::PluginProtocolEditor(parent)
 {
     setupUi(this);
     // Should freedom outbound use StreamSettings?
@@ -19,12 +19,10 @@ void FreedomOutboundEditor::changeEvent(QEvent *e)
 
 void FreedomOutboundEditor::on_DSCB_currentTextChanged(const QString &arg1)
 {
-    PLUGIN_EDITOR_LOADING_GUARD
-    content["domainStrategy"] = arg1;
+    settings["domainStrategy"] = arg1;
 }
 
 void FreedomOutboundEditor::on_redirectTxt_textEdited(const QString &arg1)
 {
-    PLUGIN_EDITOR_LOADING_GUARD
-    content["redirect"] = arg1;
+    settings["redirect"] = arg1;
 }

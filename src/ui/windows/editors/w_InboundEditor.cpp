@@ -77,7 +77,8 @@ InboundObject InboundEditor::getResult()
     {
         if (it->first == inboundProtocol)
         {
-            newRoot.inboundSettings.protocolSettings = it->second->GetContent();
+            it->second->Store();
+            newRoot.inboundSettings.protocolSettings = it->second->settings;
             break;
         }
     }
@@ -122,7 +123,8 @@ void InboundEditor::loadUI()
     {
         if (protocol == inboundProtocol)
         {
-            widget->SetContent(settings);
+            widget->settings = settings;
+            widget->Load();
             inboundProtocolCombo->setCurrentIndex(inboundProtocolCombo->findData(protocol));
             processed = true;
             break;
@@ -247,6 +249,6 @@ void InboundEditor::on_stackedWidget_currentChanged(int)
     if (!widget)
         return;
     stackedWidget->setCurrentWidget(widget);
-    const auto hasStreamSettings = GetProperty(widget, "QV2RAY_INTERNAL_HAS_STREAMSETTINGS");
+    const auto hasStreamSettings = widget->property("QV2RAY_INTERNAL_HAS_STREAMSETTINGS").toBool();
     streamSettingsWidget->setEnabled(hasStreamSettings);
 }

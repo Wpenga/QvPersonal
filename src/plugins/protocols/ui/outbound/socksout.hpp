@@ -5,7 +5,7 @@
 #include "ui_socksout.h"
 
 class SocksOutboundEditor
-    : public Qv2rayPlugin::Gui::QvPluginEditor
+    : public Qv2rayPlugin::Gui::PluginProtocolEditor
     , private Ui::socksOutEditor
 {
     Q_OBJECT
@@ -13,16 +13,16 @@ class SocksOutboundEditor
   public:
     explicit SocksOutboundEditor(QWidget *parent = nullptr);
 
-    void SetContent(const IOProtocolSettings &source) override
+    virtual void Load() override
     {
-        socks.loadJson(source);
+        socks.loadJson(settings);
         socks.user.ReadWriteBind(socks_UserNameTxt, "text", &QLineEdit::textEdited);
         socks.pass.ReadWriteBind(socks_PasswordTxt, "text", &QLineEdit::textEdited);
     }
 
-    const IOProtocolSettings GetContent() const override
+    virtual void Store() override
     {
-        return IOProtocolSettings{ socks.toJson() };
+        settings = IOProtocolSettings{ socks.toJson() };
     }
 
   protected:

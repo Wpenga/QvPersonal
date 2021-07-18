@@ -6,7 +6,7 @@
 #include <QJsonArray>
 
 class SocksInboundEditor
-    : public Qv2rayPlugin::Gui::QvPluginEditor
+    : public Qv2rayPlugin::Gui::PluginProtocolEditor
     , private Ui::socksInEditor
 {
     Q_OBJECT
@@ -14,11 +14,8 @@ class SocksInboundEditor
   public:
     explicit SocksInboundEditor(QWidget *parent = nullptr);
 
-    void SetContent(const IOProtocolSettings &content) override;
-    const IOProtocolSettings GetContent() const override
-    {
-        return content;
-    };
+    void Load() override;
+    void Store() override{};
 
   private slots:
     void on_socksUDPCB_stateChanged(int arg1);
@@ -29,4 +26,7 @@ class SocksInboundEditor
 
   protected:
     void changeEvent(QEvent *e) override;
+
+  private:
+    bool isLoading = false;
 };

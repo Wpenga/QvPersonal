@@ -4,7 +4,7 @@
 #include "ui_blackhole.h"
 
 class BlackholeOutboundEditor
-    : public Qv2rayPlugin::Gui::QvPluginEditor
+    : public Qv2rayPlugin::Gui::PluginProtocolEditor
     , private Ui::blackholeOutEditor
 {
     Q_OBJECT
@@ -12,14 +12,15 @@ class BlackholeOutboundEditor
   public:
     explicit BlackholeOutboundEditor(QWidget *parent = nullptr);
 
-    void SetContent(const IOProtocolSettings &content) override;
-    const IOProtocolSettings GetContent() const override
-    {
-        return content;
-    };
+    virtual void Load() override;
+    virtual void Store() override;
 
   protected:
     void changeEvent(QEvent *e) override;
+
   private slots:
     void on_responseTypeCB_currentTextChanged(const QString &arg1);
+
+  private:
+    bool isLoading = false;
 };

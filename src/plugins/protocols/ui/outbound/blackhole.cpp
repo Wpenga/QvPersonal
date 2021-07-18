@@ -1,6 +1,6 @@
 #include "blackhole.hpp"
 
-BlackholeOutboundEditor::BlackholeOutboundEditor(QWidget *parent) : Qv2rayPlugin::Gui::QvPluginEditor(parent)
+BlackholeOutboundEditor::BlackholeOutboundEditor(QWidget *parent) : Qv2rayPlugin::Gui::PluginProtocolEditor(parent)
 {
     setupUi(this);
     setProperty("QV2RAY_INTERNAL_HAS_STREAMSETTINGS", false);
@@ -16,17 +16,21 @@ void BlackholeOutboundEditor::changeEvent(QEvent *e)
     }
 }
 
-void BlackholeOutboundEditor::SetContent(const IOProtocolSettings &_content)
+void BlackholeOutboundEditor::Load()
 {
-    this->content = _content;
-    PLUGIN_EDITOR_LOADING_SCOPE({
-        if (content.contains("response") && content["response"].toObject().contains("type"))
-            responseTypeCB->setCurrentText(content["response"].toObject()["type"].toString());
-    })
+    isLoading = true;
+    if (settings.contains("response") && settings["response"].toObject().contains("type"))
+        responseTypeCB->setCurrentText(settings["response"].toObject()["type"].toString());
+    isLoading = false;
+}
+
+void BlackholeOutboundEditor::Store()
+{
 }
 
 void BlackholeOutboundEditor::on_responseTypeCB_currentTextChanged(const QString &arg1)
 {
-    PLUGIN_EDITOR_LOADING_GUARD
-    content = IOProtocolSettings{ QJsonObject{ { "response", QJsonObject{ { "type", arg1 } } } } };
+    if (isLoading)
+        return;
+    settings = IOProtocolSettings{ QJsonObject{ { "response", QJsonObject{ { "type", arg1 } } } } };
 }

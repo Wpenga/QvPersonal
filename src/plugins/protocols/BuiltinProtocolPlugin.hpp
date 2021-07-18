@@ -23,7 +23,7 @@ class InternalProtocolSupportPlugin
                  "Qv2ray Core Workgroup",                                                     //
                  PluginId("qv2ray_builtin_protocol"),                                         //
                  "VMess, VLESS, SOCKS, HTTP, Shadowsocks, DNS, Dokodemo-door editor support", //
-                 "Qv2ray Repository",                                                         //
+                 QUrl{ "Qv2ray Repository" },                                                 //
                  {
                      COMPONENT_OUTBOUND_HANDLER, //
                      COMPONENT_GUI               //

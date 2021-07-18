@@ -9,7 +9,7 @@ namespace Qv2ray::ui::common
     {
       public:
         GuiPluginAPIHost();
-        QList<std::pair<Qv2rayPlugin::Qv2rayInterfaceImpl *, Qv2rayPlugin::Gui::PluginGUIInterface *>> GUI_QueryByComponent(
+        QList<std::pair<Qv2rayPlugin::Qv2rayInterfaceImpl *, Qv2rayPlugin::Gui::Qv2rayGUIInterface *>> GUI_QueryByComponent(
             Qv2rayPlugin::PLUGIN_GUI_COMPONENT_TYPE c) const;
 
       private:

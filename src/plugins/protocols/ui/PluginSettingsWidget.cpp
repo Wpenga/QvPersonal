@@ -5,6 +5,14 @@ SimplePluginSettingsWidget::SimplePluginSettingsWidget(QWidget *parent) : Qv2ray
     setupUi(this);
 }
 
+void SimplePluginSettingsWidget::Load()
+{
+}
+
+void SimplePluginSettingsWidget::Store()
+{
+}
+
 void SimplePluginSettingsWidget::changeEvent(QEvent *e)
 {
     QWidget::changeEvent(e);

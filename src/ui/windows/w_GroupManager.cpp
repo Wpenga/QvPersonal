@@ -41,7 +41,7 @@ GroupManager::GroupManager(QWidget *parent) : QvDialog("GroupManager", parent)
 
     for (const auto &[pluginInfo, info] : QvPluginAPIHost->Subscription_GetAllAdapters())
     {
-        subscriptionTypeCB->addItem(pluginInfo->metadata().Name + ": " + info.displayName, info.type.toString());
+        subscriptionTypeCB->addItem(pluginInfo->metadata().Name + ": " + info.displayName, info.id.toString());
     }
 
     dnsSettingsWidget = new DnsSettingsWidget(this);
@@ -367,7 +367,7 @@ void GroupManager::on_groupList_itemClicked(QListWidgetItem *item)
     createdAtLabel->setText(TimeToString(_group.created));
     updateIntervalSB->setValue(_group.subscription_config.updateInterval);
     {
-        const auto type = _group.subscription_config.type;
+        const auto type = _group.subscription_config.providerId;
         const auto index = subscriptionTypeCB->findData(type.toString());
         if (index < 0)
             QvBaselib->Warn(tr("Unknown Subscription Type"), tr("Unknown subscription type \"%1\", a plugin may be missing.").arg(type.toString()));
@@ -417,14 +417,14 @@ void GroupManager::on_groupList_itemClicked(QListWidgetItem *item)
 void GroupManager::on_IncludeRelation_currentTextChanged(const QString &)
 {
     auto subscription = QvProfileManager->GetGroupObject(currentGroupId).subscription_config;
-    subscription.includeRelation = (SubscriptionConfigObject::SubscriptionFilterRelation) IncludeRelation->currentIndex();
+    subscription.includeRelation = (SubscriptionConfigObject::FilterRelation) IncludeRelation->currentIndex();
     QvProfileManager->SetSubscriptionData(currentGroupId, subscription);
 }
 
 void GroupManager::on_ExcludeRelation_currentTextChanged(const QString &)
 {
     auto subscription = QvProfileManager->GetGroupObject(currentGroupId).subscription_config;
-    subscription.excludeRelation = (SubscriptionConfigObject::SubscriptionFilterRelation) ExcludeRelation->currentIndex();
+    subscription.excludeRelation = (SubscriptionConfigObject::FilterRelation) ExcludeRelation->currentIndex();
     QvProfileManager->SetSubscriptionData(currentGroupId, subscription);
 }
 
@@ -533,6 +533,6 @@ void GroupManager::on_connectionsTable_customContextMenuRequested(const QPoint &
 void GroupManager::on_subscriptionTypeCB_currentIndexChanged(int)
 {
     auto subscription = QvProfileManager->GetGroupObject(currentGroupId).subscription_config;
-    subscription.type = SubscriptionDecoderId{ subscriptionTypeCB->currentData().toString() };
+    subscription.providerId = SubscriptionProviderId{ subscriptionTypeCB->currentData().toString() };
     QvProfileManager->SetSubscriptionData(currentGroupId, subscription);
 }

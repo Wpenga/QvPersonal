@@ -1,6 +1,6 @@
 #include "trojan.hpp"
 
-TrojanOutboundEditor::TrojanOutboundEditor(QWidget *parent) : Qv2rayPlugin::Gui::QvPluginEditor(parent)
+TrojanOutboundEditor::TrojanOutboundEditor(QWidget *parent) : Qv2rayPlugin::Gui::PluginProtocolEditor(parent)
 {
     setupUi(this);
     setProperty("QV2RAY_INTERNAL_HAS_STREAMSETTINGS", true);

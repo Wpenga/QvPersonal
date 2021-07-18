@@ -5,7 +5,7 @@
 #include "ui_vless.h"
 
 class VlessOutboundEditor
-    : public Qv2rayPlugin::Gui::QvPluginEditor
+    : public Qv2rayPlugin::Gui::PluginProtocolEditor
     , private Ui::vlessOutEditor
 {
     Q_OBJECT
@@ -13,18 +13,17 @@ class VlessOutboundEditor
   public:
     explicit VlessOutboundEditor(QWidget *parent = nullptr);
 
-    void SetContent(const IOProtocolSettings &content) override
+    void Load() override
     {
-        this->content = content;
-        vless.loadJson(content);
+        vless.loadJson(settings);
         vless.encryption.ReadWriteBind(vLessSecurityCombo, "currentText", &QComboBox::currentIndexChanged);
         vless.flow.ReadWriteBind(flowCombo, "currentText", &QComboBox::currentIndexChanged);
         vless.id.ReadWriteBind(vLessIDTxt, "text", &QLineEdit::textEdited);
     }
 
-    const IOProtocolSettings GetContent() const override
+    void Store() override
     {
-        return IOProtocolSettings{ vless.toJson() };
+        settings = IOProtocolSettings{ vless.toJson() };
     }
 
   protected:

@@ -10,12 +10,12 @@
 V2RayKernelSettings::V2RayKernelSettings(QWidget *parent) : Qv2rayPlugin::Gui::PluginSettingsWidget(parent)
 {
     setupUi(this);
-    settings.APIEnabled.ReadWriteBind(enableAPI, "checked", &QCheckBox::toggled);
-    settings.APIPort.ReadWriteBind(statsPortBox, "value", &QSpinBox::valueChanged);
-    settings.AssetsPath.ReadWriteBind(vCoreAssetsPathTxt, "text", &QLineEdit::textEdited);
-    settings.CorePath.ReadWriteBind(vCorePathTxt, "text", &QLineEdit::textEdited);
-    settings.LogLevel.ReadWriteBind(logLevelComboBox, "currentIndex", &QComboBox::currentIndexChanged);
-    settings.OutboundMark.ReadWriteBind(somarkSB, "value", &QSpinBox::valueChanged);
+    settingsObject.APIEnabled.ReadWriteBind(enableAPI, "checked", &QCheckBox::toggled);
+    settingsObject.APIPort.ReadWriteBind(statsPortBox, "value", &QSpinBox::valueChanged);
+    settingsObject.AssetsPath.ReadWriteBind(vCoreAssetsPathTxt, "text", &QLineEdit::textEdited);
+    settingsObject.CorePath.ReadWriteBind(vCorePathTxt, "text", &QLineEdit::textEdited);
+    settingsObject.LogLevel.ReadWriteBind(logLevelComboBox, "currentIndex", &QComboBox::currentIndexChanged);
+    settingsObject.OutboundMark.ReadWriteBind(somarkSB, "value", &QSpinBox::valueChanged);
 }
 
 void V2RayKernelSettings::changeEvent(QEvent *e)
@@ -28,34 +28,33 @@ void V2RayKernelSettings::changeEvent(QEvent *e)
     }
 }
 
-void V2RayKernelSettings::SetSettings(const QJsonObject &json)
+void V2RayKernelSettings::Load()
 {
-    settings.loadJson(json);
+    settingsObject.loadJson(settings);
 }
 
-QJsonObject V2RayKernelSettings::GetSettings()
+void V2RayKernelSettings::Store()
 {
-    return settings.toJson();
+    settings = settingsObject.toJson();
 }
 
 void V2RayKernelSettings::on_selectVCoreBtn_clicked()
 {
     const auto core = QFileDialog::getOpenFileName(this, tr("Open V2Ray core file"), QDir::currentPath());
     if (!core.isEmpty())
-        settings.CorePath = core;
+        settingsObject.CorePath = core;
 }
 
 void V2RayKernelSettings::on_selectVAssetBtn_clicked()
 {
     const auto dir = QFileDialog::getExistingDirectory(this, tr("Open V2Ray assets folder"), QDir::currentPath());
     if (!dir.isEmpty())
-        settings.AssetsPath = dir;
+        settingsObject.AssetsPath = dir;
 }
 
 void V2RayKernelSettings::on_checkVCoreSettings_clicked()
 {
-
-    if (const auto &[result, msg] = ValidateKernel(settings.CorePath, settings.AssetsPath); !result)
+    if (const auto &[result, msg] = ValidateKernel(settingsObject.CorePath, settingsObject.AssetsPath); !result)
     {
         BuiltinV2RayCorePlugin::ShowMessageBox(tr("V2Ray Core Settings"), *msg);
     }
@@ -129,11 +128,11 @@ void V2RayKernelSettings::on_detectCoreBtn_clicked()
     searchPaths << QStringLiteral("/usr/local/opt/v2ray");
 #endif
 
-    searchPaths << settings.AssetsPath;
+    searchPaths << settingsObject.AssetsPath;
     searchPaths.removeDuplicates();
 
-    QString corePath = settings.CorePath;
-    QString assetsPath = settings.AssetsPath;
+    QString corePath = settingsObject.CorePath;
+    QString assetsPath = settingsObject.AssetsPath;
 
     bool assetsFound = false;
     bool coreFound = false;
@@ -162,16 +161,16 @@ void V2RayKernelSettings::on_detectCoreBtn_clicked()
 
     BuiltinV2RayCorePlugin::ShowMessageBox(QStringLiteral("V2Ray Core Detection"), messages.join(QChar::fromLatin1('\n')));
 
-    settings.CorePath = corePath;
-    settings.AssetsPath = assetsPath;
+    settingsObject.CorePath = corePath;
+    settingsObject.AssetsPath = assetsPath;
 }
 
 void V2RayKernelSettings::on_resetVCoreBtn_clicked()
 {
-    settings.CorePath = QStringLiteral(QV2RAY_DEFAULT_VCORE_PATH);
+    settingsObject.CorePath = QStringLiteral(QV2RAY_DEFAULT_VCORE_PATH);
 }
 
 void V2RayKernelSettings::on_resetVAssetBtn_clicked()
 {
-    settings.AssetsPath = QStringLiteral(QV2RAY_DEFAULT_VASSETS_PATH);
+    settingsObject.AssetsPath = QStringLiteral(QV2RAY_DEFAULT_VASSETS_PATH);
 }

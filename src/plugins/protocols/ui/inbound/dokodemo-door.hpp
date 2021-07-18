@@ -4,7 +4,7 @@
 #include "ui_dokodemo-door.h"
 
 class DokodemoDoorInboundEditor
-    : public Qv2rayPlugin::Gui::QvPluginEditor
+    : public Qv2rayPlugin::Gui::PluginProtocolEditor
     , private Ui::dokodemodoorInEditor
 {
     Q_OBJECT
@@ -12,8 +12,8 @@ class DokodemoDoorInboundEditor
   public:
     explicit DokodemoDoorInboundEditor(QWidget *parent = nullptr);
 
-    void SetContent(const IOProtocolSettings &content) override;
-    const IOProtocolSettings GetContent() const override;
+    virtual void Load() override;
+    virtual void Store() override;
 
   protected:
     void changeEvent(QEvent *e) override;
@@ -25,4 +25,7 @@ class DokodemoDoorInboundEditor
     void on_dokoTCPCB_stateChanged(int arg1);
     void on_dokoUDPCB_stateChanged(int arg1);
     void on_dokoTimeoutSB_valueChanged(int arg1);
+
+  private:
+    bool isLoading = false;
 };
