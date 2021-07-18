@@ -48,10 +48,10 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
     // ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNzQGhvc3Q6MTIzNA/?plugin=plugin%3Bopt#sssip003
 
     SubscriptionResult result;
-#define GetVal(x) const auto x = serverObj[#x].toString()
     for (const auto &servVal : servers)
     {
         const auto serverObj = servVal.toObject();
+#define GetVal(x) const auto x = serverObj[u"" #x##_qs].toString()
         GetVal(server);
         GetVal(password);
         GetVal(method);
@@ -59,6 +59,7 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
         GetVal(plugin_opts);
         GetVal(remarks);
         // GetVal(id);
+#undef GetVal
 
         const auto server_port = serverObj["server_port"].toInt();
         bool isSIP003 = !plugin.isEmpty();
@@ -78,12 +79,11 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
         }
         result.links << link.toString(QUrl::FullyEncoded);
     }
-#undef GetVal
     return result;
 }
 
 // OOCv1 Decoder
-SubscriptionResult OOCv1Decoder::DecodeSubscription(const QByteArray &) const
+SubscriptionResult OOCv1Decoder::FetchDecodeSubscription(const SubscriptionProviderOptions &) const
 {
     return {};
 }
