@@ -17,6 +17,8 @@ else()
             pkg_check_modules(GRPC REQUIRED grpc++ grpc gpr)
             set(QV2RAY_BACKEND_LIBRARY ${GRPC_LINK_LIBRARIES} ${UPB_LIBRARY} ${ADDRESS_SORTING})
         endif()
+    else()
+        set(QV2RAY_BACKEND_LIBRARY gRPC::grpc++)
     endif()
 endif()
 
