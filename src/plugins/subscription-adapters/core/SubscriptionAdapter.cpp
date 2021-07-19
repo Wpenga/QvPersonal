@@ -9,7 +9,7 @@
 
 const inline QStringList SplitLines(const QString &_string)
 {
-    return _string.split(QRegularExpression("[\r\n]"), Qt::SkipEmptyParts);
+    return _string.split(QRegularExpression(QStringLiteral("[\r\n]")), Qt::SkipEmptyParts);
 }
 
 QString SafeBase64Decode(QString string)
@@ -28,7 +28,7 @@ QString SafeBase64Encode(const QString &string)
 SubscriptionResult SimpleBase64Decoder::DecodeSubscription(const QByteArray &data) const
 {
     auto source = QString::fromUtf8(data).trimmed();
-    const auto resultList = source.contains("://") ? source : SafeBase64Decode(source);
+    const auto resultList = source.contains(QStringLiteral("://")) ? source : SafeBase64Decode(source);
     //
     SubscriptionResult result;
     result.links = SplitLines(resultList);
@@ -43,7 +43,7 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
     // const auto version = root["version"].toString();
     // const auto username = root["username"].toString();
     // const auto user_uuid = root["user_uuid"].toString();
-    const auto servers = root["servers"].toArray();
+    const auto servers = root[QStringLiteral("servers")].toArray();
 
     // ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNzQGhvc3Q6MTIzNA/?plugin=plugin%3Bopt#sssip003
 
@@ -61,12 +61,12 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
         // GetVal(id);
 #undef GetVal
 
-        const auto server_port = serverObj["server_port"].toInt();
+        const auto server_port = serverObj[QStringLiteral("server_port")].toInt();
         bool isSIP003 = !plugin.isEmpty();
-        const auto userInfo = SafeBase64Encode(method + ":" + password);
+        const auto userInfo = SafeBase64Encode(method + QStringLiteral(":") + password);
         //
         QUrl link;
-        link.setScheme("ss");
+        link.setScheme(QStringLiteral("ss"));
         link.setUserInfo(userInfo);
         link.setHost(server);
         link.setPort(server_port);
@@ -74,7 +74,7 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
         if (isSIP003)
         {
             QUrlQuery q;
-            q.addQueryItem("plugin", QUrl::toPercentEncoding(plugin + ";" + plugin_opts));
+            q.addQueryItem(QStringLiteral("plugin"), QUrl::toPercentEncoding(plugin + QStringLiteral(";") + plugin_opts));
             link.setQuery(q);
         }
         result.links << link.toString(QUrl::FullyEncoded);
