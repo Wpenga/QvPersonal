@@ -196,9 +196,11 @@ void GroupManager::SaveCurrentGroup()
         auto subscription = groupObject.subscription_config;
 
         subscription.providerId = SubscriptionProviderId{ subscriptionTypeCB->currentData().toString() };
-        subscription.address = subAddrTxt->text();
+        subscription.address = subAddrTxt->text().trimmed();
         subscription.updateInterval = updateIntervalSB->value();
-        subscription.providerSettings = SubscriptionProviderOptions{ QJsonObject::fromVariantMap(subscriptionProviderOptionsEditor->GetContent().toMap()) };
+
+        if (subscriptionProviderOptionsEditor)
+            subscription.providerSettings = SubscriptionProviderOptions{ QJsonObject::fromVariantMap(subscriptionProviderOptionsEditor->GetContent().toMap()) };
 
         subscription.excludeKeywords = ExcludeKeywords->toPlainText().remove('\r').split('\n');
         subscription.includeKeywords = IncludeKeywords->toPlainText().remove('\r').split('\n');
