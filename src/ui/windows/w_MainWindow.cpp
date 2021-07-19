@@ -121,7 +121,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnDisconnected, this, &MainWindow::OnDisconnected);
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, this, &MainWindow::OnStatsAvailable);
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnKernelLogAvailable, this, &MainWindow::OnKernelLogAvailable);
-    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnSubscriptionAsyncUpdateFinished, [](const GroupId &gid) {
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnSubscriptionUpdateFinished, [](const GroupId &gid) {
         QvApp->ShowTrayMessage(tr("Subscription \"%1\" has been updated").arg(GetDisplayName(gid))); //
     });
 
@@ -824,7 +824,7 @@ void MainWindow::Action_UpdateSubscription()
                 return;
             const auto gid = widget->Identifier().groupId;
             if (QvProfileManager->GetGroupObject(gid).subscription_config.isSubscription)
-                QvProfileManager->UpdateSubscriptionAsync(gid);
+                QvProfileManager->UpdateSubscription(gid, true);
             else
                 QvBaselib->Info(tr("Update Subscription"), tr("Selected group is not a subscription"));
         }

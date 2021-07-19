@@ -9,7 +9,6 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
 #include <QPainter>
-#include <QShowEvent>
 #include <QTextCursor>
 #include <QTextDocument>
 

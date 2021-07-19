@@ -150,7 +150,7 @@ void MainWindow::CheckSubscriptionsUpdate()
             if (result == Qv2rayBase::MessageOpt::Yes)
             {
                 QvLog() << "Updating subscription:" << name;
-                QvProfileManager->UpdateSubscriptionAsync(id);
+                QvProfileManager->UpdateSubscription(id, true);
             }
             else if (result == Qv2rayBase::MessageOpt::Ignore)
             {

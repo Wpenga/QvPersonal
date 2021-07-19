@@ -71,7 +71,7 @@ ConnectionItemWidget::ConnectionItemWidget(const GroupId &id, QWidget *parent) :
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionCreated, this, &ConnectionItemWidget::RecalculateConnections);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionModified, this, &ConnectionItemWidget::RecalculateConnections);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionLinkedWithGroup, this, &ConnectionItemWidget::RecalculateConnections);
-    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnSubscriptionAsyncUpdateFinished, this, &ConnectionItemWidget::RecalculateConnections);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnSubscriptionUpdateFinished, this, &ConnectionItemWidget::RecalculateConnections);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionRemovedFromGroup, this, &ConnectionItemWidget::RecalculateConnections);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupRenamed, this, &ConnectionItemWidget::OnGroupItemRenamed);
 }

@@ -44,7 +44,7 @@ qv2ray_add_class(ui/node/models/RuleNodeModel)
 qv2ray_add_class(ui/node/NodeBase)
 qv2ray_add_class(ui/node/NodeDispatcher)
 qv2ray_add_class(ui/widgets/AutoCompleteTextEdit)
-
+qv2ray_add_class(ui/widgets/ConfigurableEditorWidget)
 
 qv2ray_add_component(AutoLaunchHelper)
 qv2ray_add_component(ConnectionModelHelper)

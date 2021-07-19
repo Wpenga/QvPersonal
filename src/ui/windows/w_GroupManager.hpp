@@ -9,6 +9,7 @@
 
 class DnsSettingsWidget;
 class RouteSettingsMatrixWidget;
+class ConfigurableEditor;
 
 class GroupManager
     : public QvDialog
@@ -42,14 +43,8 @@ class GroupManager
     void on_removeGroupButton_clicked();
     void on_buttonBox_accepted();
     void on_groupList_itemSelectionChanged();
-    void on_IncludeRelation_currentTextChanged(const QString &arg1);
-    void on_ExcludeRelation_currentTextChanged(const QString &arg1);
-    void on_IncludeKeywords_textChanged();
-    void on_ExcludeKeywords_textChanged();
     void on_groupList_itemClicked(QListWidgetItem *item);
     void on_groupList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
-    void on_subAddrTxt_textEdited(const QString &arg1);
-    void on_updateIntervalSB_valueChanged(double arg1);
     void on_connectionsList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
     void on_groupIsSubscriptionGroup_clicked(bool checked);
     void on_groupNameTxt_textEdited(const QString &arg1);
@@ -67,11 +62,15 @@ class GroupManager
     void onRCMActionTriggered_Copy();
     void onRCMActionTriggered_Link();
     void reloadGroupRCMActions();
+    void SaveCurrentGroup();
+    //
+    void setupSubscriptionProviderSettingsWidget();
     //
     void exportConnectionFilter(ProfileContent &root);
     //
-    DnsSettingsWidget *dnsSettingsWidget;
-    RouteSettingsMatrixWidget *routeSettingsWidget;
+    ConfigurableEditor *subscriptionProviderOptionsEditor = nullptr;
+    DnsSettingsWidget *dnsSettingsWidget = nullptr;
+    RouteSettingsMatrixWidget *routeSettingsWidget = nullptr;
     //
     QMenu *connectionListRCMenu = new QMenu(this);
     QAction *exportConnectionAction = new QAction(tr("Export Connection(s)"), connectionListRCMenu);
@@ -80,6 +79,7 @@ class GroupManager
     QMenu *connectionListRCMenu_MoveToMenu = new QMenu(tr("Move to..."));
     QMenu *connectionListRCMenu_LinkToMenu = new QMenu(tr("Link to..."));
     bool isUpdateInProgress = false;
+
     GroupId currentGroupId;
     ConnectionId currentConnectionId;
 };

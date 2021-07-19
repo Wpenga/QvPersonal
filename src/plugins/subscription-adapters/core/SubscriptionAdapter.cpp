@@ -51,7 +51,7 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
     for (const auto &servVal : servers)
     {
         const auto serverObj = servVal.toObject();
-#define GetVal(x) const auto x = serverObj[u"" #x##_qs].toString()
+#define GetVal(x) const auto x = serverObj[u## #x##_qs].toString()
         GetVal(server);
         GetVal(password);
         GetVal(method);
@@ -83,7 +83,7 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
 }
 
 // OOCv1 Decoder
-SubscriptionResult OOCv1Decoder::FetchDecodeSubscription(const SubscriptionProviderOptions &) const
+SubscriptionResult OOCProvider::FetchDecodeSubscription(const SubscriptionProviderOptions &options) const
 {
     return {};
 }
