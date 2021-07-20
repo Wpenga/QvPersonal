@@ -259,17 +259,20 @@ void GroupManager::reloadConnectionsList(const GroupId &group)
         auto displayNameItem = new QTableWidgetItem(GetDisplayName(conn));
         displayNameItem->setData(Qt::UserRole, conn.toString());
         auto typeItem = new QTableWidgetItem(GetConnectionProtocolDescription(conn));
-        //
-        const auto [type, host, port] = GetOutboundInfo(QvProfileManager->GetConnection(conn).outbounds.first());
-        auto hostPortItem = new QTableWidgetItem(host + ":" + port);
-        //
+
         QStringList groupsNamesString;
         for (const auto &group : QvProfileManager->GetGroups(conn))
             groupsNamesString.append(GetDisplayName(group));
         auto groupsItem = new QTableWidgetItem(groupsNamesString.join(';'));
         connectionsTable->setItem(i, 0, displayNameItem);
         connectionsTable->setItem(i, 1, typeItem);
-        connectionsTable->setItem(i, 2, hostPortItem);
+        const auto profile = QvProfileManager->GetConnection(conn);
+        if (!profile.outbounds.isEmpty())
+        {
+            const auto [type, host, port] = GetOutboundInfo(profile.outbounds.first());
+            auto hostPortItem = new QTableWidgetItem(host + ":" + port);
+            connectionsTable->setItem(i, 2, hostPortItem);
+        }
         connectionsTable->setItem(i, 3, groupsItem);
     }
     connectionsTable->resizeColumnsToContents();
