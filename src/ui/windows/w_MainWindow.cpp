@@ -109,21 +109,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     //
     //
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnCrashed,
-            [this](const ProfileId &, const QString &reason) {
+            [this](const ProfileId &, const QString &reason)
+            {
                 MWShowWindow();
                 qApp->processEvents();
-                QvBaselib->Warn(tr("Kernel terminated."),
-                                 tr("The kernel terminated unexpectedly:") + NEWLINE + reason + NEWLINE + NEWLINE +
-                                     tr("To solve the problem, read the kernel log in the log text browser."));
+                QvBaselib->Warn(tr("Kernel terminated."), tr("The kernel terminated unexpectedly:") + NEWLINE + reason + NEWLINE + NEWLINE +
+                                                              tr("To solve the problem, read the kernel log in the log text browser."));
             });
 
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnConnected, this, &MainWindow::OnConnected);
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnDisconnected, this, &MainWindow::OnDisconnected);
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, this, &MainWindow::OnStatsAvailable);
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnKernelLogAvailable, this, &MainWindow::OnKernelLogAvailable);
-    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnSubscriptionUpdateFinished, [](const GroupId &gid) {
-        QvApp->ShowTrayMessage(tr("Subscription \"%1\" has been updated").arg(GetDisplayName(gid))); //
-    });
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnSubscriptionUpdateFinished,
+            [](const GroupId &gid)
+            {
+                QvApp->ShowTrayMessage(tr("Subscription \"%1\" has been updated").arg(GetDisplayName(gid))); //
+            });
 
     connect(infoWidget, &ConnectionInfoWidget::OnEditRequested, this, &MainWindow::OnEditRequested);
     connect(infoWidget, &ConnectionInfoWidget::OnJsonEditRequested, this, &MainWindow::OnEditJsonRequested);
@@ -161,12 +163,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(tray_action_Stop, &QAction::triggered, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::StopConnection);
     connect(tray_action_Restart, &QAction::triggered, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::RestartConnection);
     connect(tray_action_Quit, &QAction::triggered, this, &MainWindow::Action_Exit);
-    connect(tray_ClearRecentConnectionsAction, &QAction::triggered, [this]() {
-        GlobalConfig->appearanceConfig->RecentConnections->clear();
-        ReloadRecentConnectionList();
-        if (!GlobalConfig->behaviorConfig->QuietMode)
-            QvApp->ShowTrayMessage(tr("Recent Connection list cleared."));
-    });
+    connect(tray_ClearRecentConnectionsAction, &QAction::triggered,
+            [this]()
+            {
+                GlobalConfig->appearanceConfig->RecentConnections->clear();
+                ReloadRecentConnectionList();
+                if (!GlobalConfig->behaviorConfig->QuietMode)
+                    QvApp->ShowTrayMessage(tr("Recent Connection list cleared."));
+            });
     connect(qvAppTrayIcon, &QSystemTrayIcon::activated, this, &MainWindow::on_activatedTray);
     //
     // Actions for right click the log text browser
