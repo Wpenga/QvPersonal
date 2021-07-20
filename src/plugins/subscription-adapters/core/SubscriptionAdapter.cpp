@@ -1,9 +1,12 @@
 #include "SubscriptionAdapter.hpp"
 
+#include "BuiltinSubscriptionAdapter.hpp"
+
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QSslKey>
 #include <QUrl>
 #include <QUrlQuery>
 
@@ -85,5 +88,20 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
 // OOCv1 Decoder
 SubscriptionResult OOCProvider::FetchDecodeSubscription(const SubscriptionProviderOptions &options) const
 {
+
+    const auto url = u"%1/%2/ooc/v%3/%4"_qs.arg(options.value(u"baseUrl"_qs).toString(),               //
+                                                options.value(u"secret"_qs).toString(),                //
+                                                QString::number(options.value(u"version"_qs).toInt()), //
+                                                options.value(u"userId"_qs).toString());
+
+    const auto pinnedCertChecker = [](QNetworkReply *reply)
+    {
+        QSslCertificate cert = reply->sslConfiguration().peerCertificate();
+        QString serverHash = QCryptographicHash::hash(cert.publicKey().toDer(), QCryptographicHash::Sha256).toHex();
+        Q_UNUSED(serverHash);
+    };
+
+    const auto &[err, errorString, data] = InternalSubscriptionSupportPlugin::NetworkRequestHelper()->Get(url, pinnedCertChecker);
+
     return {};
 }
