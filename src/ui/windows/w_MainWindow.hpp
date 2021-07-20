@@ -92,7 +92,6 @@ class MainWindow
     void SortConnectionList(ConnectionInfoRole byCol, bool asending);
     //
     void ReloadRecentConnectionList();
-    void OnRecentConnectionsMenuReadyToShow();
     //
     void OnLogScrollbarValueChanged(int value);
     //

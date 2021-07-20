@@ -69,21 +69,6 @@ void MainWindow::ReloadRecentConnectionList()
     GlobalConfig->appearanceConfig->RecentConnections = newRecentConnections;
 }
 
-void MainWindow::OnRecentConnectionsMenuReadyToShow()
-{
-    tray_RecentConnectionsMenu->clear();
-    tray_RecentConnectionsMenu->addAction(tray_ClearRecentConnectionsAction);
-    tray_RecentConnectionsMenu->addSeparator();
-    for (const auto &conn : *GlobalConfig->appearanceConfig->RecentConnections)
-    {
-        if (QvProfileManager->IsValidId(conn))
-        {
-            const auto name = GetDisplayName(conn.connectionId) + " (" + GetDisplayName(conn.groupId) + ")";
-            tray_RecentConnectionsMenu->addAction(name, this, [=]() { emit QvProfileManager->StartConnection(conn); });
-        }
-    }
-}
-
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setupUi(this);
@@ -147,8 +132,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     //
     tray_RootMenu->addSeparator();
     tray_RootMenu->addMenu(tray_RecentConnectionsMenu);
-    connect(tray_RecentConnectionsMenu, &QMenu::aboutToShow, this, &MainWindow::OnRecentConnectionsMenuReadyToShow);
-    //
+    connect(tray_RecentConnectionsMenu, &QMenu::aboutToShow, this,
+            [this]()
+            {
+                tray_RecentConnectionsMenu->clear();
+                tray_RecentConnectionsMenu->addAction(tray_ClearRecentConnectionsAction);
+                tray_RecentConnectionsMenu->addSeparator();
+                for (const auto &conn : *GlobalConfig->appearanceConfig->RecentConnections)
+                {
+                    if (!QvProfileManager->IsValidId(conn))
+                        continue;
+                    const auto name = GetDisplayName(conn.connectionId) + " (" + GetDisplayName(conn.groupId) + ")";
+                    tray_RecentConnectionsMenu->addAction(name, this, [=]() { emit QvProfileManager->StartConnection(conn); });
+                }
+            });
+
     tray_RootMenu->addSeparator();
     tray_RootMenu->addAction(tray_action_Start);
     tray_RootMenu->addAction(tray_action_Stop);
@@ -156,7 +154,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     tray_RootMenu->addSeparator();
     tray_RootMenu->addAction(tray_action_Quit);
     qvAppTrayIcon->setContextMenu(tray_RootMenu);
-    //
+
     connect(tray_action_ToggleVisibility, &QAction::triggered, this, &MainWindow::MWToggleVisibility);
     connect(tray_action_Preferences, &QAction::triggered, this, &MainWindow::on_preferencesBtn_clicked);
     connect(tray_action_Start, &QAction::triggered, [this] { QvProfileManager->StartConnection(lastConnected); });

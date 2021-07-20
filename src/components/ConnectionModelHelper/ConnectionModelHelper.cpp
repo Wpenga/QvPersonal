@@ -7,13 +7,13 @@
 #include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 #include "ui/widgets/ConnectionItemWidget.hpp"
 
-const auto NumericString = [](auto i) { return QStringLiteral("%1").arg(i, 30, 10, QLatin1Char('0')); };
+const auto NumericString = [](auto i) { return QStringLiteral("%1").arg(i, 30, 10, QChar('0')); };
 
-ConnectionListHelper::ConnectionListHelper(QTreeView *view, QObject *parent) : QObject(parent)
+ConnectionListHelper::ConnectionListHelper(QTreeView *parentView, QObject *parent) : QObject(parent)
 {
-    parentView = view;
+    this->parentView = parentView;
     model = new QStandardItemModel();
-    view->setModel(model);
+    parentView->setModel(model);
     for (const auto &group : QvProfileManager->GetGroups())
     {
         addGroupItem(group);
@@ -23,7 +23,8 @@ ConnectionListHelper::ConnectionListHelper(QTreeView *view, QObject *parent) : Q
         }
     }
 
-    const auto renamedLambda = [&](const ConnectionId &id, const QString &, const QString &newName) {
+    const auto renamedLambda = [&](const ConnectionId &id, const QString &, const QString &newName)
+    {
         for (const auto &gid : QvProfileManager->GetGroups(id))
         {
             ProfileId pair{ id, gid };
@@ -32,7 +33,8 @@ ConnectionListHelper::ConnectionListHelper(QTreeView *view, QObject *parent) : Q
         }
     };
 
-    const auto latencyLambda = [&](const ConnectionId &id, const int avg) {
+    const auto latencyLambda = [&](const ConnectionId &id, const int avg)
+    {
         for (const auto &gid : QvProfileManager->GetGroups(id))
         {
             ProfileId pair{ id, gid };
@@ -41,7 +43,8 @@ ConnectionListHelper::ConnectionListHelper(QTreeView *view, QObject *parent) : Q
         }
     };
 
-    const auto statsLambda = [&](const ProfileId &id, const StatisticsObject &) {
+    const auto statsLambda = [&](const ProfileId &id, const StatisticsObject &)
+    {
         if (connections.contains(id.connectionId))
         {
             for (const auto &index : connections[id.connectionId])
@@ -104,11 +107,13 @@ QStandardItem *ConnectionListHelper::addConnectionItem(const ProfileId &id)
     const auto connectionIndex = connectionItem->index();
     //
     auto widget = new ConnectionItemWidget(id);
-    connect(widget, &ConnectionItemWidget::RequestWidgetFocus, [this, connectionIndex]() {
-        parentView->setCurrentIndex(connectionIndex);
-        parentView->scrollTo(connectionIndex);
-        emit parentView->clicked(connectionIndex);
-    });
+    connect(widget, &ConnectionItemWidget::RequestWidgetFocus,
+            [this, connectionIndex]()
+            {
+                parentView->setCurrentIndex(connectionIndex);
+                parentView->scrollTo(connectionIndex);
+                emit parentView->clicked(connectionIndex);
+            });
 
     parentView->setIndexWidget(connectionIndex, widget);
     pairs[id] = connectionItem;
