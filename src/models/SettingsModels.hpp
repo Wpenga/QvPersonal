@@ -153,15 +153,24 @@ namespace Qv2ray::Models
         QJS_JSON(P(BypassLAN, BypassCN, BypassBittorrent, ForceDirectConnection, DNSInterception))
     };
 
+    struct Qv2rayUpdateConfig
+    {
+        Bindable<QString> IgnoredVersion;
+        Bindable<int> UpdateChannel;
+        QJS_COMPARE(Qv2rayUpdateConfig, IgnoredVersion, UpdateChannel)
+        QJS_JSON(P(IgnoredVersion, UpdateChannel))
+    };
+
     struct Qv2rayApplicationConfigObject
     {
         Bindable<Qv2rayAppearanceConfig> appearanceConfig;
         Bindable<Qv2rayBehaviorConfig> behaviorConfig;
         Bindable<Qv2rayConnectionConfig> connectionConfig;
         Bindable<Qv2rayInboundConfig> inboundConfig;
+        Bindable<Qv2rayUpdateConfig> updateConfig;
 
-        QJS_COMPARE(Qv2rayApplicationConfigObject, appearanceConfig, behaviorConfig, connectionConfig, inboundConfig)
-        QJS_JSON(P(appearanceConfig, behaviorConfig, connectionConfig, inboundConfig))
+        QJS_COMPARE(Qv2rayApplicationConfigObject, appearanceConfig, behaviorConfig, connectionConfig, inboundConfig, updateConfig)
+        QJS_JSON(P(appearanceConfig, behaviorConfig, connectionConfig, inboundConfig, updateConfig))
     };
 
 } // namespace Qv2ray::Models

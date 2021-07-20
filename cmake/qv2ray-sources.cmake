@@ -30,6 +30,7 @@ list(APPEND QV2RAY_FULL_SOURCES
     ${CMAKE_SOURCE_DIR}/src/ui/windows/w_MainWindow_extra.cpp
     ${CMAKE_SOURCE_DIR}/src/components/GeositeReader/picoproto.h
     ${CMAKE_SOURCE_DIR}/src/components/GeositeReader/picoproto.cc
+    ${CMAKE_SOURCE_DIR}/src/components/UpdateChecker/semver.hpp
     ${CMAKE_SOURCE_DIR}/src/plugins/internal/InternalPlugin.cpp
     ${CMAKE_SOURCE_DIR}/src/plugins/internal/InternalPlugin.hpp
     ${CMAKE_SOURCE_DIR}/src/plugins/internal/InternalProfilePreprocessor.cpp
@@ -60,6 +61,7 @@ qv2ray_add_component(QRCodeHelper)
 qv2ray_add_component(RouteSchemeIO)
 qv2ray_add_component(SpeedWidget)
 qv2ray_add_component(StyleManager)
+qv2ray_add_component(UpdateChecker)
 
 qv2ray_add_window(w_AboutWindow)
 qv2ray_add_window(w_GroupManager)
