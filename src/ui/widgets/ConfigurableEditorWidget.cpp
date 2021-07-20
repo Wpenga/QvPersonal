@@ -16,8 +16,8 @@ ConfigurableEditor::ConfigurableEditor(_ElementType arrayType, const QList<_Edit
 {
     arrayItemListView = new QListWidget(this);
 
-    QToolButton *addBtn = new QToolButton(this);
-    QToolButton *removeBtn = new QToolButton(this);
+    QPushButton *addBtn = new QPushButton(this);
+    QPushButton *removeBtn = new QPushButton(this);
     addBtn->setIcon(QIcon::fromTheme(u"add"_qs));
     removeBtn->setIcon(QIcon::fromTheme(u"remove"_qs));
 
