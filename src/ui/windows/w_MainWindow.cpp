@@ -458,7 +458,8 @@ void MainWindow::on_clearlogButton_clicked()
 {
     masterLogBrowser->document()->clear();
 }
-void MainWindow::on_connectionTreeView_customContextMenuRequested(const QPoint &pos)
+
+void MainWindow::on_connectionTreeView_customContextMenuRequested(QPoint pos)
 {
     Q_UNUSED(pos)
 
@@ -502,13 +503,13 @@ void MainWindow::Action_DeleteConnections()
         for (const auto &conns : QvProfileManager->GetConnections(identifier.groupId))
             connlist.append(ProfileId{ conns, identifier.groupId });
 
-        const auto message = tr("Do you want to remove this group as well?") + NEWLINE + tr("Group: ") + GetDisplayName(identifier.groupId);
-        if (QvBaselib->Ask(tr("Removing Connection"), message) == Qv2rayBase::MessageOpt::Yes)
+        const auto message = tr("Do you want to remove groups as well?") + NEWLINE + tr("Group: ") + GetDisplayName(identifier.groupId);
+        if (QvBaselib->Ask(tr("Removing Connection(s)"), message) == Qv2rayBase::MessageOpt::Yes)
             groupsList << identifier.groupId;
     }
 
-    const auto strRemoveConnTitle = tr("Removing Connection(s)", "", connlist.count());
-    const auto strRemoveConnContent = tr("Are you sure to remove selected connection(s)?", "", connlist.count());
+    const auto strRemoveConnTitle = tr("Removing Connection(s)");
+    const auto strRemoveConnContent = tr("Are you sure to remove selected connection(s)?");
 
     if (QvBaselib->Ask(strRemoveConnTitle, strRemoveConnContent) != Qv2rayBase::MessageOpt::Yes)
         return;
@@ -535,13 +536,12 @@ void MainWindow::Action_EditComplex()
     {
         const auto id = widget->Identifier();
         ProfileContent root = QvProfileManager->GetConnection(id.connectionId);
-        bool isChanged = false;
-        //
+
         QvLog() << "Opening route editor.";
         RouteEditor routeWindow(root, this);
         root = routeWindow.OpenEditor();
-        isChanged = routeWindow.result() == QDialog::Accepted;
-        if (isChanged)
+
+        if (routeWindow.result() == QDialog::Accepted)
         {
             QvProfileManager->UpdateConnection(id.connectionId, root);
         }
