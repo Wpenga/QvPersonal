@@ -37,6 +37,7 @@ Qv2rayApplication::Qv2rayApplication(int &argc, char *argv[]) : SingleApplicatio
 
     baseLibrary = new Qv2rayBase::Qv2rayBaseLibrary;
     Qv2rayLogo = QPixmap{ QStringLiteral(":/qv2ray.png") };
+    installEventFilter(this);
 }
 
 Qv2rayApplication::~Qv2rayApplication()
@@ -146,23 +147,6 @@ Qv2rayExitReason Qv2rayApplication::RunQv2ray()
             }
         }
     }
-#ifdef Q_OS_MACOS
-    connect(this, &QApplication::applicationStateChanged, [this](Qt::ApplicationState state) {
-        switch (state)
-        {
-            case Qt::ApplicationActive:
-            {
-                mainWindow->show();
-                mainWindow->raise();
-                mainWindow->activateWindow();
-                break;
-            }
-            case Qt::ApplicationHidden:
-            case Qt::ApplicationInactive:
-            case Qt::ApplicationSuspended: break;
-        }
-    });
-#endif
     return (Qv2rayExitReason) exec();
 }
 
@@ -276,6 +260,23 @@ bool Qv2rayApplication::parseCommandLine(QString *errorMessage, bool *canContinu
 void Qv2rayApplication::p_OpenURL(const QUrl &url)
 {
     QDesktopServices::openUrl(url);
+}
+
+bool Qv2rayApplication::eventFilter(QObject *watched, QEvent *event)
+{
+#ifdef Q_OS_MACOS
+    static Qt::ApplicationState _prevAppState;
+    if (watched == this && event->type() == QEvent::ApplicationStateChange)
+    {
+        auto ev = static_cast<QApplicationStateChangeEvent *>(event);
+        if (_prevAppState == Qt::ApplicationActive && ev->applicationState() == Qt::ApplicationActive)
+        {
+            mainWindow->MWShowWindow();
+        }
+        _prevAppState = ev->applicationState();
+    }
+#endif // Q_OS_MACOS
+    return QApplication::eventFilter(watched, event);
 }
 
 void Qv2rayApplication::p_MessageBoxWarn(const QString &title, const QString &text)

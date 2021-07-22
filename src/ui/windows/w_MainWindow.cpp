@@ -43,7 +43,7 @@ QvMessageBusSlotImpl(MainWindow)
         case MessageBus::RETRANSLATE:
         {
             retranslateUi(this);
-            UpdateActionTranslations();
+            updateActionTranslations();
             break;
         }
     }
@@ -90,14 +90,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     this->setWindowIcon(QvApp->Qv2rayLogo);
     updateColorScheme();
-    UpdateActionTranslations();
+    updateActionTranslations();
     //
     //
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnCrashed,
             [this](const ProfileId &, const QString &reason)
             {
                 MWShowWindow();
-                qApp->processEvents();
                 QvBaselib->Warn(tr("Kernel terminated."), tr("The kernel terminated unexpectedly:") + NEWLINE + reason + NEWLINE + NEWLINE +
                                                               tr("To solve the problem, read the kernel log in the log text browser."));
             });
@@ -273,11 +272,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     }
     ReloadRecentConnectionList();
 
-    if (!connectionStarted || !GlobalConfig->behaviorConfig->QuietMode)
-        MWShowWindow();
-    if (GlobalConfig->behaviorConfig->QuietMode)
-        MWHideWindow();
-
     CheckSubscriptionsUpdate();
 
     for (const auto &[pluginInterface, guiInterface] : GUIPluginHost->GUI_QueryByComponent(Qv2rayPlugin::GUI_COMPONENT_MAIN_WINDOW_ACTIONS))
@@ -296,6 +290,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         btn->setProperty(BUTTON_PROP_PLUGIN_MAINWIDGETITEM_INDEX, index);
         topButtonsLayout->addWidget(btn);
     }
+
+    if (connectionStarted || GlobalConfig->behaviorConfig->QuietMode)
+        MWHideWindow();
+    else
+        MWShowWindow();
 }
 
 void MainWindow::OnPluginButtonClicked()

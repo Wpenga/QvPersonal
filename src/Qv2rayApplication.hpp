@@ -15,14 +15,10 @@
 class QSystemTrayIcon;
 class MainWindow;
 
-namespace Qv2ray
-{
-    namespace components
-    {
-    };
-} // namespace Qv2ray
-
+// clang-format off
+namespace Qv2ray { namespace components { }; }
 using namespace Qv2ray::components;
+// clang-format on
 
 struct Qv2rayStartupArguments
 {
@@ -50,12 +46,13 @@ struct Qv2rayStartupArguments
     QJS_JSON(F(arguments, data, version, links, fullArgs))
 };
 
-const static inline QMap<Qv2rayBase::MessageOpt, QMessageBox::StandardButton> MessageBoxButtonMap //
-    = { { Qv2rayBase::MessageOpt::No, QMessageBox::No },                                          //
-        { Qv2rayBase::MessageOpt::OK, QMessageBox::Ok },                                          //
-        { Qv2rayBase::MessageOpt::Yes, QMessageBox::Yes },                                        //
-        { Qv2rayBase::MessageOpt::Cancel, QMessageBox::Cancel },                                  //
-        { Qv2rayBase::MessageOpt::Ignore, QMessageBox::Ignore } };                                //
+const static inline QMap<Qv2rayBase::MessageOpt, QMessageBox::StandardButton> MessageBoxButtonMap = {
+    { Qv2rayBase::MessageOpt::No, QMessageBox::No },         //
+    { Qv2rayBase::MessageOpt::OK, QMessageBox::Ok },         //
+    { Qv2rayBase::MessageOpt::Yes, QMessageBox::Yes },       //
+    { Qv2rayBase::MessageOpt::Cancel, QMessageBox::Cancel }, //
+    { Qv2rayBase::MessageOpt::Ignore, QMessageBox::Ignore }, //
+};
 
 enum Qv2rayExitReason
 {
@@ -93,6 +90,8 @@ class Qv2rayApplication
     virtual void p_MessageBoxInfo(const QString &title, const QString &text) override;
     virtual Qv2rayBase::MessageOpt p_MessageBoxAsk(const QString &title, const QString &text, const QList<Qv2rayBase::MessageOpt> &options) override;
     virtual void p_OpenURL(const QUrl &url) override;
+
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
   private:
     void quitInternal();

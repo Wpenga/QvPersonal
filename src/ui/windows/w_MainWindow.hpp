@@ -95,7 +95,7 @@ class MainWindow
     //
     void OnLogScrollbarValueChanged(int value);
     //
-    void UpdateActionTranslations();
+    void updateActionTranslations();
     void OnPluginButtonClicked();
 
   protected:
@@ -103,6 +103,10 @@ class MainWindow
     void keyReleaseEvent(QKeyEvent *e) override;
     void closeEvent(QCloseEvent *) override;
     void changeEvent(QEvent *e) override;
+
+  public:
+    void MWShowWindow();
+    void MWHideWindow();
 
   private:
     // Charts
@@ -149,8 +153,6 @@ class MainWindow
     DECL_ACTION(logRCM_Menu, action_RCM_CopyRecentLogs);
 #undef DECL_ACTION
 
-    void MWShowWindow();
-    void MWHideWindow();
     void CheckSubscriptionsUpdate();
     bool StartAutoConnectionEntry();
     void updateColorScheme();

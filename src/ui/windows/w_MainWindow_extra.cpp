@@ -22,24 +22,25 @@ void MainWindow::MWToggleVisibility()
 
 void MainWindow::MWShowWindow()
 {
-    this->show();
 #ifdef Q_OS_WIN
     setWindowState(Qt::WindowNoState);
-    this->activateWindow();
 #elif defined(Q_OS_MAC)
     ProcessSerialNumber psn = { 0, kCurrentProcess };
     TransformProcessType(&psn, kProcessTransformToForegroundApplication);
 #endif
     tray_action_ToggleVisibility->setText(tr("Hide"));
+    this->show();
+    this->raise();
+    this->activateWindow();
 }
 
 void MainWindow::MWHideWindow()
 {
+    this->hide();
 #ifdef Q_OS_MAC
     ProcessSerialNumber psn = { 0, kCurrentProcess };
     TransformProcessType(&psn, kProcessTransformToUIElementApplication);
 #endif
-    this->hide();
     tray_action_ToggleVisibility->setText(tr("Show"));
 }
 
@@ -189,7 +190,7 @@ void MainWindow::updateColorScheme()
     collapseGroupsBtn->setIcon(QIcon(STYLE_RESX("arrow-up")));
 }
 
-void MainWindow::UpdateActionTranslations()
+void MainWindow::updateActionTranslations()
 {
     tray_RecentConnectionsMenu->setTitle(tr("Recent Connections"));
     tray_ClearRecentConnectionsAction->setText(tr("Clear Recent Connections"));
