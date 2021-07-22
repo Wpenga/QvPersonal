@@ -65,7 +65,7 @@ jobs:
       uses: lukka/run-vcpkg@v7.3
       with:
         vcpkgArguments: protobuf openssl grpc libuv uvw
-        vcpkgGitCommitId: 08214e18eeb146542944067c35d77faca8962be5
+        vcpkgGitCommitId: c69096659f49e2b1aca532ea5c2f8c135182519b
         vcpkgTriplet: ${{ matrix.config.vcpkgTriplet }}
   
     - name: Build
