@@ -18,7 +18,6 @@ class ConnectionItemWidget
     void BeginConnection() const;
     void BeginRename();
     void CancelRename();
-    bool NameMatched(const QString &arg) const;
 
     inline const ProfileId Identifier() const
     {

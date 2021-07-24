@@ -88,21 +88,6 @@ void ConnectionItemWidget::BeginConnection() const
     QvProfileManager->StartConnection({ connectionId, groupId });
 }
 
-bool ConnectionItemWidget::NameMatched(const QString &arg) const
-{
-    auto searchString = arg.toLower();
-    auto isGroupNameMatched = GetDisplayName(groupId).toLower().contains(arg);
-
-    if (IsConnection())
-    {
-        return isGroupNameMatched || GetDisplayName(connectionId).toLower().contains(searchString);
-    }
-    else
-    {
-        return isGroupNameMatched;
-    }
-}
-
 void ConnectionItemWidget::RecalculateConnections()
 {
     auto connectionCount = QvProfileManager->GetConnections(groupId).count();

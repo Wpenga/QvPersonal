@@ -55,6 +55,7 @@ ConnectionInfoWidget::ConnectionInfoWidget(QWidget *parent) : QWidget(parent)
 
     {
         tagsEditor = new TagsLineEdit;
+        connect(tagsEditor, &TagsLineEdit::OnTagClicked, this, &ConnectionInfoWidget::OnTagSearchRequested);
         connect(tagsEditor, &TagsLineEdit::OnTagsChanged, this, [this](const QStringList &tags) { QvProfileManager->SetConnectionTags(connectionId, tags); });
         tagsLayout->addWidget(tagsEditor);
         tagsLayout->setContentsMargins(0, 0, 0, 0);

@@ -22,12 +22,12 @@ class TagEntryWidget : public QFrame
     virtual bool event(QEvent *event) override;
 
   signals:
-    void OnTagDeleted(const QString &);
+    void OnTagClicked(const QString &);
+    void OnTagDeleted(const QString &, QPrivateSignal);
 
   private:
     QLabel *label;
     QString text;
-    bool isDeleteMode = false;
 };
 
 class TagsLineEdit : public QWidget
@@ -42,13 +42,14 @@ class TagsLineEdit : public QWidget
     QStringList GetTags();
 
   signals:
+    void OnTagClicked(const QString &);
     void OnTagsChanged(const QStringList &);
 
   protected:
     virtual bool eventFilter(QObject *target, QEvent *event) override;
 
-  private slots:
-    void DeleteTagSlot(const QString &s);
+  private:
+    void DeleteTag(const QString &s);
     void AddTag(const QString &str);
 
   private:

@@ -7,6 +7,8 @@
 #include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 #include "ui/widgets/ConnectionItemWidget.hpp"
 
+#define QV_MODULE_NAME "ConnectionModelHelper"
+
 const auto NumericString = [](auto i) { return QStringLiteral("%1").arg(i, 30, 10, QChar('0')); };
 
 ConnectionListHelper::ConnectionListHelper(QTreeView *parentView, QObject *parent) : QObject(parent)
@@ -18,9 +20,7 @@ ConnectionListHelper::ConnectionListHelper(QTreeView *parentView, QObject *paren
     {
         addGroupItem(group);
         for (const auto &connection : QvProfileManager->GetConnections(group))
-        {
             addConnectionItem({ connection, group });
-        }
     }
 
     const auto renamedLambda = [&](const ConnectionId &id, const QString &, const QString &newName)
@@ -53,13 +53,14 @@ ConnectionListHelper::ConnectionListHelper(QTreeView *parentView, QObject *paren
     };
 
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionRemovedFromGroup, this, &ConnectionListHelper::OnConnectionDeleted);
-    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionCreated, this, &ConnectionListHelper::OnConnectionCreated);
-    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionLinkedWithGroup, this, &ConnectionListHelper::OnConnectionLinkedWithGroup);
-    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupCreated, this, &ConnectionListHelper::OnGroupCreated);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionCreated, this, &ConnectionListHelper::addConnectionItem);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionLinkedWithGroup, this, &ConnectionListHelper::addConnectionItem);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupCreated, this, &ConnectionListHelper::addGroupItem);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupDeleted, this, &ConnectionListHelper::OnGroupDeleted);
-    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionRenamed, renamedLambda);
-    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnLatencyTestFinished, latencyLambda);
-    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, statsLambda);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionRenamed, this, renamedLambda);
+    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnLatencyTestFinished, this, latencyLambda);
+
+    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, this, statsLambda);
 }
 
 ConnectionListHelper::~ConnectionListHelper()
@@ -73,22 +74,26 @@ void ConnectionListHelper::Sort(ConnectionInfoRole role, Qt::SortOrder order)
     model->sort(0, order);
 }
 
-void ConnectionListHelper::Filter(const QString &key)
+void ConnectionListHelper::Filter(const QString &_key)
 {
+    const auto lowerKey = _key.toLower();
     for (const auto &groupId : QvProfileManager->GetGroups())
     {
-        const auto groupItem = model->indexFromItem(groups[groupId]);
+        const auto groupIndex = model->indexFromItem(groups[groupId]);
         bool isTotallyHide = true;
         for (const auto &connectionId : QvProfileManager->GetConnections(groupId))
         {
-            const auto connectionItem = model->indexFromItem(pairs[{ connectionId, groupId }]);
-            const auto willTotallyHide = static_cast<ConnectionItemWidget *>(parentView->indexWidget(connectionItem))->NameMatched(key);
-            parentView->setRowHidden(connectionItem.row(), connectionItem.parent(), !willTotallyHide);
-            isTotallyHide &= willTotallyHide;
+            bool hasMatch = GetDisplayName(groupId).toLower().contains(lowerKey) ||      //
+                            GetDisplayName(connectionId).toLower().contains(lowerKey) || //
+                            QvProfileManager->GetConnectionObject(connectionId).tags.contains(_key);
+
+            const auto connectionIndex = model->indexFromItem(pairs[{ connectionId, groupId }]);
+            parentView->setRowHidden(connectionIndex.row(), connectionIndex.parent(), !hasMatch);
+            isTotallyHide &= hasMatch;
         }
-        parentView->indexWidget(groupItem)->setHidden(isTotallyHide);
+        parentView->indexWidget(groupIndex)->setHidden(isTotallyHide);
         if (!isTotallyHide)
-            parentView->expand(groupItem);
+            parentView->expand(groupIndex);
     }
 }
 
@@ -101,6 +106,8 @@ QStandardItem *ConnectionListHelper::addConnectionItem(const ProfileId &id)
     connectionItem->setData(NumericString(GetConnectionTotalUsage(id.connectionId, StatisticsObject::PROXY)), ConnectionInfoRole::ROLE_DATA_USAGE);
     //
     // Find groups
+    if (!groups.contains(id.groupId))
+        QvLog() << "Unexpected";
     const auto groupIndex = groups.contains(id.groupId) ? groups[id.groupId] : addGroupItem(id.groupId);
     // Append into model
     groupIndex->appendRow(connectionItem);
@@ -124,19 +131,13 @@ QStandardItem *ConnectionListHelper::addConnectionItem(const ProfileId &id)
 QStandardItem *ConnectionListHelper::addGroupItem(const GroupId &groupId)
 {
     // Create Item
-    const auto item = new QStandardItem();
+    const auto item = new QStandardItem;
     // Set item into model
     model->appendRow(item);
     // Get item index
-    const auto index = item->index();
-    parentView->setIndexWidget(index, new ConnectionItemWidget(groupId, parentView));
+    parentView->setIndexWidget(item->index(), new ConnectionItemWidget(groupId, parentView));
     groups[groupId] = item;
     return item;
-}
-
-void ConnectionListHelper::OnConnectionCreated(const ProfileId &id, const QString &)
-{
-    addConnectionItem(id);
 }
 
 void ConnectionListHelper::OnConnectionDeleted(const ProfileId &id)
@@ -147,16 +148,6 @@ void ConnectionListHelper::OnConnectionDeleted(const ProfileId &id)
         return;
     model->removeRow(index.row(), index.parent());
     connections[id.connectionId].removeAll(item);
-}
-
-void ConnectionListHelper::OnConnectionLinkedWithGroup(const ProfileId &pairId)
-{
-    addConnectionItem(pairId);
-}
-
-void ConnectionListHelper::OnGroupCreated(const GroupId &id, const QString &)
-{
-    addGroupItem(id);
 }
 
 void ConnectionListHelper::OnGroupDeleted(const GroupId &id, const QList<ConnectionId> &connections)

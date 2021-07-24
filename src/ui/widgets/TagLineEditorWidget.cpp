@@ -1,5 +1,6 @@
 #include "TagLineEditorWidget.hpp"
 
+#include <QAction>
 #include <QEvent>
 #include <QHBoxLayout>
 #include <QKeyEvent>
@@ -15,6 +16,12 @@ using namespace std::chrono_literals;
 
 TagEntryWidget::TagEntryWidget(const QString &name, QWidget *parent) : QFrame(parent), label(new QLabel{ name }), text(name)
 {
+    setContextMenuPolicy(Qt::ActionsContextMenu);
+
+    const auto deleteAction = new QAction(tr("Delete Tag"), this);
+    addAction(deleteAction);
+    connect(deleteAction, &QAction::triggered, this, [this] { emit OnTagDeleted(text, {}); });
+
     setStyleSheet(ClearStyle);
     setObjectName(u"_tagframe"_qs);
     setMouseTracking(true);
@@ -38,35 +45,19 @@ bool TagEntryWidget::event(QEvent *event)
     {
         case QEvent::Enter:
         {
+            setCursor(Qt::PointingHandCursor);
             setStyleSheet(SelectedStyle);
             return true;
         }
         case QEvent::Leave:
         {
-            const auto clearFunc = [this]()
-            {
-                label->setText(text);
-                setStyleSheet(ClearStyle);
-                update();
-            };
-
-            if (isDeleteMode)
-                QTimer::singleShot(3s, this, [=]() { clearFunc(), isDeleteMode = false; });
-            else
-                clearFunc();
+            setCursor(Qt::ArrowCursor);
+            setStyleSheet(ClearStyle);
             return true;
         }
         case QEvent::MouseButtonRelease:
         {
-            if (isDeleteMode)
-            {
-                emit OnTagDeleted(text);
-            }
-            else
-            {
-                label->setPixmap(QIcon::fromTheme(u"delete"_qs).pixmap(label->width(), label->height()));
-                isDeleteMode = true;
-            }
+            emit OnTagClicked(text);
             return true;
         }
         default: break;
@@ -82,25 +73,56 @@ TagsLineEdit::TagsLineEdit(QWidget *parent) : QWidget(parent), lineEdit(new QLin
     lineEdit->installEventFilter(this);
 }
 
+bool TagsLineEdit::eventFilter(QObject *target, QEvent *event)
+{
+    if (target == lineEdit || event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if (keyEvent->key() == Qt::Key_Backspace)
+        {
+            const auto text = lineEdit->text();
+
+            if (!text.isEmpty() || _layout->count() <= 1)
+                return QWidget::eventFilter(target, event);
+
+            lineEdit->setText(text);
+            DeleteTag(text);
+
+            return true;
+        }
+        else if (keyEvent->key() == Qt::Key_Space || keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return || //
+                 keyEvent->key() == Qt::Key_Comma || keyEvent->key() == Qt::Key_Semicolon)
+        {
+            const auto text = lineEdit->text().trimmed();
+            if (text.isEmpty())
+                return QWidget::eventFilter(target, event);
+            AddTag(text);
+            lineEdit->clear();
+            return true;
+        }
+    }
+    return QWidget::eventFilter(target, event);
+}
+
 void TagsLineEdit::SetTags(const QSet<QString> &_tags)
 {
     blockSignals(true);
-    tagsSet.clear();
-    // count() changes while we remove things, so copy here
-    const auto count = _layout->count();
-    for (auto i = 0; i < count - 1; i++)
     {
-        auto item = _layout->takeAt(0);
-        delete item->widget();
-        delete item;
+        const auto count = _layout->count();
+        for (auto i = 0; i < count - 1; i++)
+        {
+            const auto item = _layout->takeAt(0);
+            delete item->widget();
+            delete item;
+        }
+        tagsSet.clear();
     }
-    qDebug() << _layout->count();
-    assert(_layout->count() == 1);
     blockSignals(false);
 
     tagsSet.reserve(_tags.size());
     for (const auto &str : _tags)
         AddTag(str);
+    updateGeometry();
 }
 
 QStringList TagsLineEdit::GetTags()
@@ -108,52 +130,24 @@ QStringList TagsLineEdit::GetTags()
     return { tagsSet.begin(), tagsSet.end() };
 }
 
-bool TagsLineEdit::eventFilter(QObject *target, QEvent *event)
+void TagsLineEdit::DeleteTag(const QString &s)
 {
-    if (target == lineEdit)
+    for (auto i = _layout->count() - 2; i >= 0; i--)
     {
-        if (event->type() == QEvent::KeyPress)
-        {
-            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-            qDebug() << keyEvent->keyCombination();
-            if (keyEvent->key() == Qt::Key_Backspace)
-            {
-                const auto text = lineEdit->text();
+        const auto widget = qobject_cast<TagEntryWidget *>(_layout->itemAt(i)->widget());
+        assert(widget);
 
-                if (!text.isEmpty() || _layout->count() <= 1)
-                    return QWidget::eventFilter(target, event);
-                else
-                {
-                    auto w = qobject_cast<TagEntryWidget *>(_layout->itemAt(_layout->count() - 2)->widget());
-                    const auto tag = w->GetTag();
-                    tagsSet.remove(tag);
-                    lineEdit->setText(tag);
-                    emit OnTagsChanged(GetTags());
-                    delete w;
-                }
-                return true;
-            }
-            else if (keyEvent->key() == Qt::Key_Space || keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return || //
-                     keyEvent->key() == Qt::Key_Comma || keyEvent->key() == Qt::Key_Semicolon)
-            {
-                const auto text = lineEdit->text().trimmed();
-                if (text.isEmpty())
-                    return QWidget::eventFilter(target, event);
-                AddTag(text);
-                lineEdit->clear();
-                return true;
-            }
-        }
+        const auto tag = widget->GetTag();
+        if (tag != s)
+            continue;
+
+        tagsSet.remove(s);
+        emit OnTagsChanged(GetTags());
+        widget->deleteLater();
+        lineEdit->setFocus();
+        updateGeometry();
+        break;
     }
-    return QWidget::eventFilter(target, event);
-}
-
-void TagsLineEdit::DeleteTagSlot(const QString &s)
-{
-    qDebug() << "Delete" << s;
-    tagsSet.remove(s);
-    emit OnTagsChanged(GetTags());
-    delete sender();
 }
 
 void TagsLineEdit::AddTag(const QString &str)
@@ -161,8 +155,9 @@ void TagsLineEdit::AddTag(const QString &str)
     if (tagsSet.contains(str))
         return;
     tagsSet << str;
-    emit OnTagsChanged(GetTags());
     auto w = new TagEntryWidget{ str };
-    connect(w, &TagEntryWidget::OnTagDeleted, this, &TagsLineEdit::DeleteTagSlot);
     _layout->addWidgetAt(w, _layout->count() - 1);
+    connect(w, &TagEntryWidget::OnTagClicked, this, &TagsLineEdit::OnTagClicked);
+    connect(w, &TagEntryWidget::OnTagDeleted, this, &TagsLineEdit::DeleteTag);
+    emit OnTagsChanged(GetTags());
 }

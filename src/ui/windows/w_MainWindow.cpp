@@ -106,11 +106,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, this, &MainWindow::OnStatsAvailable);
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnKernelLogAvailable, this, &MainWindow::OnKernelLogAvailable);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnSubscriptionUpdateFinished,
-            [](const GroupId &gid)
-            {
-                QvApp->ShowTrayMessage(tr("Subscription \"%1\" has been updated").arg(GetDisplayName(gid))); //
-            });
+            [](const GroupId &gid) { QvApp->ShowTrayMessage(tr("Subscription \"%1\" has been updated").arg(GetDisplayName(gid))); });
 
+    connect(infoWidget, &ConnectionInfoWidget::OnTagSearchRequested, this, [this](const QString &tag) { connectionFilterTxt->setText(tag), modelHelper->Filter(tag); });
     connect(infoWidget, &ConnectionInfoWidget::OnEditRequested, this, &MainWindow::OnEditRequested);
     connect(infoWidget, &ConnectionInfoWidget::OnJsonEditRequested, this, &MainWindow::OnEditJsonRequested);
 

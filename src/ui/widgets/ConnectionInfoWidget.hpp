@@ -22,6 +22,7 @@ class ConnectionInfoWidget
   signals:
     void OnEditRequested(const ConnectionId &id);
     void OnJsonEditRequested(const ConnectionId &id);
+    void OnTagSearchRequested(const QString &tag);
 
   protected:
     bool eventFilter(QObject *object, QEvent *event) override;

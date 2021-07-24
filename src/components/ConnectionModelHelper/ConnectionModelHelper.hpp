@@ -40,11 +40,8 @@ namespace Qv2ray::ui::widgets::models
       private:
         QStandardItem *addConnectionItem(const ProfileId &id);
         QStandardItem *addGroupItem(const GroupId &groupId);
-        void OnGroupCreated(const GroupId &id, const QString &displayName);
         void OnGroupDeleted(const GroupId &id, const QList<ConnectionId> &connections);
-        void OnConnectionCreated(const ProfileId &Id, const QString &displayName);
-        void OnConnectionDeleted(const ProfileId &Id);
-        void OnConnectionLinkedWithGroup(const ProfileId &id);
+        void OnConnectionDeleted(const ProfileId &id);
 
       private:
         QTreeView *parentView;
