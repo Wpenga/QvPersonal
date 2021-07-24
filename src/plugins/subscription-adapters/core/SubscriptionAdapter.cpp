@@ -150,6 +150,9 @@ SubscriptionResult OOCProvider::FetchDecodeSubscription(const SubscriptionProvid
 
         outbounds.insert(name, { connectionSettings });
     }
+
+    InternalSubscriptionSupportPlugin::ShowMessageBox(QObject::tr("Subscription contains unsupported nodes"), unsupportedNodes.join('\n'));
+
     result.SetValue<SR_Tags>(tags);
     result.SetValue<SR_OutboundObjects>(outbounds);
     return result;
