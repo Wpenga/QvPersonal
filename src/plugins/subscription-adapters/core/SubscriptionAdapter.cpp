@@ -114,7 +114,7 @@ SubscriptionResult OOCProvider::FetchDecodeSubscription(const SubscriptionProvid
     };
 
     const auto &[err, errorString, data] = InternalSubscriptionSupportPlugin::NetworkRequestHelper()->Get(url, pinnedCertChecker);
-    qDebug() << data;
+
     if (err != QNetworkReply::NoError)
         InternalSubscriptionSupportPlugin::Log(errorString);
 
@@ -151,7 +151,8 @@ SubscriptionResult OOCProvider::FetchDecodeSubscription(const SubscriptionProvid
         outbounds.insert(name, { connectionSettings });
     }
 
-    InternalSubscriptionSupportPlugin::ShowMessageBox(QObject::tr("Subscription contains unsupported nodes"), unsupportedNodes.join('\n'));
+    if (!unsupportedNodes.isEmpty())
+        InternalSubscriptionSupportPlugin::ShowMessageBox(QObject::tr("Subscription contains unsupported nodes"), unsupportedNodes.join('\n'));
 
     result.SetValue<SR_Tags>(tags);
     result.SetValue<SR_OutboundObjects>(outbounds);
