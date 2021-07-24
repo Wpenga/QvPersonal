@@ -236,6 +236,7 @@ void GroupManager::setupSubscriptionProviderSettingsWidget()
             if (subscriptionProviderOptionsEditor)
                 delete subscriptionProviderOptionsEditor;
             subscriptionProviderOptionsEditor = new ConfigurableEditor(info.settings);
+            subscriptionOptionsEditorWidget->layout()->setContentsMargins(0, 0, 0, 0);
             subscriptionOptionsEditorWidget->layout()->addWidget(subscriptionProviderOptionsEditor);
             subscriptionProviderOptionsEditor->SetContent(_group.subscription_config.providerSettings.toVariantMap());
             break;

@@ -46,6 +46,8 @@ ConfigurableEditor::ConfigurableEditor(_ElementType arrayType, const QList<_Edit
         gridLayout->setColumnStretch(1, 1);
     }
 
+    layout()->setContentsMargins(0, 0, 0, 0);
+
     connect(arrayItemListView, &QListWidget::currentItemChanged, this,
             [this, contentWidget](QListWidgetItem *current, QListWidgetItem *previous)
             {
