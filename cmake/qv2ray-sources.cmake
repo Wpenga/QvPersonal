@@ -8,6 +8,7 @@ endmacro()
 
 
 macro(qv2ray_add_component COMP)
+    add_compile_definitions(QV2RAY_COMPONENT_${COMP}=1)
     qv2ray_add_class(components/${COMP}/${COMP})
 endmacro()
 
@@ -28,13 +29,7 @@ list(APPEND QV2RAY_FULL_SOURCES
     ${CMAKE_SOURCE_DIR}/src/plugins/PluginsCommon/V2RayModels.hpp
     ${CMAKE_SOURCE_DIR}/src/ui/WidgetUIBase.hpp
     ${CMAKE_SOURCE_DIR}/src/ui/windows/w_MainWindow_extra.cpp
-    ${CMAKE_SOURCE_DIR}/src/components/GeositeReader/picoproto.h
-    ${CMAKE_SOURCE_DIR}/src/components/GeositeReader/picoproto.cc
     ${CMAKE_SOURCE_DIR}/src/components/UpdateChecker/semver.hpp
-    ${CMAKE_SOURCE_DIR}/src/plugins/internal/InternalPlugin.cpp
-    ${CMAKE_SOURCE_DIR}/src/plugins/internal/InternalPlugin.hpp
-    ${CMAKE_SOURCE_DIR}/src/plugins/internal/InternalProfilePreprocessor.cpp
-    ${CMAKE_SOURCE_DIR}/src/plugins/internal/InternalProfilePreprocessor.hpp
     )
 
 qv2ray_add_class(Qv2rayApplication)
@@ -46,6 +41,10 @@ qv2ray_add_class(ui/node/NodeBase)
 qv2ray_add_class(ui/node/NodeDispatcher)
 qv2ray_add_class(ui/widgets/AutoCompleteTextEdit)
 qv2ray_add_class(ui/widgets/ConfigurableEditorWidget)
+qv2ray_add_class(ui/widgets/TagLineEditorWidget)
+qv2ray_add_class(components/GeositeReader/picoproto)
+qv2ray_add_class(plugins/internal/InternalProfilePreprocessor)
+qv2ray_add_class(plugins/internal/InternalPlugin)
 
 qv2ray_add_component(AutoLaunchHelper)
 qv2ray_add_component(ConnectionModelHelper)
@@ -62,6 +61,7 @@ qv2ray_add_component(RouteSchemeIO)
 qv2ray_add_component(SpeedWidget)
 qv2ray_add_component(StyleManager)
 qv2ray_add_component(UpdateChecker)
+qv2ray_add_component(FlowLayout)
 
 qv2ray_add_window(w_AboutWindow)
 qv2ray_add_window(w_GroupManager)

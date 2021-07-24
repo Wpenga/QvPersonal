@@ -13,7 +13,7 @@
  limitations under the License.
  ==============================================================================*/
 
-#include "picoproto.h"
+#include "picoproto.hpp"
 
 namespace picoproto
 {

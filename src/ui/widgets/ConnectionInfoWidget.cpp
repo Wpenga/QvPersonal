@@ -1,11 +1,12 @@
 #include "ConnectionInfoWidget.hpp"
 
+#include "QRCodeHelper/QRCodeHelper.hpp"
 #include "Qv2rayBase/Common/ProfileHelpers.hpp"
 #include "Qv2rayBase/Common/Utils.hpp"
 #include "Qv2rayBase/Profile/KernelManager.hpp"
 #include "Qv2rayBase/Profile/ProfileManager.hpp"
-#include "QRCodeHelper/QRCodeHelper.hpp"
 #include "ui/WidgetUIBase.hpp"
+#include "ui/widgets/TagLineEditorWidget.hpp"
 
 constexpr auto INDEX_CONNECTION = 0;
 constexpr auto INDEX_GROUP = 1;
@@ -52,6 +53,13 @@ ConnectionInfoWidget::ConnectionInfoWidget(QWidget *parent) : QWidget(parent)
     qrLabel->installEventFilter(this);
     qrLabel->setScaledContents(true);
 
+    {
+        tagsEditor = new TagsLineEdit;
+        connect(tagsEditor, &TagsLineEdit::OnTagsChanged, this, [this](const QStringList &tags) { QvProfileManager->SetConnectionTags(connectionId, tags); });
+        tagsLayout->addWidget(tagsEditor);
+        tagsLayout->setContentsMargins(0, 0, 0, 0);
+    }
+
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnConnected, this, &ConnectionInfoWidget::OnConnected);
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnDisconnected, this, &ConnectionInfoWidget::OnDisConnected);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupRenamed, this, &ConnectionInfoWidget::OnGroupRenamed);
@@ -72,6 +80,8 @@ void ConnectionInfoWidget::ShowDetails(const ProfileId &idpair)
     stackedWidget->setCurrentIndex(isConnection ? INDEX_CONNECTION : INDEX_GROUP);
     if (isConnection)
     {
+        const auto tags = QvProfileManager->GetConnectionObject(connectionId).tags;
+        tagsEditor->SetTags(tags);
         auto shareLink = ConvertConfigToString(idpair.connectionId);
         if (shareLink)
         {
@@ -102,7 +112,6 @@ void ConnectionInfoWidget::ShowDetails(const ProfileId &idpair)
 
         const auto isCurrentItem = QvKernelManager->CurrentConnection().connectionId == connectionId;
         connectBtn->setIcon(QIcon(isCurrentItem ? STYLE_RESX("stop") : STYLE_RESX("start")));
-
         isRealPixmapShown = false;
     }
     else
@@ -111,11 +120,15 @@ void ConnectionInfoWidget::ShowDetails(const ProfileId &idpair)
         groupNameLabel->setText(GetDisplayName(groupId));
 
         QStringList shareLinks;
-        for (const auto &connection : QvProfileManager->GetConnections(groupId))
         {
-            const auto link = ConvertConfigToString(connection);
-            if (link)
-                shareLinks.append(*link);
+            const auto conns = QvProfileManager->GetConnections(groupId);
+            shareLinks.reserve(conns.size());
+            for (const auto &connection : conns)
+            {
+                const auto link = ConvertConfigToString(connection);
+                if (link)
+                    shareLinks.append(*link);
+            }
         }
 
         groupShareTxt->setPlainText(shareLinks.join('\n'));
