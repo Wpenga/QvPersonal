@@ -51,8 +51,8 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
     // ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNzQGhvc3Q6MTIzNA/?plugin=plugin%3Bopt#sssip003
 
     SubscriptionResult result;
-    QStringList links;
-    links.reserve(servers.size());
+    SubscriptionResult::result_type_t<SR_Tags> tags;
+    SubscriptionResult::result_type_t<SR_OutboundObjects> outbounds;
     for (const auto &servVal : servers)
     {
         const auto serverObj = servVal.toObject();
@@ -61,30 +61,35 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
         GetVal(password);
         GetVal(method);
         GetVal(plugin);
-        GetVal(plugin_opts);
         GetVal(remarks);
+        // GetVal(plugin_opts);
         // GetVal(id);
 #undef GetVal
 
-        const auto server_port = serverObj[QStringLiteral("server_port")].toInt();
-        bool isSIP003 = !plugin.isEmpty();
-        const auto userInfo = SafeBase64Encode(method + QStringLiteral(":") + password);
-        //
-        QUrl link;
-        link.setScheme(QStringLiteral("ss"));
-        link.setUserInfo(userInfo);
-        link.setHost(server);
-        link.setPort(server_port);
-        link.setFragment(remarks);
-        if (isSIP003)
+        // id, group, owner omitted.
+        if (!plugin.isEmpty())
         {
-            QUrlQuery q;
-            q.addQueryItem(QStringLiteral("plugin"), QUrl::toPercentEncoding(plugin + QStringLiteral(";") + plugin_opts));
-            link.setQuery(q);
+            // SIP003 plugins not supported.
+            qDebug() << "Unsupported node:" << remarks;
+            continue;
         }
-        links << link.toString(QUrl::FullyEncoded);
+
+        tags.insert(remarks, serverObj[u"tags"_qs].toVariant().toStringList());
+
+        IOProtocolSettings protocolSettings;
+        protocolSettings.insert(u"method"_qs, method);
+        protocolSettings.insert(u"password"_qs, password);
+
+        IOConnectionSettings connectionSettings;
+        connectionSettings.address = server;
+        connectionSettings.port = serverObj[u"server_port"_qs].toInt();
+        connectionSettings.protocol = u"shadowsocks"_qs;
+        connectionSettings.protocolSettings = protocolSettings;
+
+        outbounds.insert(remarks, { connectionSettings });
     }
-    result.SetValue<SR_Links>(links);
+    result.SetValue<SR_Tags>(tags);
+    result.SetValue<SR_OutboundObjects>(outbounds);
     return result;
 }
 
