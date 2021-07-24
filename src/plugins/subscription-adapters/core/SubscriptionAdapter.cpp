@@ -34,7 +34,7 @@ SubscriptionResult SimpleBase64Decoder::DecodeSubscription(const QByteArray &dat
     const auto resultList = source.contains(QStringLiteral("://")) ? source : SafeBase64Decode(source);
     //
     SubscriptionResult result;
-    result.links = SplitLines(resultList);
+    result.SetValue<SR_Links>(SplitLines(resultList));
     return result;
 }
 
@@ -51,6 +51,8 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
     // ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNzQGhvc3Q6MTIzNA/?plugin=plugin%3Bopt#sssip003
 
     SubscriptionResult result;
+    QStringList links;
+    links.reserve(servers.size());
     for (const auto &servVal : servers)
     {
         const auto serverObj = servVal.toObject();
@@ -80,8 +82,9 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
             q.addQueryItem(QStringLiteral("plugin"), QUrl::toPercentEncoding(plugin + QStringLiteral(";") + plugin_opts));
             link.setQuery(q);
         }
-        result.links << link.toString(QUrl::FullyEncoded);
+        links << link.toString(QUrl::FullyEncoded);
     }
+    result.SetValue<SR_Links>(links);
     return result;
 }
 
