@@ -38,7 +38,7 @@ class TagsLineEdit : public QWidget
     explicit TagsLineEdit(QWidget *parent = nullptr);
     ~TagsLineEdit() = default;
 
-    void SetTags(const QStringList &);
+    void SetTags(const QSet<QString> &);
     QStringList GetTags();
 
   signals:

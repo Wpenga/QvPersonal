@@ -29,13 +29,17 @@ class BuiltinSubscriptionAdapterInterface : public IPluginSubscriptionInterface
   public:
     explicit BuiltinSubscriptionAdapterInterface() = default;
 
-    const static inline Qv2rayPlugin::Common::EditorCreator::EditorInfoList oocv1_options{ {
+    const static inline Qv2rayPlugin::Common::EditorCreator::EditorInfoList oocv1_options{
+#ifdef OOCv1_DETAIL_CONFIGURATION
         EditorInfo::Create<ElementType::Integer>("version", "OOC version"),
         EditorInfo::Create<ElementType::String>("baseUrl", "Base URL"),
         EditorInfo::Create<ElementType::String>("secret", "Secret"),
         EditorInfo::Create<ElementType::String>("userId", "User ID"),
         EditorInfo::Create<ElementType::String>("certSha256", "Certification SHA256"),
-    } };
+#else
+        EditorInfo::Create<ElementType::String>("token", "Token"),
+#endif
+    };
 
     QList<SubscriptionProviderInfo> GetInfo() const override
     {

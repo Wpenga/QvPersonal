@@ -82,7 +82,7 @@ TagsLineEdit::TagsLineEdit(QWidget *parent) : QWidget(parent), lineEdit(new QLin
     lineEdit->installEventFilter(this);
 }
 
-void TagsLineEdit::SetTags(const QStringList &_tags)
+void TagsLineEdit::SetTags(const QSet<QString> &_tags)
 {
     blockSignals(true);
     tagsSet.clear();
