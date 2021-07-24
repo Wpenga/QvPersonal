@@ -266,7 +266,20 @@
             </item>
             <item row="1" column="0" colspan="2">
              <widget class="QWidget" name="subscriptionOptionsEditorWidget" native="true">
-              <layout class="QGridLayout" name="gridLayout_5"/>
+              <layout class="QGridLayout" name="subscriptionOptionsEditorLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+              </layout>
              </widget>
             </item>
            </layout>

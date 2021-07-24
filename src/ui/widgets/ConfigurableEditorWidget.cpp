@@ -89,6 +89,7 @@ ConfigurableEditor::ConfigurableEditor(const QList<_EditorInfo> &_info, QWidget 
 {
     const auto _layout = new QFormLayout;
     setLayout(_layout);
+    _layout->setContentsMargins(0, 0, 0, 0);
 
     for (const auto &[key, name, type, childObjectChildren, childArrayType] : info)
     {
