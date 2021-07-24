@@ -13,13 +13,13 @@ class ConnectionItemWidget
   public:
     explicit ConnectionItemWidget(const ProfileId &id, QWidget *parent = nullptr);
     explicit ConnectionItemWidget(const GroupId &groupId, QWidget *parent = nullptr);
-    //
+    ~ConnectionItemWidget() = default;
+
     void BeginConnection() const;
-    ~ConnectionItemWidget();
-    //
     void BeginRename();
     void CancelRename();
     bool NameMatched(const QString &arg) const;
+
     inline const ProfileId Identifier() const
     {
         return { this->connectionId, this->groupId };

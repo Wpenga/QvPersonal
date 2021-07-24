@@ -29,18 +29,24 @@ ConnectionItemWidget::ConnectionItemWidget(const ProfileId &id, QWidget *parent)
     indentSpacer->changeSize(10, indentSpacer->sizeHint().height());
     //
     auto latency = GetConnectionLatency(id.connectionId);
-    latencyLabel->setText(latency == LATENCY_TEST_VALUE_NODATA ?         //
-                              tr("Not Tested") :                         //
-                              (latency == LATENCY_TEST_VALUE_ERROR ?     //
-                                   tr("Error") :                         //
-                                   (QString::number(latency) + " ms"))); //
+    const auto latencyString = [](int latency)
+    {
+        if (latency == LATENCY_TEST_VALUE_NODATA)
+            return tr("Not Tested");
+        else if (latency == LATENCY_TEST_VALUE_ERROR)
+            return tr("Error");
+        else
+            return QString::number(latency) + u" ms"_qs;
+    }(latency);
+
+    latencyLabel->setText(latencyString);
 
     connTypeLabel->setText(GetConnectionProtocolDescription(id.connectionId).toUpper());
     const auto [uplink, downlink] = GetConnectionUsageAmount(connectionId, StatisticsObject::PROXY);
-    dataLabel->setText(FormatBytes(uplink) + " / " + FormatBytes(downlink));
+    dataLabel->setText(u"%1 / %2"_qs.arg(FormatBytes(uplink), FormatBytes(downlink)));
 
     // Fake trigger
-    OnConnectionItemRenamed(id.connectionId, "", originalItemName);
+    OnConnectionItemRenamed(id.connectionId, u""_qs, originalItemName);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionRenamed, this, &ConnectionItemWidget::OnConnectionItemRenamed);
     //
     // Rename events
@@ -78,15 +84,8 @@ ConnectionItemWidget::ConnectionItemWidget(const GroupId &id, QWidget *parent) :
 
 void ConnectionItemWidget::BeginConnection() const
 {
-    if (IsConnection())
-    {
-        QvProfileManager->StartConnection({ connectionId, groupId });
-    }
-    else
-    {
-
-        QvLog() << "Trying to start a non-connection entry, this call is illegal.";
-    }
+    assert(IsConnection());
+    QvProfileManager->StartConnection({ connectionId, groupId });
 }
 
 bool ConnectionItemWidget::NameMatched(const QString &arg) const
@@ -108,7 +107,7 @@ void ConnectionItemWidget::RecalculateConnections()
 {
     auto connectionCount = QvProfileManager->GetConnections(groupId).count();
     latencyLabel->setText(QString::number(connectionCount) + " " + (connectionCount < 2 ? tr("connection") : tr("connections")));
-    OnGroupItemRenamed(groupId, "", originalItemName);
+    OnGroupItemRenamed(groupId, u""_qs, originalItemName);
 }
 
 void ConnectionItemWidget::OnConnected(const ProfileId &id)
@@ -169,15 +168,11 @@ void ConnectionItemWidget::BeginRename()
     if (IsConnection())
     {
         stackedWidget->setCurrentIndex(1);
-        renameTxt->setStyle(QStyleFactory::create("Fusion"));
+        renameTxt->setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
         renameTxt->setStyleSheet("background-color: " + this->palette().color(this->backgroundRole()).name(QColor::HexRgb));
         renameTxt->setText(originalItemName);
         renameTxt->setFocus();
     }
-}
-
-ConnectionItemWidget::~ConnectionItemWidget()
-{
 }
 
 void ConnectionItemWidget::on_doRenameBtn_clicked()
@@ -195,7 +190,7 @@ void ConnectionItemWidget::OnConnectionItemRenamed(const ConnectionId &id, const
 {
     if (id == connectionId)
     {
-        connNameLabel->setText((QvProfileManager->IsConnected({ connectionId, groupId }) ? QStringLiteral("● ") : QStringLiteral("")) + newName);
+        connNameLabel->setText(QvProfileManager->IsConnected({ connectionId, groupId }) ? QStringLiteral("● ") + newName : newName);
         originalItemName = newName;
         const auto conn = QvProfileManager->GetConnectionObject(connectionId);
         this->setToolTip(newName + NEWLINE + tr("Last Connected: ") + TimeToString(conn.last_connected) + NEWLINE + tr("Last Updated: ") + TimeToString(conn.updated));
