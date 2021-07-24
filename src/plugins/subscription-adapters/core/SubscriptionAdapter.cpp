@@ -30,9 +30,9 @@ QString SafeBase64Encode(const QString &string)
 // Simple Base64 Decoder
 SubscriptionResult SimpleBase64Decoder::DecodeSubscription(const QByteArray &data) const
 {
-    auto source = QString::fromUtf8(data).trimmed();
+    const auto source = QString::fromUtf8(data).trimmed();
     const auto resultList = source.contains(QStringLiteral("://")) ? source : SafeBase64Decode(source);
-    //
+
     SubscriptionResult result;
     result.SetValue<SR_Links>(SplitLines(resultList));
     return result;
