@@ -106,6 +106,7 @@ void ConnectionListHelper::Filter(const components::QueryParser::SemanticAnalyze
         bool isTotallyHide = true;
         for (const auto &connectionId : QvProfileManager->GetConnections(groupId))
         {
+            const auto conn = QvProfileManager->GetConnection(connectionId);
             const auto tags = QvProfileManager->GetConnectionObject(connectionId).tags;
             QVariantMap variables{
                 { "group_name", GetDisplayName(groupId) },
@@ -113,7 +114,12 @@ void ConnectionListHelper::Filter(const components::QueryParser::SemanticAnalyze
                 { "name", GetDisplayName(groupId) + ";" + GetDisplayName(connectionId) },
                 { "tags", QVariantList(tags.begin(), tags.end()) },
                 { "latency", GetConnectionLatency(connectionId) },
+                { "outbounds", conn.outbounds.count() },
+                { "inbounds", conn.inbounds.count() },
             };
+
+            if (!conn.outbounds.isEmpty())
+                variables.insert("protocol", conn.outbounds.first().outboundSettings.protocol);
 
             bool hasMatch = Qv2ray::components::QueryParser::EvaluateProgram(program, variables);
 
