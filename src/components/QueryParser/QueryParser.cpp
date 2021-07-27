@@ -44,10 +44,10 @@ namespace Qv2ray::components::QueryParser::Tokenizer
     bool ReadIdentifier(QString &source, QString &out)
     {
         if (source.isEmpty())
-            throw tokenizer_error{ "null identifier" };
+            throw tokenizer_error("null identifier");
 
         if (source[0].isDigit())
-            throw tokenizer_error{ "identifier must not start with a digit" };
+            throw tokenizer_error("identifier must not start with a digit");
 
         return ReadUntil(source, out, [](QChar c) { return std::find(operator_maps.cbegin(), operator_maps.cend(), c) != operator_maps.end(); });
     }
@@ -161,7 +161,7 @@ namespace Qv2ray::components::QueryParser::Tokenizer
 
         out = source.left(len);
         if (len == source.size() && !out.endsWith('\"'))
-            throw tokenizer_error{ "unterminated quoted string: " + source.toStdString() };
+            throw tokenizer_error("unterminated quoted string: " + source.toStdString());
         source.remove(0, len);
         return true;
     }
@@ -209,7 +209,7 @@ namespace Qv2ray::components::QueryParser::Tokenizer
                 if (const auto token = Parse_Token(line); token.type != Token_Invalid)
                     tokens << token;
                 else
-                    throw tokenizer_error{ "Cannot process a token, remaining: " + line.toStdString() };
+                    throw tokenizer_error("Cannot process a token, remaining: " + line.toStdString());
         return tokens << Token{ Token_Operator, SemiColon };
     }
 
@@ -233,7 +233,7 @@ QList<SyntaxAnalyzer::SyntaxStatement> SyntaxAnalyzer::SyntaxAnalyze(const QList
     for (const auto &token : tokens)
     {
         if (token.type == Tokenizer::Token_Invalid)
-            throw syntax_error{ "Invalid Token" };
+            throw syntax_error("Invalid Token");
 
         if (token.type == Tokenizer::Token_Operator && token.op == Tokenizer::SemiColon)
         {
@@ -265,14 +265,14 @@ QList<SyntaxAnalyzer::SyntaxStatement> SyntaxAnalyzer::SyntaxAnalyze(const QList
                 if (token.type == Tokenizer::Token_Boolean || token.type == Tokenizer::Token_Number || token.type == Tokenizer::Token_UnquotedString)
                     statement.arg0 = token.toVariant();
                 else
-                    throw syntax_error{ "Value expected." };
+                    throw syntax_error("Value expected.");
                 state = State_ExpectOp;
                 break;
             }
             case State_ExpectOp:
             {
                 if (token.type != Tokenizer::Token_Operator)
-                    throw syntax_error{ "Operator expected." };
+                    throw syntax_error("Operator expected.");
                 statement.op = token.op;
                 state = State_ExpectArgs;
                 break;
@@ -282,16 +282,16 @@ QList<SyntaxAnalyzer::SyntaxStatement> SyntaxAnalyzer::SyntaxAnalyze(const QList
                 if (token.type == Tokenizer::Token_Operator)
                 {
                     if (!needOp)
-                        throw syntax_error{ "Value expected." };
+                        throw syntax_error("Value expected.");
                     if (token.op == Tokenizer::Comma || token.op == Tokenizer::Or || token.op == Tokenizer::And)
                         statement.va_args.append(SyntaxStatement::VAArg{ token.op }), needOp = false;
                     else
-                        throw syntax_error{ "Unsupported operator in vaargs." };
+                        throw syntax_error("Unsupported operator in vaargs.");
                 }
                 else
                 {
                     if (needOp)
-                        throw syntax_error{ "Operator expected." };
+                        throw syntax_error("Operator expected.");
                     if (token.type == Tokenizer::Token_QuotedString)
                     {
                         auto quoted = token.quoted;
@@ -324,9 +324,9 @@ SemanticAnalyzer::Program SemanticAnalyzer::SemanticAnalyze(const QList<SyntaxAn
         if (stmt.prefixop != Tokenizer::Op_Invalid)
         {
             if (stmt.op != Tokenizer::Op_Invalid)
-                throw semantic_error{ "prefix operator and regular operators should not exist at the same time." };
+                throw semantic_error("prefix operator and regular operators should not exist at the same time.");
             if (stmt.prefixop != Tokenizer::Not)
-                throw semantic_error{ "prefix operator should only be '!' (negation operator)" };
+                throw semantic_error("prefix operator should only be '!' (negation operator)");
 
             ss.op = Operator::Equal;
             ss.arg = false;
@@ -347,12 +347,12 @@ SemanticAnalyzer::Program SemanticAnalyzer::SemanticAnalyze(const QList<SyntaxAn
               || stmt.op == Tokenizer::GreaterThan   //
               || stmt.op == Tokenizer::LessEqualThan //
               || stmt.op == Tokenizer::GreaterEqualThan))
-            throw semantic_error{ "unnsupported operator" };
+            throw semantic_error("unnsupported operator");
 
         ss.hasArgList = stmt.va_args.size() > 1;
 
         if (stmt.va_args.isEmpty())
-            throw semantic_error{ "expected value" };
+            throw semantic_error("expected value");
 
         if (!ss.hasArgList)
         {
@@ -362,7 +362,7 @@ SemanticAnalyzer::Program SemanticAnalyzer::SemanticAnalyze(const QList<SyntaxAn
         }
 
         if (stmt.op != Tokenizer::Equal && stmt.op != Tokenizer::NotEqual)
-            throw semantic_error{ "list arguments only supports equality operator" };
+            throw semantic_error("list arguments only supports equality operator");
 
         Operator vaops = Operator::Invalid;
         for (auto vaarg : stmt.va_args)
@@ -387,7 +387,7 @@ SemanticAnalyzer::Program SemanticAnalyzer::SemanticAnalyze(const QList<SyntaxAn
             if (vaarg.op != Tokenizer::Op_Invalid && vaops == Operator::Invalid)
                 vaops = (Operator) vaarg.op;
             else if (vaops != (Operator) vaarg.op)
-                throw semantic_error{ "inconsistant list operators" };
+                throw semantic_error("inconsistant list operators");
         }
         ss.args.argsop = vaops;
         result << ss;
@@ -402,7 +402,7 @@ bool Qv2ray::components::QueryParser::EvaluateProgram(const SemanticAnalyzer::Pr
     {
         const auto oprand = statement.oprand.toString();
         if (!variables[oprand].isValid())
-            throw evaluation_error{ "unknown identifier: " + oprand.toStdString() };
+            throw evaluation_error("unknown identifier: " + oprand.toStdString());
 
         const auto opcode = statement.op;
 
