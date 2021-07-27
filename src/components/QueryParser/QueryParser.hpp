@@ -7,7 +7,7 @@ namespace Qv2ray::components::QueryParser
     class parser_error_base : public std::runtime_error
     {
       public:
-        using std::runtime_error::runtime_error;
+        parser_error_base(const std::string &ss) : std::runtime_error(ss){};
     };
 
     class tokenizer_error : public parser_error_base
