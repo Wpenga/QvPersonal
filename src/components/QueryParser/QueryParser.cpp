@@ -353,7 +353,7 @@ SemanticAnalyzer::Program SemanticAnalyzer::SemanticAnalyze(const QList<SyntaxAn
             throw semantic_error{ "list arguments only supports equality operator" };
 
         Operator vaops = Operator::Invalid;
-        for (auto &vaarg : stmt.va_args)
+        for (auto vaarg : stmt.va_args)
         {
             if (vaarg.op == Tokenizer::Op_Invalid)
             {
@@ -364,9 +364,9 @@ SemanticAnalyzer::Program SemanticAnalyzer::SemanticAnalyze(const QList<SyntaxAn
             if (vaarg.op == Tokenizer::Comma)
             {
                 if (stmt.op == Tokenizer::Equal)
-                    ss.args.argsop = Operator::And;
+                    vaarg.op = Tokenizer::And;
                 else if (stmt.op == Tokenizer::NotEqual)
-                    ss.args.argsop = Operator::Or;
+                    vaarg.op = Tokenizer::Or;
                 else
                     Q_UNREACHABLE();
             }
