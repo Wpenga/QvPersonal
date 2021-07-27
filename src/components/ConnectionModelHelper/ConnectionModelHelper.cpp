@@ -84,10 +84,7 @@ void ConnectionListHelper::Filter(const QString &_key)
         bool isTotallyHide = true;
         for (const auto &connectionId : QvProfileManager->GetConnections(groupId))
         {
-            bool hasMatch = GetDisplayName(groupId).toLower().contains(lowerKey) ||      //
-                            GetDisplayName(connectionId).toLower().contains(lowerKey) || //
-                            QvProfileManager->GetConnectionObject(connectionId).tags.contains(_key);
-
+            bool hasMatch = GetDisplayName(connectionId).toLower().contains(lowerKey);
             const auto connectionIndex = model->indexFromItem(pairs[{ connectionId, groupId }]);
             parentView->setRowHidden(connectionIndex.row(), connectionIndex.parent(), !hasMatch);
             isTotallyHide &= hasMatch;
