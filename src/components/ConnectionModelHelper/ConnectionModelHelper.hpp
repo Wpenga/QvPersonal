@@ -1,6 +1,7 @@
 #pragma once
 
 #include "QvPlugin/PluginInterface.hpp"
+#include "components/QueryParser/QueryParser.hpp"
 
 #include <QStandardItem>
 #include <QStandardItemModel>
@@ -26,6 +27,7 @@ namespace Qv2ray::ui::widgets::models
         ~ConnectionListHelper();
         void Sort(ConnectionInfoRole, Qt::SortOrder);
         void Filter(const QString &);
+        void Filter(const Qv2ray::components::QueryParser::SemanticAnalyzer::Program &program);
 
         inline QModelIndex GetConnectionPairIndex(const ProfileId &id) const
         {

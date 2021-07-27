@@ -5,6 +5,7 @@
 #include "Qv2rayBase/Profile/KernelManager.hpp"
 #include "Qv2rayBase/Profile/ProfileManager.hpp"
 #include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
+#include "components/QueryParser/QueryParser.hpp"
 #include "ui/widgets/ConnectionItemWidget.hpp"
 
 #define QV_MODULE_NAME "ConnectionModelHelper"
@@ -86,6 +87,35 @@ void ConnectionListHelper::Filter(const QString &_key)
             bool hasMatch = GetDisplayName(groupId).toLower().contains(lowerKey) ||      //
                             GetDisplayName(connectionId).toLower().contains(lowerKey) || //
                             QvProfileManager->GetConnectionObject(connectionId).tags.contains(_key);
+
+            const auto connectionIndex = model->indexFromItem(pairs[{ connectionId, groupId }]);
+            parentView->setRowHidden(connectionIndex.row(), connectionIndex.parent(), !hasMatch);
+            isTotallyHide &= hasMatch;
+        }
+        parentView->indexWidget(groupIndex)->setHidden(isTotallyHide);
+        if (!isTotallyHide)
+            parentView->expand(groupIndex);
+    }
+}
+
+void ConnectionListHelper::Filter(const components::QueryParser::SemanticAnalyzer::Program &program)
+{
+    for (const auto &groupId : QvProfileManager->GetGroups())
+    {
+        const auto groupIndex = model->indexFromItem(groups[groupId]);
+        bool isTotallyHide = true;
+        for (const auto &connectionId : QvProfileManager->GetConnections(groupId))
+        {
+            const auto tags = QvProfileManager->GetConnectionObject(connectionId).tags;
+            QVariantMap variables{
+                { "group_name", GetDisplayName(groupId) },
+                { "connection_name", GetDisplayName(connectionId) },
+                { "name", GetDisplayName(groupId) + ";" + GetDisplayName(connectionId) },
+                { "tags", QVariantList(tags.begin(), tags.end()) },
+                { "latency", GetConnectionLatency(connectionId) },
+            };
+
+            bool hasMatch = Qv2ray::components::QueryParser::EvaluateProgram(program, variables);
 
             const auto connectionIndex = model->indexFromItem(pairs[{ connectionId, groupId }]);
             parentView->setRowHidden(connectionIndex.row(), connectionIndex.parent(), !hasMatch);

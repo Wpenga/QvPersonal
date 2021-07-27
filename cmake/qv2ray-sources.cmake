@@ -62,6 +62,7 @@ qv2ray_add_component(SpeedWidget)
 qv2ray_add_component(StyleManager)
 qv2ray_add_component(UpdateChecker)
 qv2ray_add_component(FlowLayout)
+qv2ray_add_component(QueryParser)
 
 qv2ray_add_window(w_AboutWindow)
 qv2ray_add_window(w_GroupManager)

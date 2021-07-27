@@ -20,6 +20,7 @@
 #include <QClipboard>
 #include <QInputDialog>
 #include <QScrollBar>
+#include <QToolTip>
 
 #define QV_MODULE_NAME "MainWindow"
 
@@ -596,7 +597,24 @@ void MainWindow::OnConnected(const ProfileId &id)
 
 void MainWindow::on_connectionFilterTxt_textEdited(const QString &arg1)
 {
-    modelHelper->Filter(arg1);
+    if (arg1.startsWith(">"))
+    {
+        try
+        {
+            auto command = arg1;
+            command = command.remove(0, 1);
+            const auto prog = QueryParser::ParseProgram(command);
+            modelHelper->Filter(prog);
+        }
+        catch (std::runtime_error e)
+        {
+            QToolTip::showText(connectionFilterTxt->mapToGlobal(connectionFilterTxt->pos()), e.what());
+        }
+    }
+    else
+    {
+        modelHelper->Filter(arg1);
+    }
 }
 
 void MainWindow::OnStatsAvailable(const ProfileId &id, const StatisticsObject &data)
