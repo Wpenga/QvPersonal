@@ -7,7 +7,7 @@ This repo is my personal rewrite of Qv2ray using [Qv2rayBase](https://github.com
 ## Compile Dependencies
 
 - Qt 6.2
-- CMake 3.20.0 (cmake_path command for Windows plugin deployment)
+- CMake 3.20.0 (`cmake_path` command for Windows plugin deployment)
 - gRPC, Protobuf (used by `V2RayCorePlugin`, can be omitted if not used)
 - OpenSSL (for OpenSSL QtNetwork TLS backend plugin)
 
