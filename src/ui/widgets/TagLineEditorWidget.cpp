@@ -67,27 +67,33 @@ bool TagEntryWidget::event(QEvent *event)
 
 TagsLineEdit::TagsLineEdit(QWidget *parent) : QWidget(parent), lineEdit(new QLineEdit), _layout(new FlowLayout)
 {
+    lineEdit->installEventFilter(this);
     setLayout(_layout);
     _layout->setContentsMargins(0, 0, 0, 0);
     _layout->addWidget(lineEdit);
-    lineEdit->installEventFilter(this);
 }
 
 bool TagsLineEdit::eventFilter(QObject *target, QEvent *event)
 {
-    if (target == lineEdit || event->type() == QEvent::KeyPress)
+    if (target == lineEdit && event->type() == QEvent::KeyPress)
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         if (keyEvent->key() == Qt::Key_Backspace)
         {
             const auto text = lineEdit->text();
-
             if (!text.isEmpty() || _layout->count() <= 1)
                 return QWidget::eventFilter(target, event);
 
-            lineEdit->setText(text);
-            DeleteTag(text);
+            const auto widget = qobject_cast<TagEntryWidget *>(_layout->itemAt(_layout->count() - 2)->widget());
 
+            if (!widget)
+            {
+                qWarning() << "Invalid Widget";
+                return true;
+            }
+            const auto tag = widget->GetTag();
+            lineEdit->setText(tag);
+            DeleteTag(tag);
             return true;
         }
         else if (keyEvent->key() == Qt::Key_Space || keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return || //
