@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10.1)
 project(qv2ray VERSION 3.0.0)
-set(QV2RAY_PROJECT_VERSION_SUFFIX "-alpha4")
+set(QV2RAY_PROJECT_VERSION_SUFFIX "-alpha4-patch1")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
