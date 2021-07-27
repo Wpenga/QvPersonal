@@ -6,6 +6,7 @@
 #include "Qv2rayBase/Common/Utils.hpp"
 #include "Qv2rayBase/Profile/KernelManager.hpp"
 #include "Qv2rayBase/Profile/ProfileManager.hpp"
+#include "components/UpdateChecker/UpdateChecker.hpp"
 #include "ui/WidgetUIBase.hpp"
 #include "ui/widgets/ConnectionInfoWidget.hpp"
 #include "ui/windows/editors/w_JsonEditor.hpp"
@@ -294,6 +295,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         MWHideWindow();
     else
         MWShowWindow();
+
+    UpdateChecker::CheckUpdate();
 }
 
 void MainWindow::OnPluginButtonClicked()

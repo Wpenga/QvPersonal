@@ -7,9 +7,9 @@
 
 #define QV_MODULE_NAME "UpdateChecker"
 
-const inline QMap<int, QString> UpdateChannelLink{
-    { 0, "https://api.github.com/repos/moodyhunter/QvPersonal/releases/latest" },
-    { 1, "https://api.github.com/repos/moodyhunter/QvPersonal/releases?per_page=1" },
+const inline QStringList UpdateChannelLink{
+    /*{ 0, "https://api.github.com/repos/moodyhunter/QvPersonal/releases/latest" },*/
+    "https://api.github.com/repos/moodyhunter/QvPersonal/releases?per_page=1",
 };
 
 using namespace Qv2rayBase;
@@ -83,10 +83,10 @@ namespace Qv2ray::components::UpdateChecker
 
     void CheckUpdate()
     {
-#ifndef DISABLE_AUTO_UPDATE
+#ifndef QV2RAY_NO_AUTOUPDATE
         const auto updateChannel = GlobalConfig->updateConfig->UpdateChannel;
         QvLog() << "Start checking update for channel ID: " << updateChannel;
-        Qv2rayBase::Utils::NetworkRequestHelper::StaticAsyncGet(UpdateChannelLink[updateChannel], nullptr, &VersionUpdate);
+        Qv2rayBase::Utils::NetworkRequestHelper::StaticAsyncGet(UpdateChannelLink[updateChannel], QvApp, &VersionUpdate);
 #endif
     }
 } // namespace Qv2ray::components::UpdateChecker

@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10.1)
 project(qv2ray VERSION 3.0.0)
+set(QV2RAY_PROJECT_VERSION_SUFFIX "-alpha4")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -61,6 +62,10 @@ set(QV2RAY_SINGLEAPPLICATION_PROVIDER "module" CACHE STRING "SingleApplication P
 set(QV2RAY_QNODEEDITOR_PROVIDER       "module" CACHE STRING "QNodeEditor Provider")
 
 option(QV2RAY_HAS_BUILTIN_THEMES  "Build with builtin themes" ON)
+option(QV2RAY_AUTO_UPDATE "Has auto update checker" ON)
+if(NOT QV2RAY_AUTO_UPDATE)
+    add_compile_definitions(-DQV2RAY_NO_AUTOUPDATE=1)
+endif()
 
 # ==================================================================================
 # Default Core/Assets Path
@@ -181,7 +186,7 @@ qt6_add_executable(qv2ray
 
 qv2ray_add_plugin_moc_sources(qv2ray)
 
-target_compile_definitions(qv2ray PRIVATE -DQV2RAY_VERSION_STRING="${CMAKE_PROJECT_VERSION}")
+target_compile_definitions(qv2ray PRIVATE -DQV2RAY_VERSION_STRING="${CMAKE_PROJECT_VERSION}${QV2RAY_PROJECT_VERSION_SUFFIX}")
 target_include_directories(qv2ray PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_include_directories(qv2ray PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/components)
 
