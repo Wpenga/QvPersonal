@@ -605,9 +605,11 @@ void MainWindow::on_connectionFilterTxt_textEdited(const QString &arg1)
             command = command.remove(0, 1);
             const auto prog = QueryParser::ParseProgram(command);
             modelHelper->Filter(prog);
+            BLACK(connectionFilterTxt);
         }
         catch (std::runtime_error e)
         {
+            RED(connectionFilterTxt);
             QToolTip::showText(connectionFilterTxt->mapToGlobal(connectionFilterTxt->pos()), e.what());
         }
     }
