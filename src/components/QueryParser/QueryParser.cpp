@@ -414,7 +414,12 @@ bool Qv2ray::components::QueryParser::EvaluateProgram(const SemanticAnalyzer::Pr
             {
                 QVariantList list = statement.args.args;
                 if (!hasArgList)
-                    list << statement.arg;
+                {
+                    if (statement.arg == variables[oprand])
+                        break;
+                    else
+                        list << statement.arg;
+                }
 
                 const auto valList = variables[oprand].toList();
 
@@ -435,8 +440,12 @@ bool Qv2ray::components::QueryParser::EvaluateProgram(const SemanticAnalyzer::Pr
             {
                 QVariantList list = statement.args.args;
                 if (!hasArgList)
-                    list << statement.arg;
-
+                {
+                    if (statement.arg != variables[oprand])
+                        break;
+                    else
+                        list << statement.arg;
+                }
                 const auto valList = variables[oprand].toList();
 
                 // If Or, default value = true;
