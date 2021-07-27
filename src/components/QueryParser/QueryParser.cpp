@@ -82,7 +82,10 @@ namespace Qv2ray::components::QueryParser::Tokenizer
         if (opstring.isEmpty())
             return false;
         if (std::find(operator_maps.cbegin(), operator_maps.cend(), opstring) == operator_maps.end())
-            throw tokenizer_error{ "invalid operator" };
+        {
+            i--;
+            opstring.chop(1);
+        }
         out = operator_maps.key(opstring);
         source.remove(0, i);
         return true;
@@ -289,7 +292,16 @@ QList<SyntaxAnalyzer::SyntaxStatement> SyntaxAnalyzer::SyntaxAnalyze(const QList
                 {
                     if (needOp)
                         throw syntax_error{ "Operator expected." };
-                    statement.va_args.append(SyntaxStatement::VAArg{ token.toVariant() }), needOp = true;
+                    if (token.type == Tokenizer::Token_QuotedString)
+                    {
+                        auto quoted = token.quoted;
+                        quoted.remove(0, 1).chop(1);
+                        statement.va_args.append(SyntaxStatement::VAArg{ quoted }), needOp = true;
+                    }
+                    else
+                    {
+                        statement.va_args.append(SyntaxStatement::VAArg{ token.toVariant() }), needOp = true;
+                    }
                 }
                 break;
             }
@@ -400,17 +412,15 @@ bool Qv2ray::components::QueryParser::EvaluateProgram(const SemanticAnalyzer::Pr
         {
             case SemanticAnalyzer::Operator::Equal:
             {
+                QVariantList list = statement.args.args;
                 if (!hasArgList)
-                {
-                    result &= variables[oprand] == statement.arg;
-                    break;
-                }
+                    list << statement.arg;
 
                 const auto valList = variables[oprand].toList();
 
                 // If And, default value = true;
                 bool r = statement.args.argsop == SemanticAnalyzer::Operator::And;
-                for (const auto &a : statement.args.args)
+                for (const auto &a : list)
                 {
                     if (statement.args.argsop == SemanticAnalyzer::Operator::And)
                         r &= valList.contains(a);
@@ -423,17 +433,15 @@ bool Qv2ray::components::QueryParser::EvaluateProgram(const SemanticAnalyzer::Pr
             }
             case SemanticAnalyzer::Operator::NotEqual:
             {
+                QVariantList list = statement.args.args;
                 if (!hasArgList)
-                {
-                    result &= variables[oprand] != statement.arg;
-                    break;
-                }
+                    list << statement.arg;
 
                 const auto valList = variables[oprand].toList();
 
                 // If Or, default value = true;
                 bool r = statement.args.argsop == SemanticAnalyzer::Operator::And;
-                for (const auto &a : statement.args.args)
+                for (const auto &a : list)
                 {
                     if (statement.args.argsop == SemanticAnalyzer::Operator::And)
                         r &= valList.contains(a);
