@@ -112,6 +112,7 @@ void ConnectionListHelper::Filter(const components::QueryParser::SemanticAnalyze
                 { u"latency"_qs, connObject.latency },
                 { u"outbounds"_qs, conn.outbounds.count() },
                 { u"inbounds"_qs, conn.inbounds.count() },
+                { u"connected"_qs, QvKernelManager->CurrentConnection() == ProfileId{ connectionId, groupId } },
             };
 
             if (!conn.outbounds.isEmpty())
