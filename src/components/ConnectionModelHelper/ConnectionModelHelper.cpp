@@ -107,19 +107,22 @@ void ConnectionListHelper::Filter(const components::QueryParser::SemanticAnalyze
         for (const auto &connectionId : QvProfileManager->GetConnections(groupId))
         {
             const auto conn = QvProfileManager->GetConnection(connectionId);
-            const auto tags = QvProfileManager->GetConnectionObject(connectionId).tags;
+            const auto connObject = QvProfileManager->GetConnectionObject(connectionId);
             QVariantMap variables{
-                { "group_name", GetDisplayName(groupId) },
-                { "connection_name", GetDisplayName(connectionId) },
-                { "name", GetDisplayName(groupId) + ";" + GetDisplayName(connectionId) },
-                { "tags", QVariantList(tags.begin(), tags.end()) },
-                { "latency", GetConnectionLatency(connectionId) },
-                { "outbounds", conn.outbounds.count() },
-                { "inbounds", conn.inbounds.count() },
+                { u"group"_qs, GetDisplayName(groupId) },
+                { u"name"_qs, GetDisplayName(connectionId) },
+                { u"tags"_qs, QVariantList(connObject.tags.begin(), connObject.tags.end()) },
+                { u"latency"_qs, connObject.latency },
+                { u"outbounds"_qs, conn.outbounds.count() },
+                { u"inbounds"_qs, conn.inbounds.count() },
             };
 
             if (!conn.outbounds.isEmpty())
-                variables.insert("protocol", conn.outbounds.first().outboundSettings.protocol);
+            {
+                variables.insert(u"protocol"_qs, conn.outbounds.first().outboundSettings.protocol);
+                variables.insert(u"address"_qs, conn.outbounds.first().outboundSettings.address);
+                variables.insert(u"port"_qs, conn.outbounds.first().outboundSettings.port.from);
+            }
 
             bool hasMatch = Qv2ray::components::QueryParser::EvaluateProgram(program, variables);
 
