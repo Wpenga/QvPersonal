@@ -412,53 +412,62 @@ bool Qv2ray::components::QueryParser::EvaluateProgram(const SemanticAnalyzer::Pr
         {
             case SemanticAnalyzer::Operator::Equal:
             {
-                QVariantList list = statement.args.args;
-                if (!hasArgList)
+                const auto variableMetaTypeId = variables[oprand].metaType().id();
+                if (variableMetaTypeId == QMetaType::QStringList || variableMetaTypeId == QMetaType::QVariantList)
                 {
-                    if (statement.arg == variables[oprand])
-                        break;
-                    else
+                    QVariantList list = statement.args.args;
+
+                    if (!hasArgList)
                         list << statement.arg;
+
+                    const auto valList = variables[oprand].toList();
+
+                    // If Or, default value = true;
+                    bool r = statement.args.argsop == SemanticAnalyzer::Operator::And;
+                    for (const auto &a : list)
+                    {
+                        if (statement.args.argsop == SemanticAnalyzer::Operator::And)
+                            r &= valList.contains(a);
+                        else
+                            r |= valList.contains(a);
+                    }
+
+                    result &= r;
                 }
-
-                const auto valList = variables[oprand].toList();
-
-                // If And, default value = true;
-                bool r = statement.args.argsop == SemanticAnalyzer::Operator::And;
-                for (const auto &a : list)
+                else
                 {
-                    if (statement.args.argsop == SemanticAnalyzer::Operator::And)
-                        r &= valList.contains(a);
-                    else
-                        r |= valList.contains(a);
+                    result &= statement.arg == variables[oprand];
                 }
-
-                result &= r;
                 break;
             }
             case SemanticAnalyzer::Operator::NotEqual:
             {
-                QVariantList list = statement.args.args;
-                if (!hasArgList)
+                const auto variableMetaTypeId = variables[oprand].metaType().id();
+                if (variableMetaTypeId == QMetaType::QStringList || variableMetaTypeId == QMetaType::QVariantList)
                 {
-                    if (statement.arg != variables[oprand])
-                        break;
-                    else
+                    QVariantList list = statement.args.args;
+
+                    if (!hasArgList)
                         list << statement.arg;
-                }
-                const auto valList = variables[oprand].toList();
 
-                // If Or, default value = true;
-                bool r = statement.args.argsop == SemanticAnalyzer::Operator::And;
-                for (const auto &a : list)
+                    const auto valList = variables[oprand].toList();
+
+                    // If Or, default value = true;
+                    bool r = statement.args.argsop == SemanticAnalyzer::Operator::And;
+                    for (const auto &a : list)
+                    {
+                        if (statement.args.argsop == SemanticAnalyzer::Operator::And)
+                            r &= valList.contains(a);
+                        else
+                            r |= valList.contains(a);
+                    }
+
+                    result &= !r;
+                }
+                else
                 {
-                    if (statement.args.argsop == SemanticAnalyzer::Operator::And)
-                        r &= valList.contains(a);
-                    else
-                        r |= valList.contains(a);
+                    result &= statement.arg != variables[oprand];
                 }
-
-                result &= !r;
                 break;
             }
             case SemanticAnalyzer::Operator::LessThan:
