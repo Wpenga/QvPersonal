@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QVariant>
+#include <stdexcept>
 
 namespace Qv2ray::components::QueryParser
 {
