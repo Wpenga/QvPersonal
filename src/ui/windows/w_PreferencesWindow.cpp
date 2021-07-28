@@ -139,6 +139,7 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
         qvProxyPortCB->setValue(BaselibConfig.network_config.port);
         qvProxyAddressTxt->setText(BaselibConfig.network_config.address);
         qvNetworkUATxt->setEditText(BaselibConfig.network_config.ua);
+        qvProxyTypeCombo->setCurrentIndex(BaselibConfig.network_config.type);
         SET_PROXY_UI_ENABLE(BaselibConfig.network_config.type == Qv2rayBase::Models::NetworkProxyConfig::PROXY_HTTP ||
                             BaselibConfig.network_config.type == Qv2rayBase::Models::NetworkProxyConfig::PROXY_SOCKS5)
     }
