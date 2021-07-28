@@ -102,12 +102,20 @@ SubscriptionResult OOCProvider::FetchDecodeSubscription(const SubscriptionProvid
                                                 QString::number(options.value(u"version"_qs).toInt()), //
                                                 options.value(u"userId"_qs).toString());
 #else
-    const auto json = QJsonDocument::fromJson(options.value(u"token"_qs).toString().toUtf8()).object();
-    const auto url = u"%1/%2/ooc/v%3/%4"_qs.arg(json.value(u"baseUrl"_qs).toString(),               //
-                                                json.value(u"secret"_qs).toString(),                //
-                                                QString::number(json.value(u"version"_qs).toInt()), //
-                                                json.value(u"userId"_qs).toString());
-
+    QString option = options.value(u"token"_qs).toString();
+    QUrl url;
+    if (QUrl(option).isValid())
+    {
+        url = QUrl{ option };
+    }
+    else
+    {
+        const auto json = QJsonDocument::fromJson(options.value(u"token"_qs).toString().toUtf8()).object();
+        url = u"%1/%2/ooc/v%3/%4"_qs.arg(json.value(u"baseUrl"_qs).toString(),               //
+                                         json.value(u"secret"_qs).toString(),                //
+                                         QString::number(json.value(u"version"_qs).toInt()), //
+                                         json.value(u"userId"_qs).toString());
+    }
 #endif
 
     const auto pinnedCertChecker = [](QNetworkReply *reply)

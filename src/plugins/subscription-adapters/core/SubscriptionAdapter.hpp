@@ -37,7 +37,7 @@ class BuiltinSubscriptionAdapterInterface : public IPluginSubscriptionInterface
         EditorInfo::Create<ElementType::String>("userId", "User ID"),
         EditorInfo::Create<ElementType::String>("certSha256", "Certification SHA256"),
 #else
-        EditorInfo::Create<ElementType::String>("token", "Token"),
+        EditorInfo::Create<ElementType::String>("token", "Token/URL"),
 #endif
     };
 
