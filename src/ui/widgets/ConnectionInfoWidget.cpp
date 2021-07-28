@@ -134,7 +134,20 @@ void ConnectionInfoWidget::ShowDetails(const ProfileId &idpair)
 
         groupShareTxt->setPlainText(shareLinks.join('\n'));
         const auto &groupMetaData = QvProfileManager->GetGroupObject(groupId);
-        groupSubsLinkTxt->setText(groupMetaData.subscription_config.isSubscription ? groupMetaData.subscription_config.address : tr("Not a subscription"));
+
+        if (groupMetaData.subscription_config.isSubscription)
+        {
+            const auto info = QvPluginAPIHost->Subscription_GetProviderInfo(groupMetaData.subscription_config.providerId).second;
+            switch (info.mode)
+            {
+                case Qv2rayPlugin::Subscription::Subscribe_Decoder: groupSubsLinkTxt->setText(groupMetaData.subscription_config.address); break;
+                case Qv2rayPlugin::Subscription::Subscribe_FetcherAndDecoder: groupSubsLinkTxt->setText(tr("(Custom Subscription Settings)")); break;
+            }
+        }
+        else
+        {
+            groupSubsLinkTxt->setText(tr("Not a subscription"));
+        }
     }
 }
 
