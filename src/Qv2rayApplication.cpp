@@ -59,6 +59,7 @@ bool Qv2rayApplication::Initialize()
     if (hasError && !canContinue)
     {
         QvLog() << "Fatal, Qv2ray cannot continue.";
+        exitReason = EXIT_INITIALIZATION_FAILED;
         return false;
     }
 
@@ -73,7 +74,10 @@ bool Qv2rayApplication::Initialize()
 
     const auto result = baseLibrary->Initialize(StartupArguments.noPlugins ? Qv2rayBase::START_NO_PLUGINS : Qv2rayBase::START_NORMAL, ctx, this);
     if (result != Qv2rayBase::NORMAL)
+    {
+        exitReason = EXIT_INITIALIZATION_FAILED;
         return false;
+    }
 
 #ifdef Q_OS_WIN
     const auto appPath = QDir::toNativeSeparators(QCoreApplication::applicationFilePath());
