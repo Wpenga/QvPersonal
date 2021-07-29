@@ -2,6 +2,7 @@
 
 #include "Qv2rayBase/Common/ProfileHelpers.hpp"
 #include "Qv2rayBase/Common/Utils.hpp"
+#include "Qv2rayBase/Profile/ProfileManager.hpp"
 #include "models/InboundNodeModel.hpp"
 #include "models/OutboundNodeModel.hpp"
 #include "models/RuleNodeModel.hpp"
@@ -16,6 +17,31 @@ NodeDispatcher::NodeDispatcher(QObject *parent) : QObject(parent)
 
 NodeDispatcher::~NodeDispatcher()
 {
+}
+
+void NodeDispatcher::OnNodeHovered(const QtNodes::Node &node)
+{
+    // Inbound
+    if (const auto model = qobject_cast<InboundNodeModel *>(node.nodeDataModel()))
+    {
+        const auto dataptr = model->getData();
+        emit OnInboundOutboundNodeHovered(dataptr->name, GetInboundInfo(*dataptr));
+    };
+
+    // Outbound
+    if (const auto model = qobject_cast<OutboundNodeModel *>(node.nodeDataModel()))
+    {
+        const auto dataptr = model->getData();
+        if (dataptr->objectType == OutboundObject::ORIGINAL)
+        {
+            emit OnInboundOutboundNodeHovered(dataptr->name, GetOutboundInfo(*dataptr));
+        }
+        else if (dataptr->objectType == OutboundObject::EXTERNAL)
+        {
+            const auto root = QvProfileManager->GetConnection(dataptr->externalId);
+            emit OnInboundOutboundNodeHovered(dataptr->name, GetOutboundInfo(root.outbounds.first()));
+        }
+    }
 }
 
 std::tuple<QMap<QString, InboundObject>, QMap<QString, RuleObject>, QMap<QString, OutboundObject>> NodeDispatcher::GetData() const
@@ -85,7 +111,7 @@ void NodeDispatcher::LoadFullConfig(const ProfileContent &root)
                 continue;
             }
             const auto inboundNodeId = inboundNodes.value(inboundTag);
-            ruleScene->createConnection(*ruleScene->node(ruleNodeId), 0, *ruleScene->node(inboundNodeId), 0);
+            ruleScene->createConnection(*ruleScene->nodes().at(ruleNodeId), 0, *ruleScene->nodes().at(inboundNodeId), 0);
         }
 
         if (!outboundNodes.contains(rule->outboundTag))
@@ -94,7 +120,7 @@ void NodeDispatcher::LoadFullConfig(const ProfileContent &root)
             continue;
         }
         const auto &outboundNodeId = outboundNodes[rule->outboundTag];
-        ruleScene->createConnection(*ruleScene->node(outboundNodeId), 0, *ruleScene->node(ruleNodeId), 0);
+        ruleScene->createConnection(*ruleScene->nodes().at(outboundNodeId), 0, *ruleScene->nodes().at(ruleNodeId), 0);
     }
     isOperationLocked = false;
     emit OnFullConfigLoadCompleted();

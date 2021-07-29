@@ -112,8 +112,8 @@ void ChainEditorWidget::ShowChainLinkedList()
         }
         if (!hasErrorOccured)
         {
-            const auto &nodeIn = scene->node(outboundNodes[inTag]);
-            const auto &nodeOut = scene->node(outboundNodes[outTag]);
+            const auto &nodeIn = scene->nodes().at(outboundNodes[inTag]);
+            const auto &nodeOut = scene->nodes().at(outboundNodes[outTag]);
             scene->createConnection(*nodeIn, 0, *nodeOut, 0);
         }
     }
@@ -240,7 +240,7 @@ void ChainEditorWidget::OnDispatcherChainedOutboundDeleted(const OutboundObject 
     const auto displayName = data.name;
     if (outboundNodes.contains(displayName))
     {
-        scene->removeNode(*scene->node(outboundNodes[displayName]));
+        scene->removeNode(*scene->nodes().at(outboundNodes[displayName]));
         outboundNodes.remove(displayName);
     }
 }

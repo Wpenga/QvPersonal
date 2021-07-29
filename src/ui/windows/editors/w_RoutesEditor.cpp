@@ -64,8 +64,6 @@ void RouteEditor::updateColorScheme()
     addOutboundBtn->setIcon(QIcon(STYLE_RESX("add")));
     if (StyleManager->isDarkMode())
     {
-        QtNodes::NodeStyle::reset();
-        QtNodes::FlowViewStyle::reset();
         ConnectionStyle::setConnectionStyle(DarkConnectionStyle);
     }
     else
@@ -137,10 +135,6 @@ RouteEditor::RouteEditor(const ProfileContent &connection, QWidget *parent) : Qv
     {
         importGroupBtn->addItem(GetDisplayName(group), group.toString());
     }
-
-#ifndef QT_DEBUG
-    debugPainterCB->setVisible(false);
-#endif
 
     isLoading = false;
 }
@@ -482,15 +476,6 @@ void RouteEditor::on_addBalancerBtn_clicked()
 void RouteEditor::on_addChainBtn_clicked()
 {
     Q_UNUSED(nodeDispatcher->CreateOutbound(OutboundObject{}));
-}
-
-void RouteEditor::on_debugPainterCB_clicked(bool checked)
-{
-#ifdef QT_DEBUG
-    QtNodes::ConnectionPainter::IsDebuggingEnabled = checked;
-    ruleWidget->getScene()->update();
-    chainWidget->getScene()->update();
-#endif
 }
 
 void RouteEditor::on_importOutboundBtn_clicked()

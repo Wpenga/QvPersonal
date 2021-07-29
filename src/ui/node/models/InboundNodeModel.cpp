@@ -19,9 +19,3 @@ void InboundNodeModel::inputConnectionDeleted(const QtNodes::Connection &){};
 void InboundNodeModel::outputConnectionCreated(const QtNodes::Connection &){};
 void InboundNodeModel::outputConnectionDeleted(const QtNodes::Connection &){};
 void InboundNodeModel::setInData(std::vector<std::shared_ptr<NodeData>>, PortIndex){};
-void InboundNodeModel::onNodeHoverLeave(){};
-
-void InboundNodeModel::onNodeHoverEnter()
-{
-    emit dispatcher->OnInboundOutboundNodeHovered(dataptr->name, GetInboundInfo(*dataptr));
-}

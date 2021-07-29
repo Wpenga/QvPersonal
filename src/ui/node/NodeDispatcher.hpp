@@ -28,6 +28,7 @@ class NodeDispatcher
         ruleScene = rule;
         chainScene = chain;
         connect(ruleScene, &QtNodes::FlowScene::nodeDeleted, this, &NodeDispatcher::OnNodeDeleted);
+        connect(ruleScene, &QtNodes::FlowScene::nodeHovered, this, &NodeDispatcher::OnNodeHovered);
     }
 
   public:
@@ -84,6 +85,7 @@ class NodeDispatcher
     }
 
   public:
+    void OnNodeHovered(const QtNodes::Node &node);
     void OnNodeDeleted(const QtNodes::Node &node);
 
     template<NodeItemType t>

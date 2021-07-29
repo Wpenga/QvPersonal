@@ -65,17 +65,3 @@ void OutboundNodeModel::setInData(std::vector<std::shared_ptr<NodeData>> indata,
         qInfo() << "Connecting rule:" << rulePtr->name << "to" << dataptr->name;
     }
 }
-
-void OutboundNodeModel::onNodeHoverLeave(){};
-void OutboundNodeModel::onNodeHoverEnter()
-{
-    if (dataptr->objectType == OutboundObject::ORIGINAL)
-    {
-        emit dispatcher->OnInboundOutboundNodeHovered(dataptr->name, GetOutboundInfo(*dataptr));
-    }
-    else if (dataptr->objectType == OutboundObject::EXTERNAL)
-    {
-        const auto root = QvProfileManager->GetConnection(dataptr->externalId);
-        emit dispatcher->OnInboundOutboundNodeHovered(dataptr->name, GetOutboundInfo(root.outbounds.first()));
-    }
-}

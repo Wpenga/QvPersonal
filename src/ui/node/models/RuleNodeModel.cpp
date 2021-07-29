@@ -69,5 +69,3 @@ void RuleNodeModel::setInData(std::vector<std::shared_ptr<NodeData>> indata, Por
     }
 }
 
-void RuleNodeModel::onNodeHoverEnter(){};
-void RuleNodeModel::onNodeHoverLeave(){};

@@ -14,5 +14,3 @@ void ChainOutboundNodeModel::inputConnectionCreated(const QtNodes::Connection &)
 void ChainOutboundNodeModel::inputConnectionDeleted(const QtNodes::Connection &){};
 void ChainOutboundNodeModel::outputConnectionCreated(const QtNodes::Connection &){};
 void ChainOutboundNodeModel::outputConnectionDeleted(const QtNodes::Connection &){};
-void ChainOutboundNodeModel::onNodeHoverLeave(){};
-void ChainOutboundNodeModel::onNodeHoverEnter(){};

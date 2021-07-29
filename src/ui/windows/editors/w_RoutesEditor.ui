@@ -493,7 +493,7 @@
     </layout>
    </item>
    <item row="2" column="0" colspan="2">
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0">
      <item>
       <widget class="QLabel" name="statusLabel">
        <property name="sizePolicy">
@@ -504,13 +504,6 @@
        </property>
        <property name="text">
         <string>Status</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="debugPainterCB">
-       <property name="text">
-        <string>Debug Connection Painter</string>
        </property>
       </widget>
      </item>

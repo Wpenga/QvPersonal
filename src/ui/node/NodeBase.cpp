@@ -1,15 +1,15 @@
 #include "NodeBase.hpp"
-std::shared_ptr<NodeDataType> InboundNodeModel::dataType(PortType, PortIndex) const
+NodeDataType InboundNodeModel::dataType(PortType, PortIndex) const
 {
     return NODE_TYPE_INBOUND;
 }
 
-std::shared_ptr<NodeDataType> OutboundNodeModel::dataType(PortType, PortIndex) const
+NodeDataType OutboundNodeModel::dataType(PortType, PortIndex) const
 {
     return NODE_TYPE_OUTBOUND;
 }
 
-std::shared_ptr<NodeDataType> RuleNodeModel::dataType(PortType portType, PortIndex) const
+NodeDataType RuleNodeModel::dataType(PortType portType, PortIndex) const
 {
     switch (portType)
     {
@@ -19,7 +19,7 @@ std::shared_ptr<NodeDataType> RuleNodeModel::dataType(PortType portType, PortInd
     }
 }
 
-std::shared_ptr<NodeDataType> ChainOutboundNodeModel::dataType(PortType, PortIndex) const
+NodeDataType ChainOutboundNodeModel::dataType(PortType, PortIndex) const
 {
     return NODE_TYPE_CHAINED_OUTBOUND;
 }
