@@ -36,30 +36,14 @@ int main(int argc, char *argv[])
     // This line must be called before any other ones, since we are using these
     // values to identify instances.
     QCoreApplication::setApplicationVersion(QStringLiteral(QV2RAY_VERSION_STRING));
-
-#ifdef QT_DEBUG
-    QCoreApplication::setApplicationName(QStringLiteral("qv2ray_debug"));
-#else
-    QCoreApplication::setApplicationName("qv2ray");
-#endif
-
     QApplication::setApplicationDisplayName(QStringLiteral("Qv2ray"));
 
 #ifdef QT_DEBUG
+    QCoreApplication::setApplicationName(QStringLiteral("qv2ray_debug"));
     std::cerr << "WARNING: ================ This is a debug build, many features are not stable enough. ================" << std::endl;
+#else
+    QCoreApplication::setApplicationName("qv2ray");
 #endif
-
-    if (qEnvironmentVariableIsSet("QV2RAY_NO_SCALE_FACTORS"))
-    {
-        QvLog() << "Force set QT_SCALE_FACTOR to 1.";
-        QvDebug() << "Original QT_SCALE_FACTOR was:" << qEnvironmentVariable("QT_SCALE_FACTOR");
-        qputenv("QT_SCALE_FACTOR", "1");
-    }
-    else
-    {
-        QvDebug() << "High DPI scaling is enabled.";
-        QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
-    }
 
     Qv2rayApplication app(argc, argv);
     if (!app.Initialize())
