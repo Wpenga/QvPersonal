@@ -129,7 +129,7 @@ void MainWindow::CheckSubscriptionsUpdate()
         if (info.subscription_config.updateInterval == 0.0f)
             continue;
 
-        if (info.updated + 24h <= system_clock::now())
+        if (info.updated + info.subscription_config.updateInterval * 24h <= system_clock::now())
         {
             updateList << std::pair{ info.name, entry };
             updateNamesList << info.name;
