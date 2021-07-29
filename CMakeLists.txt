@@ -19,11 +19,11 @@ if(WIN32)
         QV2RAY_RC
         NAME               "Qv2ray"
         BUNDLE             "Qv2ray Project Family"
-        ICON               "${CMAKE_SOURCE_DIR}/assets/icons/qv2ray.ico"
+        ICON               "${CMAKE_CURRENT_LIST_DIR}/assets/icons/qv2ray.ico"
         VERSION_MAJOR      ${CMAKE_PROJECT_VERSION_MAJOR}
         VERSION_MINOR      ${CMAKE_PROJECT_VERSION_MINOR}
-        VERSION_PATCH      ${CPACK_PACKAGE_VERSION_PATCH}
-        VERSION_REVISION   ${QV2RAY_BUILD_VERSION}
+        VERSION_PATCH      ${CMAKE_PROJECT_VERSION_PATCH}
+        VERSION_REVISION   "0"
         COMPANY_NAME       "Moody"
         COMPANY_COPYRIGHT  "Qv2ray Workgroup 2021, Moodyhunter 2021"
         FILE_DESCRIPTION   "Qv2ray 3.0"
