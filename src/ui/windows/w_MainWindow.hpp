@@ -26,7 +26,7 @@ class MainWindow
   public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
-    void ProcessCommand(QString command, QStringList commands, QMap<QString, QString> args);
+    void ProcessCommand(const QString &command, QStringList commands, QMap<QString, QString> args);
 
   signals:
     void StartConnection() const;
@@ -35,8 +35,12 @@ class MainWindow
 
   private:
     QvMessageBusSlotDecl;
+
+  public slots:
+    void OnTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
+    void MWToggleVisibility();
+
   private slots:
-    void on_activatedTray(QSystemTrayIcon::ActivationReason reason);
     void on_preferencesBtn_clicked();
     void on_clearlogButton_clicked();
     void on_connectionTreeView_customContextMenuRequested(QPoint pos);
@@ -71,7 +75,6 @@ class MainWindow
     void Action_EditComplex();
     void Action_UpdateSubscription();
     void Action_TestLatency();
-    //    void Action_TestRealLatency();
     void Action_RenameConnection();
     void Action_DeleteConnections();
     void Action_DuplicateConnection();
@@ -80,7 +83,6 @@ class MainWindow
     void Action_CopyRecentLogs();
 
   private:
-    void MWToggleVisibility();
     void OnEditRequested(const ConnectionId &id);
     void OnEditJsonRequested(const ConnectionId &id);
     void OnConnected(const ProfileId &id);
@@ -90,8 +92,6 @@ class MainWindow
     void OnKernelLogAvailable(const ProfileId &id, const QString &log);
     //
     void SortConnectionList(ConnectionInfoRole byCol, bool asending);
-    //
-    void ReloadRecentConnectionList();
     //
     void OnLogScrollbarValueChanged(int value);
     //
@@ -116,21 +116,12 @@ class MainWindow
     //
     // Declare Actions
 #define DECL_ACTION(parent, name) QAction *name = new QAction(parent)
-    QMenu *tray_RootMenu = new QMenu(this);
-    QMenu *tray_RecentConnectionsMenu = new QMenu(this);
     QMenu *sortMenu = new QMenu(this);
     QMenu *logRCM_Menu = new QMenu(this);
     QMenu *connectionListRCM_Menu = new QMenu(this);
     QMenu *graphWidgetMenu = new QMenu(this);
     // Do not set parent=tray_RecentConnectionsMenu
     // Calling clear() will cause this QAction being deleted.
-    DECL_ACTION(this, tray_ClearRecentConnectionsAction);
-    DECL_ACTION(tray_RootMenu, tray_action_ToggleVisibility);
-    DECL_ACTION(tray_RootMenu, tray_action_Preferences);
-    DECL_ACTION(tray_RootMenu, tray_action_Quit);
-    DECL_ACTION(tray_RootMenu, tray_action_Start);
-    DECL_ACTION(tray_RootMenu, tray_action_Restart);
-    DECL_ACTION(tray_RootMenu, tray_action_Stop);
     DECL_ACTION(connectionListRCM_Menu, action_RCM_Start);
     DECL_ACTION(connectionListRCM_Menu, action_RCM_SetAutoConnection);
     DECL_ACTION(connectionListRCM_Menu, action_RCM_UpdateSubscription);
@@ -158,7 +149,7 @@ class MainWindow
     void updateColorScheme();
 
     bool qvLogAutoScoll = true;
-    ProfileId lastConnected;
+    //    ProfileId lastConnected;
 
     QList<Qv2rayPlugin::Gui::PluginMainWindowWidget *> pluginWidgets;
     Qv2ray::ui::widgets::models::ConnectionListHelper *modelHelper;

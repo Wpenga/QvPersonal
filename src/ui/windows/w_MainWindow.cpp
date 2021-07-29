@@ -57,20 +57,6 @@ void MainWindow::SortConnectionList(ConnectionInfoRole byCol, bool asending)
     on_locateBtn_clicked();
 }
 
-void MainWindow::ReloadRecentConnectionList()
-{
-    QList<ProfileId> newRecentConnections;
-    const auto iterateRange = std::min(*GlobalConfig->appearanceConfig->RecentJumpListSize, GlobalConfig->appearanceConfig->RecentConnections->count());
-    for (auto i = 0; i < iterateRange; i++)
-    {
-        const auto &item = GlobalConfig->appearanceConfig->RecentConnections->at(i);
-        if (newRecentConnections.contains(item) || item.isNull())
-            continue;
-        newRecentConnections << item;
-    }
-    GlobalConfig->appearanceConfig->RecentConnections = newRecentConnections;
-}
-
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setupUi(this);
@@ -108,7 +94,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, this, &MainWindow::OnStatsAvailable);
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnKernelLogAvailable, this, &MainWindow::OnKernelLogAvailable);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnSubscriptionUpdateFinished,
-            [](const GroupId &gid) { QvApp->ShowTrayMessage(tr("Subscription \"%1\" has been updated").arg(GetDisplayName(gid))); });
+            [](const GroupId &gid) { QvApp->GetTrayManager()->ShowTrayMessage(tr("Subscription \"%1\" has been updated").arg(GetDisplayName(gid))); });
 
     connect(infoWidget, &ConnectionInfoWidget::OnTagSearchRequested, this,
             [this](const QString &tag)
@@ -120,60 +106,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(infoWidget, &ConnectionInfoWidget::OnJsonEditRequested, this, &MainWindow::OnEditJsonRequested);
 
     connect(masterLogBrowser->verticalScrollBar(), &QSlider::valueChanged, this, &MainWindow::OnLogScrollbarValueChanged);
-    //
-    // Setup System tray icons and menus
-    qvAppTrayIcon->setToolTip("Qv2ray " QV2RAY_VERSION_STRING);
-    qvAppTrayIcon->show();
-    //
-    // Basic tray actions
-    tray_action_Start->setEnabled(true);
-    tray_action_Stop->setEnabled(false);
-    tray_action_Restart->setEnabled(false);
-    //
-    tray_RootMenu->addAction(tray_action_ToggleVisibility);
-    tray_RootMenu->addSeparator();
-    tray_RootMenu->addAction(tray_action_Preferences);
-    //
-    tray_RootMenu->addSeparator();
-    tray_RootMenu->addMenu(tray_RecentConnectionsMenu);
-    connect(tray_RecentConnectionsMenu, &QMenu::aboutToShow, this,
-            [this]()
-            {
-                tray_RecentConnectionsMenu->clear();
-                tray_RecentConnectionsMenu->addAction(tray_ClearRecentConnectionsAction);
-                tray_RecentConnectionsMenu->addSeparator();
-                for (const auto &conn : *GlobalConfig->appearanceConfig->RecentConnections)
-                {
-                    if (!QvProfileManager->IsValidId(conn))
-                        continue;
-                    const auto name = GetDisplayName(conn.connectionId) + " (" + GetDisplayName(conn.groupId) + ")";
-                    tray_RecentConnectionsMenu->addAction(name, this, [=]() { emit QvProfileManager->StartConnection(conn); });
-                }
-            });
-
-    tray_RootMenu->addSeparator();
-    tray_RootMenu->addAction(tray_action_Start);
-    tray_RootMenu->addAction(tray_action_Stop);
-    tray_RootMenu->addAction(tray_action_Restart);
-    tray_RootMenu->addSeparator();
-    tray_RootMenu->addAction(tray_action_Quit);
-    qvAppTrayIcon->setContextMenu(tray_RootMenu);
-
-    connect(tray_action_ToggleVisibility, &QAction::triggered, this, &MainWindow::MWToggleVisibility);
-    connect(tray_action_Preferences, &QAction::triggered, this, &MainWindow::on_preferencesBtn_clicked);
-    connect(tray_action_Start, &QAction::triggered, [this] { QvProfileManager->StartConnection(lastConnected); });
-    connect(tray_action_Stop, &QAction::triggered, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::StopConnection);
-    connect(tray_action_Restart, &QAction::triggered, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::RestartConnection);
-    connect(tray_action_Quit, &QAction::triggered, this, &MainWindow::Action_Exit);
-    connect(tray_ClearRecentConnectionsAction, &QAction::triggered,
-            [this]()
-            {
-                GlobalConfig->appearanceConfig->RecentConnections->clear();
-                ReloadRecentConnectionList();
-                if (!GlobalConfig->behaviorConfig->QuietMode)
-                    QvApp->ShowTrayMessage(tr("Recent Connection list cleared."));
-            });
-    connect(qvAppTrayIcon, &QSystemTrayIcon::activated, this, &MainWindow::on_activatedTray);
     //
     // Actions for right click the log text browser
     //
@@ -221,7 +153,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     connectionListRCM_Menu->addAction(action_RCM_DeleteConnection);
 
-    //
     connect(action_RCM_Start, &QAction::triggered, this, &MainWindow::Action_Start);
     connect(action_RCM_SetAutoConnection, &QAction::triggered, this, &MainWindow::Action_SetAutoConnection);
     connect(action_RCM_Edit, &QAction::triggered, this, &MainWindow::Action_Edit);
@@ -275,7 +206,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             }
         }
     }
-    ReloadRecentConnectionList();
 
     CheckSubscriptionsUpdate();
 
@@ -322,7 +252,7 @@ void MainWindow::OnPluginButtonClicked()
     widget->setVisible(!widget->isVisible());
 }
 
-void MainWindow::ProcessCommand(QString command, QStringList commands, QMap<QString, QString> args)
+void MainWindow::ProcessCommand(const QString &command, QStringList commands, QMap<QString, QString> args)
 {
     if (commands.isEmpty())
         return;
@@ -417,12 +347,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *e)
 void MainWindow::changeEvent(QEvent *e)
 {
     if (e->type() == QEvent::WindowStateChange)
-    {
-        if (isHidden() || isMinimized())
-            tray_action_ToggleVisibility->setText(tr("Show"));
-        else
-            tray_action_ToggleVisibility->setText(tr("Hide"));
-    }
+        QvApp->GetTrayManager()->SetMainWindowCurrentState((isHidden() || isMinimized()) ? MainWindowState::State_Hidden : MainWindowState::State_Shown);
 }
 
 void MainWindow::Action_Start()
@@ -445,7 +370,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->ignore();
 }
 
-void MainWindow::on_activatedTray(QSystemTrayIcon::ActivationReason reason)
+void MainWindow::OnTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
 {
 #ifdef Q_OS_MACOS
     // special arrangement needed for macOS
@@ -564,17 +489,7 @@ void MainWindow::on_subsButton_clicked()
 void MainWindow::OnDisconnected(const ProfileId &id)
 {
     Q_UNUSED(id)
-    qvAppTrayIcon->setIcon(Q_TRAYICON("tray"));
-    tray_action_Start->setEnabled(true);
-    tray_action_Stop->setEnabled(false);
-    tray_action_Restart->setEnabled(false);
-    lastConnected = id;
     locateBtn->setEnabled(false);
-    if (!GlobalConfig->behaviorConfig->QuietMode)
-    {
-        QvApp->ShowTrayMessage(tr("Disconnected from: ") + GetDisplayName(id.connectionId));
-    }
-    qvAppTrayIcon->setToolTip("Qv2ray " QV2RAY_VERSION_STRING);
     netspeedLabel->setText("0.00 B/s" NEWLINE "0.00 B/s");
     dataamountLabel->setText("0.00 B" NEWLINE "0.00 B");
     connetionStatusLabel->setText(tr("Not Connected"));
@@ -583,24 +498,18 @@ void MainWindow::OnDisconnected(const ProfileId &id)
 void MainWindow::OnConnected(const ProfileId &id)
 {
     Q_UNUSED(id)
-    qvAppTrayIcon->setIcon(Q_TRAYICON("tray-connected"));
-    tray_action_Start->setEnabled(false);
-    tray_action_Stop->setEnabled(true);
-    tray_action_Restart->setEnabled(true);
-    lastConnected = id;
     locateBtn->setEnabled(true);
     on_clearlogButton_clicked();
     auto name = GetDisplayName(id.connectionId);
     if (!GlobalConfig->behaviorConfig->QuietMode)
     {
-        QvApp->ShowTrayMessage(tr("Connected: ") + name);
+        QvApp->GetTrayManager()->ShowTrayMessage(tr("Connected: ") + name);
     }
-    qvAppTrayIcon->setToolTip("Qv2ray " QV2RAY_VERSION_STRING NEWLINE + tr("Connected: ") + name);
+    QvApp->GetTrayManager()->SetTrayTooltip("Qv2ray " QV2RAY_VERSION_STRING NEWLINE + tr("Connected: ") + name);
     connetionStatusLabel->setText(tr("Connected: ") + name);
     //
     GlobalConfig->appearanceConfig->RecentConnections->removeAll(id);
     GlobalConfig->appearanceConfig->RecentConnections->push_front(id);
-    ReloadRecentConnectionList();
 }
 
 void MainWindow::on_connectionFilterTxt_textEdited(const QString &arg1)
@@ -651,10 +560,10 @@ void MainWindow::OnStatsAvailable(const ProfileId &id, const StatisticsObject &d
     netspeedLabel->setText(totalSpeedUp + NEWLINE + totalSpeedDown);
     dataamountLabel->setText(totalDataUp + NEWLINE + totalDataDown);
 
-    qvAppTrayIcon->setToolTip(QStringLiteral("Qv2ray %1\n"
-                                             "Connected: %2\n"
-                                             "Up: %3 Down: %4")
-                                  .arg(QStringLiteral(QV2RAY_VERSION_STRING), GetDisplayName(id.connectionId), totalSpeedUp, totalSpeedDown));
+    QvApp->GetTrayManager()->SetTrayTooltip(QStringLiteral("Qv2ray %1\n"
+                                                           "Connected: %2\n"
+                                                           "Up: %3 Down: %4")
+                                                .arg(QStringLiteral(QV2RAY_VERSION_STRING), GetDisplayName(id.connectionId), totalSpeedUp, totalSpeedDown));
 }
 
 void MainWindow::OnKernelLogAvailable(const ProfileId &id, const QString &log)
@@ -817,7 +726,7 @@ void MainWindow::Action_SetAutoConnection()
         GlobalConfig->behaviorConfig->AutoConnectBehavior = Qv2rayBehaviorConfig::AUTOCONNECT_FIXED;
         if (!GlobalConfig->behaviorConfig->QuietMode)
         {
-            QvApp->ShowTrayMessage(tr("%1 has been set to be auto connected.").arg(GetDisplayName(identifier.connectionId)));
+            QvApp->GetTrayManager()->ShowTrayMessage(tr("%1 has been set to be auto connected.").arg(GetDisplayName(identifier.connectionId)));
         }
         QvApp->SaveQv2raySettings();
     }

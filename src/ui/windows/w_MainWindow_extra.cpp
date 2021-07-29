@@ -28,7 +28,7 @@ void MainWindow::MWShowWindow()
     ProcessSerialNumber psn = { 0, kCurrentProcess };
     TransformProcessType(&psn, kProcessTransformToForegroundApplication);
 #endif
-    tray_action_ToggleVisibility->setText(tr("Hide"));
+    QvApp->GetTrayManager()->SetMainWindowCurrentState(MainWindowState::State_Shown);
     this->show();
     this->raise();
     this->activateWindow();
@@ -41,7 +41,7 @@ void MainWindow::MWHideWindow()
     ProcessSerialNumber psn = { 0, kCurrentProcess };
     TransformProcessType(&psn, kProcessTransformToUIElementApplication);
 #endif
-    tray_action_ToggleVisibility->setText(tr("Show"));
+    QvApp->GetTrayManager()->SetMainWindowCurrentState(MainWindowState::State_Hidden);
 }
 
 #pragma message("TODO: cleanup")
@@ -124,7 +124,7 @@ void MainWindow::CheckSubscriptionsUpdate()
         const auto info = QvProfileManager->GetGroupObject(entry);
         if (!info.subscription_config.isSubscription)
             continue;
-        //
+
         // The update is ignored.
         if (info.subscription_config.updateInterval == 0.0f)
             continue;
@@ -133,7 +133,7 @@ void MainWindow::CheckSubscriptionsUpdate()
         {
             updateList << std::pair{ info.name, entry };
             updateNamesList << info.name;
-            QvLog() << QString("Subscription update \"%1\": L=%2 R=%3").arg(info.name).arg(TimeToString(info.updated)).arg(info.subscription_config.updateInterval);
+            QvLog() << "Subscription update:" << info.name << TimeToString(info.updated) << info.subscription_config.updateInterval;
         }
     }
 
@@ -164,14 +164,17 @@ void MainWindow::CheckSubscriptionsUpdate()
 
 void MainWindow::updateColorScheme()
 {
+    if (GlobalConfig->appearanceConfig->ShowTrayIcon)
+        QvApp->GetTrayManager()->ShowTrayIcon();
+    else
+        QvApp->GetTrayManager()->HideTrayIcon();
+
+    QvApp->GetTrayManager()->UpdateColorScheme();
     vCoreLogHighlighter->loadRules(StyleManager->isDarkMode());
-    qvAppTrayIcon->setIcon(QvKernelManager->CurrentConnection().isNull() ? Q_TRAYICON("tray") : Q_TRAYICON("tray-connected"));
-    //
+
     importConfigButton->setIcon(QIcon(STYLE_RESX("add")));
     updownImageBox->setStyleSheet("image: url(" + STYLE_RESX("netspeed_arrow") + ")");
     updownImageBox_2->setStyleSheet("image: url(" + STYLE_RESX("netspeed_arrow") + ")");
-    //
-    tray_action_ToggleVisibility->setIcon(this->windowIcon());
 
     action_RCM_Start->setIcon(QIcon(STYLE_RESX("start")));
     action_RCM_Edit->setIcon(QIcon(STYLE_RESX("edit")));
@@ -181,10 +184,10 @@ void MainWindow::updateColorScheme()
     action_RCM_DeleteConnection->setIcon(QIcon(STYLE_RESX("ashbin")));
     action_RCM_ResetStats->setIcon(QIcon(STYLE_RESX("ashbin")));
     action_RCM_TestLatency->setIcon(QIcon(STYLE_RESX("ping_gauge")));
-    //
+
     clearChartBtn->setIcon(QIcon(STYLE_RESX("ashbin")));
     clearlogButton->setIcon(QIcon(STYLE_RESX("ashbin")));
-    //
+
     locateBtn->setIcon(QIcon(STYLE_RESX("map")));
     sortBtn->setIcon(QIcon(STYLE_RESX("arrow-down-filling")));
     collapseGroupsBtn->setIcon(QIcon(STYLE_RESX("arrow-up")));
@@ -192,16 +195,7 @@ void MainWindow::updateColorScheme()
 
 void MainWindow::updateActionTranslations()
 {
-    tray_RecentConnectionsMenu->setTitle(tr("Recent Connections"));
-    tray_ClearRecentConnectionsAction->setText(tr("Clear Recent Connections"));
-    //
-    tray_action_ToggleVisibility->setText(tr("Hide"));
-    tray_action_Preferences->setText(tr("Preferences"));
-    tray_action_Quit->setText(tr("Quit"));
-    tray_action_Start->setText(tr("Connect"));
-    tray_action_Restart->setText(tr("Reconnect"));
-    tray_action_Stop->setText(tr("Disconnect"));
-    //
+    QvApp->GetTrayManager()->Retranslate();
     action_RCM_Start->setText(tr("Connect to this"));
     action_RCM_SetAutoConnection->setText(tr("Set as automatically connected"));
     action_RCM_EditJson->setText(tr("Edit as JSON"));
@@ -213,7 +207,7 @@ void MainWindow::updateActionTranslations()
     action_RCM_TestLatency->setText(tr("Test Latency"));
     action_RCM_ResetStats->setText(tr("Clear Usage Data"));
     action_RCM_DeleteConnection->setText(tr("Delete Connection"));
-    //
+
     sortMenu->setTitle(tr("Sort connection list."));
     sortAction_SortByName_Asc->setText(tr("By connection name, A-Z"));
     sortAction_SortByName_Dsc->setText(tr("By connection name, Z-A"));
@@ -221,7 +215,7 @@ void MainWindow::updateActionTranslations()
     sortAction_SortByPing_Dsc->setText(tr("By latency, Descending"));
     sortAction_SortByData_Asc->setText(tr("By data, Ascending"));
     sortAction_SortByData_Dsc->setText(tr("By data, Descending"));
-    //
+
     action_RCM_CopyGraph->setText(tr("Copy graph as image."));
     action_RCM_CopyRecentLogs->setText(tr("Copy latest logs."));
     action_RCM_CopySelected->setText(tr("Copy selected."));

@@ -129,8 +129,11 @@ bool Qv2rayApplication::Initialize()
 
 Qv2rayExitReason Qv2rayApplication::RunQv2ray()
 {
-    hTray = new QSystemTrayIcon();
+    trayManager = new Qv2ray::ui::TrayManager(this);
     mainWindow = new MainWindow();
+
+    connect(trayManager, &TrayManager::TrayActivated, mainWindow, &MainWindow::OnTrayIconActivated);
+    connect(trayManager, &TrayManager::VisibilityToggled, mainWindow, &MainWindow::MWToggleVisibility);
 
     if (StartupArguments.arguments.contains(Qv2rayStartupArguments::QV2RAY_LINK))
     {
@@ -154,15 +157,9 @@ Qv2rayExitReason Qv2rayApplication::RunQv2ray()
     return (Qv2rayExitReason) exec();
 }
 
-QSystemTrayIcon **Qv2rayApplication::TrayIcon()
-{
-    return &hTray;
-}
-
 void Qv2rayApplication::quitInternal()
 {
     delete mainWindow;
-    delete hTray;
     delete StyleManager;
     delete GUIPluginHost;
     SaveQv2raySettings();
@@ -303,9 +300,14 @@ Qv2rayBase::MessageOpt Qv2rayApplication::p_MessageBoxAsk(const QString &title, 
     return MessageBoxButtonMap.key(QMessageBox::question(nullptr, title, text, btns));
 }
 
-void Qv2rayApplication::ShowTrayMessage(const QString &m, int msecs)
+MainWindow *Qv2rayApplication::GetMainWindow() const
 {
-    hTray->showMessage(QStringLiteral("Qv2ray"), m, QIcon(Qv2rayLogo), msecs);
+    return mainWindow;
+}
+
+TrayManager *Qv2rayApplication::GetTrayManager() const
+{
+    return trayManager;
 }
 
 void Qv2rayApplication::SaveQv2raySettings()

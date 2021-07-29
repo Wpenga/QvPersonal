@@ -50,6 +50,7 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
     AppConfig.appearanceConfig->UITheme.ReadWriteBind(themeCombo, "currentText", &QComboBox::currentIndexChanged);
     AppConfig.appearanceConfig->DarkModeTrayIcon.ReadWriteBind(darkTrayCB, "checked", &QCheckBox::stateChanged);
     AppConfig.appearanceConfig->Language.ReadWriteBind(languageComboBox, "currentText", &QComboBox::currentIndexChanged);
+    AppConfig.appearanceConfig->ShowTrayIcon.ReadWriteBind(showTrayCB, "checked", &QCheckBox::stateChanged);
     AppConfig.behaviorConfig->QuietMode.ReadWriteBind(quietModeCB, "checked", &QCheckBox::stateChanged);
 
     AppConfig.inboundConfig->ListenAddress1.ReadWriteBind(listenIP1Txt, "text", &QLineEdit::textEdited);
@@ -270,12 +271,16 @@ void PreferencesWindow::on_buttonBox_accepted()
 
     QvProfileManager->UpdateRouting(DefaultRoutingId, defaultRouteObject);
 
-    if (AppConfig.appearanceConfig->UITheme != GlobalConfig->appearanceConfig->UITheme)
-    {
-        StyleManager->ApplyStyle(AppConfig.appearanceConfig->UITheme);
-    }
+    bool needUpdateUIScheme = AppConfig.appearanceConfig->UITheme != GlobalConfig->appearanceConfig->UITheme;
+    bool needToggleTrayIcon = AppConfig.appearanceConfig->ShowTrayIcon != GlobalConfig->appearanceConfig->ShowTrayIcon;
 
     (*GlobalConfig) = AppConfig;
+
+    if (needUpdateUIScheme)
+        StyleManager->ApplyStyle(AppConfig.appearanceConfig->UITheme);
+    else if (needToggleTrayIcon)
+        UIMessageBus->EmitGlobalSignal(MessageBus::UPDATE_COLORSCHEME);
+
     QvBaselib->GetConfig()->loadJson(BaselibConfig.toJson());
     accept();
 }

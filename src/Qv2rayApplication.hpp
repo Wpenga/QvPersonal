@@ -3,8 +3,10 @@
 #include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 #include "QvPlugin/Utils/JsonConversion.hpp"
 #include "models/SettingsModels.hpp"
+#include "ui/TrayManager.hpp"
 
 #include <QApplication>
+#include <QMenu>
 #include <QMessageBox>
 #include <SingleApplication>
 
@@ -74,16 +76,15 @@ class Qv2rayApplication
     Qv2rayApplication(int &argc, char *argv[]);
     virtual ~Qv2rayApplication();
 
+    QPixmap Qv2rayLogo;
+
     Qv2rayExitReason GetExitReason() const;
     bool Initialize();
     Qv2rayExitReason RunQv2ray();
-
-    QSystemTrayIcon **TrayIcon();
-    void ShowTrayMessage(const QString &m, int msecs = 10000);
-
-    QPixmap Qv2rayLogo;
-
     void SaveQv2raySettings();
+
+    MainWindow *GetMainWindow() const;
+    Qv2ray::ui::TrayManager *GetTrayManager() const;
 
   public:
     virtual void p_MessageBoxWarn(const QString &title, const QString &text) override;
@@ -98,12 +99,11 @@ class Qv2rayApplication
     bool parseCommandLine(QString *errorMessage, bool *canContinue);
     void onMessageReceived(quint32 clientId, const QByteArray &msg);
     Qv2rayExitReason exitReason = EXIT_NORMAL;
-    QSystemTrayIcon *hTray;
     MainWindow *mainWindow;
+    Qv2ray::ui::TrayManager *trayManager;
     Qv2rayBase::Qv2rayBaseLibrary *baseLibrary;
 };
 
 inline Qv2ray::Models::Qv2rayApplicationConfigObject *GlobalConfig;
 
 #define QvApp static_cast<Qv2rayApplication *>(qApp)
-#define qvAppTrayIcon (*(QvApp->TrayIcon()))

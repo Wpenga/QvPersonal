@@ -33,6 +33,7 @@ list(APPEND QV2RAY_FULL_SOURCES
     )
 
 qv2ray_add_class(Qv2rayApplication)
+qv2ray_add_class(ui/TrayManager)
 qv2ray_add_class(ui/node/models/ChainOutboundNodeModel)
 qv2ray_add_class(ui/node/models/InboundNodeModel)
 qv2ray_add_class(ui/node/models/OutboundNodeModel)
