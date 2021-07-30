@@ -4,6 +4,8 @@
 #include "Qv2rayBase/Common/ProfileHelpers.hpp"
 #include "Qv2rayBase/Common/Utils.hpp"
 #include "Qv2rayBase/Interfaces/IStorageProvider.hpp"
+#include "Qv2rayBase/Plugin/PluginAPIHost.hpp"
+#include "Qv2rayBase/Plugin/PluginManagerCore.hpp"
 #include "Qv2rayBase/Profile/ProfileManager.hpp"
 #include "QvPlugin/PluginInterface.hpp"
 #include "StyleManager/StyleManager.hpp"
@@ -181,6 +183,20 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
             autoStartConnCombo->addItem(GetDisplayName(conn), conn.toString());
 
         autoStartConnCombo->setCurrentText(GetDisplayName(autoStartConnId));
+    }
+
+    {
+        defaultLatencyTesterCB->blockSignals(true);
+        int index = -1;
+        for (const auto &plugin : QvPluginAPIHost->Latency_GetAllEngines())
+        {
+            if (plugin.Id == AppConfig.behaviorConfig->DefaultLatencyTestEngine)
+                index = defaultLatencyTesterCB->count();
+            defaultLatencyTesterCB->addItem(plugin.Name, plugin.Id.toString());
+        }
+        if (index >= 0)
+            defaultLatencyTesterCB->setCurrentIndex(index);
+        defaultLatencyTesterCB->blockSignals(false);
     }
 }
 
@@ -465,4 +481,9 @@ void PreferencesWindow::on_qvProxyTypeCombo_currentIndexChanged(int index)
     BaselibConfig.network_config.type = (Qv2rayBase::Models::NetworkProxyConfig::ProxyType) index;
     SET_PROXY_UI_ENABLE(BaselibConfig.network_config.type == Qv2rayBase::Models::NetworkProxyConfig::PROXY_HTTP ||
                         BaselibConfig.network_config.type == Qv2rayBase::Models::NetworkProxyConfig::PROXY_SOCKS5)
+}
+
+void PreferencesWindow::on_defaultLatencyTesterCB_currentIndexChanged(int)
+{
+    AppConfig.behaviorConfig->DefaultLatencyTestEngine = LatencyTestEngineId{ defaultLatencyTesterCB->currentData().toString() };
 }

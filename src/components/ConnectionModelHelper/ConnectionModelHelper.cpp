@@ -2,6 +2,7 @@
 
 #include "Qv2rayBase/Common/ProfileHelpers.hpp"
 #include "Qv2rayBase/Common/Utils.hpp"
+#include "Qv2rayBase/Plugin/LatencyTestHost.hpp"
 #include "Qv2rayBase/Profile/KernelManager.hpp"
 #include "Qv2rayBase/Profile/ProfileManager.hpp"
 #include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
@@ -34,13 +35,13 @@ ConnectionListHelper::ConnectionListHelper(QTreeView *parentView, QObject *paren
         }
     };
 
-    const auto latencyLambda = [&](const ConnectionId &id, const int avg)
+    const auto latencyLambda = [&](const ConnectionId &id, const Qv2rayPlugin::Latency::LatencyTestResponse &data)
     {
         for (const auto &gid : QvProfileManager->GetGroups(id))
         {
             ProfileId pair{ id, gid };
             if (pairs.contains(pair))
-                pairs[pair]->setData(NumericString(avg), ROLE_LATENCY);
+                pairs[pair]->setData(NumericString(data.avg), ROLE_LATENCY);
         }
     };
 
@@ -59,7 +60,7 @@ ConnectionListHelper::ConnectionListHelper(QTreeView *parentView, QObject *paren
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupCreated, this, &ConnectionListHelper::addGroupItem);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupDeleted, this, &ConnectionListHelper::OnGroupDeleted);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionRenamed, this, renamedLambda);
-    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnLatencyTestFinished, this, latencyLambda);
+    connect(QvLatencyTestHost, &Qv2rayBase::Plugin::LatencyTestHost::OnLatencyTestCompleted, this, latencyLambda);
 
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, this, statsLambda);
 }

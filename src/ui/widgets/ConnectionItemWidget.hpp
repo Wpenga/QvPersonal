@@ -1,6 +1,7 @@
 #pragma once
 
 #include "QvPlugin/Common/CommonTypes.hpp"
+#include "QvPlugin/Handlers/LatencyTestHandler.hpp"
 #include "ui_ConnectionItemWidget.h"
 
 #include <QWidget>
@@ -39,7 +40,7 @@ class ConnectionItemWidget
     void OnConnectionStatsArrived(const ProfileId &id, const StatisticsObject &data);
     void OnLatencyTestStart(const ConnectionId &id);
     void OnConnectionModified(const ConnectionId &id);
-    void OnLatencyTestFinished(const ConnectionId &id, const int average);
+    void OnLatencyTestFinished(const ConnectionId &id, const Qv2rayPlugin::Latency::LatencyTestResponse &average);
     void RecalculateConnections();
     void OnConnectionItemRenamed(const ConnectionId &id, const QString &, const QString &newName);
     void OnGroupItemRenamed(const GroupId &id, const QString &, const QString &newName);

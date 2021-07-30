@@ -2,6 +2,7 @@
 
 #include "Qv2rayBase/Common/ProfileHelpers.hpp"
 #include "Qv2rayBase/Common/Utils.hpp"
+#include "Qv2rayBase/Plugin/LatencyTestHost.hpp"
 #include "Qv2rayBase/Profile/KernelManager.hpp"
 #include "Qv2rayBase/Profile/ProfileManager.hpp"
 #include "ui/WidgetUIBase.hpp"
@@ -17,7 +18,7 @@ ConnectionItemWidget::ConnectionItemWidget(QWidget *parent) : QWidget(parent)
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnDisconnected, this, &ConnectionItemWidget::OnDisConnected);
     connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, this, &ConnectionItemWidget::OnConnectionStatsArrived);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnLatencyTestStarted, this, &ConnectionItemWidget::OnLatencyTestStart);
-    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnLatencyTestFinished, this, &ConnectionItemWidget::OnLatencyTestFinished);
+    connect(QvLatencyTestHost, &Qv2rayBase::Plugin::LatencyTestHost::OnLatencyTestCompleted, this, &ConnectionItemWidget::OnLatencyTestFinished);
 }
 
 ConnectionItemWidget::ConnectionItemWidget(const ProfileId &id, QWidget *parent) : ConnectionItemWidget(parent)
@@ -135,11 +136,11 @@ void ConnectionItemWidget::OnLatencyTestStart(const ConnectionId &id)
         latencyLabel->setText(tr("Testing..."));
     }
 }
-void ConnectionItemWidget::OnLatencyTestFinished(const ConnectionId &id, const int average)
+void ConnectionItemWidget::OnLatencyTestFinished(const ConnectionId &id, const Qv2rayPlugin::Latency::LatencyTestResponse &data)
 {
     if (id == connectionId)
     {
-        latencyLabel->setText(average == LATENCY_TEST_VALUE_ERROR ? tr("Error") : QString::number(average) + tr("ms"));
+        latencyLabel->setText(data.avg == LATENCY_TEST_VALUE_ERROR ? tr("Error") : QString::number(data.avg) + tr("ms"));
     }
 }
 

@@ -75,6 +75,8 @@ class PreferencesWindow
 
     void on_qvProxyTypeCombo_currentIndexChanged(int index);
 
+    void on_defaultLatencyTesterCB_currentIndexChanged(int index);
+
   private:
     DnsSettingsWidget *dnsSettingsWidget;
     RouteSettingsMatrixWidget *routeSettingsWidget;
