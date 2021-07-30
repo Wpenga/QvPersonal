@@ -219,9 +219,11 @@ void V2RayProfileGenerator::ProcessOutboundConfig(const OutboundObject &out)
         Qv2ray::Models::TrojanclientObject trojan;
         trojan.loadJson(out.outboundSettings.protocolSettings);
 
-        QJsonObject singleServer{ { QStringLiteral("password"), *trojan.password },
-                                  { QStringLiteral("address"), out.outboundSettings.address },
-                                  { QStringLiteral("port"), out.outboundSettings.port.from } };
+        QJsonObject singleServer{
+            { QStringLiteral("password"), *trojan.password },
+            { QStringLiteral("address"), out.outboundSettings.address },
+            { QStringLiteral("port"), out.outboundSettings.port.from },
+        };
 
         root[QStringLiteral("settings")] = QJsonObject{ { QStringLiteral("servers"), QJsonArray{ singleServer } } };
     }
@@ -250,10 +252,15 @@ void V2RayProfileGenerator::ProcessOutboundConfig(const OutboundObject &out)
         Qv2ray::Models::VMessClientObject serv;
         serv.loadJson(out.outboundSettings.protocolSettings);
 
-        QJsonObject singleServer{ { QStringLiteral("address"), out.outboundSettings.address },
-                                  { QStringLiteral("port"), out.outboundSettings.port.from },
-                                  { QStringLiteral("users"), QJsonArray{ QJsonObject{ { QStringLiteral("id"), *serv.id }, //
-                                                                                      { QStringLiteral("security"), *serv.security } } } } };
+        QJsonObject singleServer{
+            { QStringLiteral("address"), out.outboundSettings.address },
+            { QStringLiteral("port"), out.outboundSettings.port.from },
+            { QStringLiteral("users"), QJsonArray{ QJsonObject{
+                                           { QStringLiteral("id"), *serv.id },
+                                           { QStringLiteral("security"), *serv.security },
+                                           { QStringLiteral("experiments    "), *serv.experiments },
+                                       } } },
+        };
 
         root[QStringLiteral("settings")] = QJsonObject{ { QStringLiteral("vnext"), QJsonArray{ singleServer } } };
     }
@@ -262,11 +269,14 @@ void V2RayProfileGenerator::ProcessOutboundConfig(const OutboundObject &out)
     {
         Qv2ray::Models::VLESSClientObject serv;
         serv.loadJson(out.outboundSettings.protocolSettings);
-        QJsonObject singleServer{ { QStringLiteral("address"), out.outboundSettings.address },
-                                  { QStringLiteral("port"), out.outboundSettings.port.from },
-                                  { QStringLiteral("users"), QJsonArray{ QJsonObject{ { QStringLiteral("id"), *serv.id },
-                                                                                      { QStringLiteral("encryption"), *serv.encryption },
-                                                                                      { QStringLiteral("flow"), *serv.flow } } } } };
+        QJsonObject singleServer{
+            { QStringLiteral("address"), out.outboundSettings.address },
+            { QStringLiteral("port"), out.outboundSettings.port.from },
+            { QStringLiteral("users"), QJsonArray{ QJsonObject{
+                                           { QStringLiteral("id"), *serv.id },
+                                           { QStringLiteral("encryption"), *serv.encryption },
+                                       } } },
+        };
 
         root[QStringLiteral("settings")] = QJsonObject{ { QStringLiteral("vnext"), QJsonArray{ singleServer } } };
     }
@@ -276,10 +286,12 @@ void V2RayProfileGenerator::ProcessOutboundConfig(const OutboundObject &out)
         Qv2ray::Models::ShadowSocksClientObject ss;
         ss.loadJson(out.outboundSettings.protocolSettings);
 
-        QJsonObject singleServer{ { QStringLiteral("method"), *ss.method },
-                                  { QStringLiteral("password"), *ss.password },
-                                  { QStringLiteral("address"), out.outboundSettings.address },
-                                  { QStringLiteral("port"), out.outboundSettings.port.from } };
+        QJsonObject singleServer{
+            { QStringLiteral("method"), *ss.method },
+            { QStringLiteral("password"), *ss.password },
+            { QStringLiteral("address"), out.outboundSettings.address },
+            { QStringLiteral("port"), out.outboundSettings.port.from },
+        };
 
         root[QStringLiteral("settings")] = QJsonObject{ { QStringLiteral("servers"), QJsonArray{ singleServer } } };
     }

@@ -302,16 +302,16 @@ namespace Qv2ray::Models
     {
         Bindable<QString> id;
         Bindable<QString> encryption{ QStringLiteral("none") };
-        Bindable<QString> flow;
-        QJS_JSON(P(id, encryption, flow))
+        QJS_JSON(P(id, encryption))
     };
 
     // VMess Server
     struct VMessClientObject
     {
         Bindable<QString> id;
+        Bindable<QString> experiments;
         Bindable<QString> security{ QStringLiteral("auto") };
-        QJS_JSON(F(id, security))
+        QJS_JSON(F(id, security, experiments))
     };
 
     struct TrojanclientObject

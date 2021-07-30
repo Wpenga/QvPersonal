@@ -17,7 +17,6 @@ class VlessOutboundEditor
     {
         vless.loadJson(settings);
         vless.encryption.ReadWriteBind(vLessSecurityCombo, "currentText", &QComboBox::currentIndexChanged);
-        vless.flow.ReadWriteBind(flowCombo, "currentText", &QComboBox::currentIndexChanged);
         vless.id.ReadWriteBind(vLessIDTxt, "text", &QLineEdit::textEdited);
     }
 
