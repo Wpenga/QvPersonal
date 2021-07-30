@@ -16,7 +16,8 @@ This repo is my personal rewrite of Qv2ray using [Qv2rayBase](https://github.com
 - ArchLinux: **Tested and Working**
 - Windows 10/11: **Tested and Working**, build system.
 - macOS 12 Beta: **Tested and Working**
-- macOS 11: **Tested and Working**, build system.
+- macOS 11: **Tested and Working**.
+- macOS 10.15: **Tested and Working**, build system.
 - Ubuntu 20.04: **Untested**, build system.
 - Others: **Untested**
 
