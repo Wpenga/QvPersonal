@@ -1,6 +1,7 @@
 #include "InternalProfilePreprocessor.hpp"
 
 #include "Qv2rayApplication.hpp"
+#include "Qv2rayBase/Common/Utils.hpp"
 #include "Qv2rayBase/Profile/ProfileManager.hpp"
 #include "QvPlugin/Utils/QJsonIO.hpp"
 
@@ -95,6 +96,8 @@ ProfileContent InternalProfilePreprocessor::PreprocessProfile(const ProfileConte
         return p;
 
     auto result = p;
+    if (result.outbounds.first().name.isEmpty())
+        result.outbounds.first().name = GenerateRandomString();
 
     bool hasAddr1 = !GlobalConfig->inboundConfig->ListenAddress1->isEmpty();
     bool hasAddr2 = !GlobalConfig->inboundConfig->ListenAddress2->isEmpty();
