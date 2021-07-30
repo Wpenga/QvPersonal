@@ -986,6 +986,13 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
+             <widget class="QCheckBox" name="directOutboundAsPrimaryCB">
+              <property name="text">
+               <string>Use Direct Outbound as Primary</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QCheckBox" name="forceDirectConnectionCB">
               <property name="text">
                <string>Force Direct Connections</string>
@@ -1076,7 +1083,7 @@
   <tabstop>socksUDPIP</tabstop>
   <tabstop>httpGroupBox</tabstop>
   <tabstop>httpPortLE</tabstop>
-  <tabstop>forceDirectConnectionCB</tabstop>
+  <tabstop>directOutboundAsPrimaryCB</tabstop>
  </tabstops>
  <resources/>
  <connections>

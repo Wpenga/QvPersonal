@@ -148,10 +148,11 @@ namespace Qv2ray::Models
         Bindable<bool> BypassCN{ true };
         Bindable<bool> BypassBittorrent{ false };
         Bindable<bool> ForceDirectConnection{ false };
+        Bindable<bool> UseDirectOutboundAsPrimary{ false };
         Bindable<bool> DNSInterception{ false };
 
-        QJS_COMPARE(Qv2rayConnectionConfig, BypassLAN, BypassCN, BypassBittorrent, ForceDirectConnection, DNSInterception)
-        QJS_JSON(P(BypassLAN, BypassCN, BypassBittorrent, ForceDirectConnection, DNSInterception))
+        QJS_COMPARE(Qv2rayConnectionConfig, BypassLAN, BypassCN, BypassBittorrent, ForceDirectConnection, UseDirectOutboundAsPrimary, DNSInterception)
+        QJS_JSON(P(BypassLAN, BypassCN, BypassBittorrent, ForceDirectConnection, UseDirectOutboundAsPrimary, DNSInterception))
     };
 
     struct Qv2rayUpdateConfig

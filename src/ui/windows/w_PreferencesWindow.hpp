@@ -21,12 +21,9 @@ class PreferencesWindow
     {
         const static QMap<QString, int> indexMap{
             { "general", 0 },    //
-            { "kernel", 1 },     //
-            { "inbound", 2 },    //
-            { "connection", 3 }, //
-            { "dns", 4 },        //
-            { "route", 5 },      //
-            { "about", 6 }       //
+            { "inbound", 1 },    //
+            { "connection", 2 }, //
+            { "dns", 3 },        //
         };
 
         if (commands.isEmpty())

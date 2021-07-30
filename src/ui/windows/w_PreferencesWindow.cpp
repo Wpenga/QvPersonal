@@ -135,6 +135,7 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
     // Connection Settings
     {
         AppConfig.connectionConfig->BypassBittorrent.ReadWriteBind(bypassBTCb, "checked", &QCheckBox::stateChanged);
+        AppConfig.connectionConfig->UseDirectOutboundAsPrimary.ReadWriteBind(directOutboundAsPrimaryCB, "checked", &QCheckBox::stateChanged);
         AppConfig.connectionConfig->ForceDirectConnection.ReadWriteBind(forceDirectConnectionCB, "checked", &QCheckBox::stateChanged);
     }
 

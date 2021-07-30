@@ -124,7 +124,8 @@ ProfileContent InternalProfilePreprocessor::PreprocessProfile(const ProfileConte
         }                                                                                                                                                                \
     } while (false)
 
-    const auto dokoMode = [](auto m) {
+    const auto dokoMode = [](auto m)
+    {
         switch (m)
         {
             case Qv2ray::Models::DokodemoDoorInboundConfig::TPROXY: return QStringLiteral("tproxy");
@@ -133,8 +134,8 @@ ProfileContent InternalProfilePreprocessor::PreprocessProfile(const ProfileConte
         return QStringLiteral("redirect");
     }(GlobalConfig->inboundConfig->DokodemoDoorConfig->WorkingMode);
 
-    AddInbound(HTTP, "http");
-    AddInbound(SOCKS, "socks");
+    AddInbound(HTTP, "http", {});
+    AddInbound(SOCKS, "socks", {});
     AddInbound(DokodemoDoor, "dokodemo-door", in.inboundSettings.streamSettings[QStringLiteral("sockopt")] = QJsonObject{ { QStringLiteral("tproxy"), dokoMode } });
 
     const auto routeMatrixConfig = RouteMatrixConfig::fromJson(p.routing.extraOptions[RouteMatrixConfig::EXTRA_OPTIONS_ID].toObject());
@@ -199,7 +200,10 @@ ProfileContent InternalProfilePreprocessor::PreprocessProfile(const ProfileConte
         // Generate Freedom
         OutboundObject freedom{ IOConnectionSettings{ QStringLiteral("freedom"), QStringLiteral("0.0.0.0"), 0 } };
         freedom.name = QString::fromUtf8(DEFAULT_FREEDOM_OUTBOUND_TAG);
-        result.outbounds << freedom;
+        if (GlobalConfig->connectionConfig->UseDirectOutboundAsPrimary)
+            result.outbounds.prepend(freedom);
+        else
+            result.outbounds.append(freedom);
     }
 
     return result;
