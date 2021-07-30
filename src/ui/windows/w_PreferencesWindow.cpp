@@ -194,9 +194,15 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
                 index = defaultLatencyTesterCB->count();
             defaultLatencyTesterCB->addItem(plugin.Name, plugin.Id.toString());
         }
+        defaultLatencyTesterCB->blockSignals(false);
+
         if (index >= 0)
             defaultLatencyTesterCB->setCurrentIndex(index);
-        defaultLatencyTesterCB->blockSignals(false);
+        else if (defaultLatencyTesterCB->count() > 0)
+        {
+            AppConfig.behaviorConfig->DefaultLatencyTestEngine = LatencyTestEngineId{ defaultLatencyTesterCB->itemData(0).toString() };
+            GlobalConfig->behaviorConfig->DefaultLatencyTestEngine = AppConfig.behaviorConfig->DefaultLatencyTestEngine;
+        }
     }
 }
 
