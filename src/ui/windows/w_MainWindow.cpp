@@ -366,8 +366,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    MWHideWindow();
-    event->ignore();
+    if (GlobalConfig->appearanceConfig->ShowTrayIcon)
+    {
+        MWHideWindow();
+        event->ignore();
+    }
+    else if (QvBaselib->Ask(tr("Quit Qv2ray"), tr("Are you sure to exit Qv2ray?")) == Qv2rayBase::MessageOpt::Yes)
+        Action_Exit();
+    else
+        event->ignore();
 }
 
 void MainWindow::OnTrayIconActivated(QSystemTrayIcon::ActivationReason reason)

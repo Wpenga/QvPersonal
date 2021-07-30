@@ -87,6 +87,10 @@ TrayManager::TrayManager(QObject *parent) : QObject(parent)
 
 TrayManager::~TrayManager()
 {
+    hTray->hide();
+    delete hTray;
+    delete tray_RootMenu;
+    delete tray_RecentConnectionsMenu;
 }
 
 void TrayManager::HideTrayIcon()
