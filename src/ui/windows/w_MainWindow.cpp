@@ -102,8 +102,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
                 if (tag.isEmpty())
                     return;
 
-                if (tag[0].isDigit())
+                if (tag[0].isDigit() || tag.contains(' ') || tag.contains('"'))
+                {
+                    tag.replace('"', R"(\")");
                     tag = '"' + tag + '"';
+                }
                 connectionFilterTxt->setText("> tags=" + tag);
                 on_connectionFilterTxt_textEdited("> tags=" + tag);
             });
