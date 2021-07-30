@@ -43,8 +43,6 @@ namespace Qv2ray::ui
         void OnDisconnected(const ProfileId &);
 
       private:
-        ProfileId lastProfile;
-
         QSystemTrayIcon *hTray;
         QMenu *tray_RootMenu;
         QAction *tray_action_ToggleVisibility;

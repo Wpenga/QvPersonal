@@ -114,7 +114,7 @@ bool MainWindow::StartAutoConnectionEntry()
     Q_UNREACHABLE();
 }
 
-void MainWindow::CheckSubscriptionsUpdate()
+void MainWindow::CheckForSubscriptionsUpdate()
 {
     QList<std::pair<QString, GroupId>> updateList;
     QStringList updateNamesList;
@@ -137,27 +137,31 @@ void MainWindow::CheckSubscriptionsUpdate()
         }
     }
 
-    if (!updateList.isEmpty())
-    {
-        const auto result = GlobalConfig->behaviorConfig->QuietMode ?
-                                Qv2rayBase::MessageOpt::Yes :
-                                QvBaselib->Ask(tr("Update Subscriptions"),                                  //
-                                               tr("Do you want to update these subscriptions?") + NEWLINE + //
-                                                   updateNamesList.join(NEWLINE),                           //
-                                               { Qv2rayBase::MessageOpt::Yes, Qv2rayBase::MessageOpt::No, Qv2rayBase::MessageOpt::Ignore });
+    if (updateList.isEmpty())
+        return;
 
-        for (const auto &[name, id] : updateList)
+    Qv2rayBase::MessageOpt result;
+    if (GlobalConfig->behaviorConfig->QuietMode)
+    {
+        result = Qv2rayBase::MessageOpt::Yes;
+    }
+    else
+    {
+        const auto options = { Qv2rayBase::MessageOpt::Yes, Qv2rayBase::MessageOpt::No, Qv2rayBase::MessageOpt::Ignore };
+        result = QvBaselib->Ask(tr("Update Subscriptions"), tr("Do you want to update these subscriptions?") + NEWLINE + updateNamesList.join(NEWLINE), options);
+    }
+
+    for (const auto &[name, id] : updateList)
+    {
+        if (result == Qv2rayBase::MessageOpt::Yes)
         {
-            if (result == Qv2rayBase::MessageOpt::Yes)
-            {
-                QvLog() << "Updating subscription:" << name;
-                QvProfileManager->UpdateSubscription(id, true);
-            }
-            else if (result == Qv2rayBase::MessageOpt::Ignore)
-            {
-                QvLog() << "Ignored subscription update:" << name;
-                QvProfileManager->IgnoreSubscriptionUpdate(id);
-            }
+            QvLog() << "Updating subscription:" << name;
+            QvProfileManager->UpdateSubscription(id, true);
+        }
+        else if (result == Qv2rayBase::MessageOpt::Ignore)
+        {
+            QvLog() << "Ignored subscription update:" << name;
+            QvProfileManager->IgnoreSubscriptionUpdate(id);
         }
     }
 }

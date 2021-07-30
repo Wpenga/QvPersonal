@@ -144,7 +144,7 @@ class MainWindow
     DECL_ACTION(logRCM_Menu, action_RCM_CopyRecentLogs);
 #undef DECL_ACTION
 
-    void CheckSubscriptionsUpdate();
+    void CheckForSubscriptionsUpdate();
     bool StartAutoConnectionEntry();
     void updateColorScheme();
 

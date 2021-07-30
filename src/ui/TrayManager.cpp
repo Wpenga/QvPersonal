@@ -79,7 +79,7 @@ TrayManager::TrayManager(QObject *parent) : QObject(parent)
     connect(hTray, &QSystemTrayIcon::activated, this, &TrayManager::TrayActivated);
     connect(tray_action_ToggleVisibility, &QAction::triggered, this, &TrayManager::VisibilityToggled);
     connect(tray_action_Preferences, &QAction::triggered, this, []() { PreferencesWindow().exec(); });
-    connect(tray_action_Start, &QAction::triggered, [this] { QvProfileManager->StartConnection(lastProfile); });
+    connect(tray_action_Start, &QAction::triggered, [] { QvProfileManager->StartConnection(GlobalConfig->behaviorConfig->LastConnectedId); });
     connect(tray_action_Stop, &QAction::triggered, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::StopConnection);
     connect(tray_action_Restart, &QAction::triggered, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::RestartConnection);
     connect(tray_action_Quit, &QAction::triggered, this, &QCoreApplication::quit);
@@ -118,7 +118,7 @@ void TrayManager::OnConnected(const ProfileId &id)
     tray_action_Start->setEnabled(false);
     tray_action_Stop->setEnabled(true);
     tray_action_Restart->setEnabled(true);
-    lastProfile = id;
+    GlobalConfig->behaviorConfig->LastConnectedId = id;
     ReloadRecentConnectionList();
 }
 
@@ -128,7 +128,7 @@ void TrayManager::OnDisconnected(const ProfileId &id)
     tray_action_Start->setEnabled(true);
     tray_action_Stop->setEnabled(false);
     tray_action_Restart->setEnabled(false);
-    lastProfile = id;
+    GlobalConfig->behaviorConfig->LastConnectedId = id;
     if (!GlobalConfig->behaviorConfig->QuietMode)
     {
         ShowTrayMessage(tr("Disconnected from: ") + GetDisplayName(id.connectionId));

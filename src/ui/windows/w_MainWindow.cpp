@@ -207,7 +207,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         }
     }
 
-    CheckSubscriptionsUpdate();
+    CheckForSubscriptionsUpdate();
 
     for (const auto &[pluginInterface, guiInterface] : GUIPluginHost->GUI_QueryByComponent(Qv2rayPlugin::GUI_COMPONENT_MAIN_WINDOW_ACTIONS))
     {
