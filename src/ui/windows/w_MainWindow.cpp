@@ -97,8 +97,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             [](const GroupId &gid) { QvApp->GetTrayManager()->ShowTrayMessage(tr("Subscription \"%1\" has been updated").arg(GetDisplayName(gid))); });
 
     connect(infoWidget, &ConnectionInfoWidget::OnTagSearchRequested, this,
-            [this](const QString &tag)
+            [this](QString tag)
             {
+                if (tag.isEmpty())
+                    return;
+
+                if (tag[0].isDigit())
+                    tag = '"' + tag + '"';
                 connectionFilterTxt->setText("> tags=" + tag);
                 on_connectionFilterTxt_textEdited("> tags=" + tag);
             });
