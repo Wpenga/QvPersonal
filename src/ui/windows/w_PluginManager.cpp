@@ -16,10 +16,12 @@ PluginManageWindow::PluginManageWindow(QWidget *parent) : QvDialog(QStringLitera
         item->setCheckState(QvPluginManagerCore->GetPluginEnabled(plugin->id()) ? Qt::Checked : Qt::Unchecked);
         item->setData(Qt::UserRole, plugin->metadata().InternalID.toString());
         item->setText(plugin->metadata().Name);
+
+        item->setIcon(QvApp->Qv2rayLogo);
         if (plugin->hasComponent(Qv2rayPlugin::COMPONENT_GUI))
-            item->setIcon(plugin->pinterface->GetGUIInterface()->Icon());
-        else
-            item->setIcon(QvApp->Qv2rayLogo);
+            if (const auto icon = plugin->pinterface->GetGUIInterface()->Icon(); !icon.isNull())
+                item->setIcon(icon);
+
         pluginListWidget->addItem(item);
     }
     pluginListWidget->sortItems();
