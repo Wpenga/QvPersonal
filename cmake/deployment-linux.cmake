@@ -1,14 +1,18 @@
 install(TARGETS qv2ray RUNTIME DESTINATION bin)
-install(FILES ${CMAKE_SOURCE_DIR}/assets/qv2ray.metainfo.xml DESTINATION share/metainfo)
-install(FILES ${CMAKE_SOURCE_DIR}/assets/qv2ray.desktop DESTINATION share/applications)
-install(FILES ${CMAKE_SOURCE_DIR}/assets/icons/qv2ray.svg DESTINATION share/icons/hicolor/scalable/apps)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/assets/qv2ray.metainfo.xml DESTINATION share/metainfo)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/assets/qv2ray.desktop DESTINATION share/applications)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/assets/icons/qv2ray.svg DESTINATION share/icons/hicolor/scalable/apps)
 
 if(QV2RAY_QV2RAYBASE_PROVIDER STREQUAL "module")
-    install(TARGETS Qv2rayBase)
+    if(BUILD_SHARED_LIBS)
+        install(TARGETS Qv2rayBase)
+    endif()
 endif()
 
 if(QV2RAY_QNODEEDITOR_PROVIDER STREQUAL "module")
-    install(TARGETS nodes)
+    if(BUILD_SHARED_LIBS)
+        install(TARGETS nodes)
+    endif()
 endif()
 
 set(QV2RAY_ICON_DIMENSIONS 16 22 32 48 64 128 256 512 1024)
