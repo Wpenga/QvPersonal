@@ -129,7 +129,7 @@ bool Qv2rayApplication::Initialize()
 
 Qv2rayExitReason Qv2rayApplication::RunQv2ray()
 {
-    trayManager = new Qv2ray::ui::TrayManager(this);
+    trayManager = new Qv2ray::ui::TrayManager;
     mainWindow = new MainWindow();
 
     connect(trayManager, &TrayManager::TrayActivated, mainWindow, &MainWindow::OnTrayIconActivated);
@@ -160,6 +160,7 @@ Qv2rayExitReason Qv2rayApplication::RunQv2ray()
 void Qv2rayApplication::quitInternal()
 {
     delete mainWindow;
+    delete trayManager;
     delete StyleManager;
     delete GUIPluginHost;
     SaveQv2raySettings();

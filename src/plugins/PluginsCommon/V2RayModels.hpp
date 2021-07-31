@@ -268,14 +268,14 @@ namespace Qv2ray::Models
         QJS_COMPARE(StreamSettingsObject, network, security, sockopt, tlsSettings, tcpSettings, kcpSettings, wsSettings, httpSettings, dsSettings, quicSettings,
                     grpcSettings);
         QJS_JSON(P(network, security, sockopt, tlsSettings, tcpSettings, kcpSettings, wsSettings, httpSettings, dsSettings, quicSettings, grpcSettings))
-        static auto fromJson(const QJsonObject &o)
+        static inline auto fromJson(const QJsonObject &o)
         {
             StreamSettingsObject stream;
             stream.loadJson(o);
             return stream;
         };
 
-        operator IOStreamSettings()
+        inline operator IOStreamSettings()
         {
             return IOStreamSettings{ this->toJson() };
         }

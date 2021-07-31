@@ -82,7 +82,7 @@ TrayManager::TrayManager(QObject *parent) : QObject(parent)
     connect(tray_action_Start, &QAction::triggered, [] { QvProfileManager->StartConnection(GlobalConfig->behaviorConfig->LastConnectedId); });
     connect(tray_action_Stop, &QAction::triggered, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::StopConnection);
     connect(tray_action_Restart, &QAction::triggered, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::RestartConnection);
-    connect(tray_action_Quit, &QAction::triggered, this, &QCoreApplication::quit);
+    connect(tray_action_Quit, &QAction::triggered, this, &Qv2rayApplication::quit);
 }
 
 TrayManager::~TrayManager()

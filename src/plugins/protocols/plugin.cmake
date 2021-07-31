@@ -24,7 +24,11 @@ ADD_SOURCE(inbound socksin)
 #ADD_SOURCE(inbound vless)
 #ADD_SOURCE(inbound vmess)
 
-add_library(${PROTOCOL_PLUGIN_TARGET} SHARED
+qv2ray_add_plugin(${PROTOCOL_PLUGIN_TARGET} Widgets
+    INSTALL_PREFIX_MACOS "$<TARGET_BUNDLE_DIR:qv2ray>/Contents/Resources/plugins"
+    CLASS_NAME "InternalProtocolSupportPlugin")
+
+target_sources(${PROTOCOL_PLUGIN_TARGET} PRIVATE
     ${PLUGIN_UI_SOURCE}
     ${CMAKE_CURRENT_LIST_DIR}/resx.qrc
 #    ${CMAKE_CURRENT_LIST_DIR}/../PluginsCommon/V2RayModels.hpp
@@ -40,6 +44,3 @@ add_library(${PROTOCOL_PLUGIN_TARGET} SHARED
 
 target_include_directories(${PROTOCOL_PLUGIN_TARGET} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(${PROTOCOL_PLUGIN_TARGET} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../PluginsCommon)
-
-qv2ray_configure_plugin(${PROTOCOL_PLUGIN_TARGET} Widgets
-    INSTALL_PREFIX_MACOS "$<TARGET_BUNDLE_DIR:qv2ray>/Contents/Resources/plugins")

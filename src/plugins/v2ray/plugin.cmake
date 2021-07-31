@@ -77,7 +77,11 @@ foreach(proto ${PROTO_FILES})
 endforeach()
 set_source_files_properties(FILES ${PROTO_HEADERS} ${PROTO_SOURCES} PROPERTIES SKIP_AUTOGEN TRUE)
 
-add_library(QvPlugin-BuiltinV2RaySupport SHARED
+qv2ray_add_plugin(QvPlugin-BuiltinV2RaySupport Widgets
+    INSTALL_PREFIX_MACOS "$<TARGET_BUNDLE_DIR:qv2ray>/Contents/Resources/plugins"
+    CLASS_NAME "BuiltinV2RayCorePlugin")
+
+target_sources(QvPlugin-BuiltinV2RaySupport PRIVATE
     ${PROTO_SOURCES} ${PROTO_HEADERS}
     ${CMAKE_CURRENT_LIST_DIR}/ui/w_V2RayKernelSettings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/ui/w_V2RayKernelSettings.cpp
@@ -107,12 +111,7 @@ target_include_directories(QvPlugin-BuiltinV2RaySupport PRIVATE ${CMAKE_CURRENT_
 target_include_directories(QvPlugin-BuiltinV2RaySupport PRIVATE ${PROTO_GENERATED_DIR})
 target_link_libraries(QvPlugin-BuiltinV2RaySupport
     PRIVATE
-    Qt::Core
     Qt::Network
     Qt::Gui
-    Qv2ray::QvPluginInterface
     protobuf::libprotobuf
     ${QV2RAY_BACKEND_LIBRARY})
-
-qv2ray_configure_plugin(QvPlugin-BuiltinV2RaySupport Widgets
-    INSTALL_PREFIX_MACOS "$<TARGET_BUNDLE_DIR:qv2ray>/Contents/Resources/plugins")

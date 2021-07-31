@@ -15,7 +15,7 @@ const inline QStringList SplitLines(const QString &_string)
     return _string.split(QRegularExpression(QStringLiteral("[\r\n]")), Qt::SkipEmptyParts);
 }
 
-QString SafeBase64Decode(QString string)
+static QString SafeBase64Decode(QString string)
 {
     QByteArray ba = string.replace(QChar('-'), QChar('+')).replace(QChar('_'), QChar('/')).toUtf8();
     return QByteArray::fromBase64(ba, QByteArray::Base64Option::OmitTrailingEquals);

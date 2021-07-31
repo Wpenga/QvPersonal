@@ -9,7 +9,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 option(BUILD_TESTING "Build Testing" OFF)
-option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+
+if(NOT DEFINED BUILD_SHARED_LIBS)
+    option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+endif()
+if(NOT DEFINED QV2RAY_STATIC_PLUGINS)
+    option(QV2RAY_STATIC_PLUGINS "Build static plugins" OFF)
+endif()
+
+message("Build shared library: " ${BUILD_SHARED_LIBS})
 
 option(USE_MINGW "Use MinGW on Windows" OFF)
 
@@ -199,6 +207,13 @@ target_link_libraries(qv2ray PRIVATE
     OpenSSL::Crypto
     SingleApplication
     )
+
+if(QV2RAY_STATIC_PLUGINS)
+    target_link_libraries(qv2ray PRIVATE
+        QvPlugin-BuiltinSubscriptionSupport
+        QvPlugin-BuiltinProtocolSupport
+        QvPlugin-BuiltinV2RaySupport)
+endif()
 
 # BEGIN SPECIAL CASE
 if(USE_SYSTEM_LIBUV)
