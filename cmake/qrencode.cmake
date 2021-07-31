@@ -1,4 +1,4 @@
-set(QT_QRENCODE_BASEDIR ${CMAKE_SOURCE_DIR}/3rdparty/qt-qrcode/lib)
+set(QT_QRENCODE_BASEDIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/qt-qrcode/lib)
 
 include_directories(${QT_QRENCODE_BASEDIR})
 

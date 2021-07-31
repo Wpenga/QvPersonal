@@ -2,8 +2,8 @@ set(QV2RAY_FULL_SOURCES "")
 
 macro(qv2ray_add_class CLASS)
     list(APPEND QV2RAY_FULL_SOURCES
-        ${CMAKE_SOURCE_DIR}/src/${CLASS}.hpp
-        ${CMAKE_SOURCE_DIR}/src/${CLASS}.cpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/${CLASS}.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/${CLASS}.cpp)
 endmacro()
 
 
@@ -14,9 +14,9 @@ endmacro()
 
 macro(qv2ray_add_widget WIDGET)
     list(APPEND QV2RAY_FULL_SOURCES
-        ${CMAKE_SOURCE_DIR}/src/ui/${WIDGET}.hpp
-        ${CMAKE_SOURCE_DIR}/src/ui/${WIDGET}.cpp
-        ${CMAKE_SOURCE_DIR}/src/ui/${WIDGET}.ui)
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/${WIDGET}.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/${WIDGET}.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/${WIDGET}.ui)
 endmacro()
 
 macro(qv2ray_add_window WINDOW)
@@ -24,12 +24,12 @@ macro(qv2ray_add_window WINDOW)
 endmacro()
 
 list(APPEND QV2RAY_FULL_SOURCES
-    ${CMAKE_SOURCE_DIR}/src/main.cpp
-    ${CMAKE_SOURCE_DIR}/src/models/SettingsModels.hpp
-    ${CMAKE_SOURCE_DIR}/src/plugins/PluginsCommon/V2RayModels.hpp
-    ${CMAKE_SOURCE_DIR}/src/ui/WidgetUIBase.hpp
-    ${CMAKE_SOURCE_DIR}/src/ui/windows/w_MainWindow_extra.cpp
-    ${CMAKE_SOURCE_DIR}/src/components/UpdateChecker/semver.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/models/SettingsModels.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugins/PluginsCommon/V2RayModels.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/WidgetUIBase.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ui/windows/w_MainWindow_extra.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/components/UpdateChecker/semver.hpp
     )
 
 qv2ray_add_class(Qv2rayApplication)
