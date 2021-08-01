@@ -72,7 +72,7 @@ set(QV2RAY_QNODEEDITOR_PROVIDER       "module" CACHE STRING "QNodeEditor Provide
 option(QV2RAY_HAS_BUILTIN_THEMES  "Build with builtin themes" ON)
 option(QV2RAY_AUTO_UPDATE "Has auto update checker" ON)
 if(NOT QV2RAY_AUTO_UPDATE)
-    add_compile_definitions(-DQV2RAY_NO_AUTOUPDATE=1)
+    add_definitions(-DQV2RAY_NO_AUTOUPDATE=1)
 endif()
 
 # ==================================================================================
