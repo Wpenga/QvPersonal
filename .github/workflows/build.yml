@@ -14,11 +14,12 @@ jobs:
     env:
       CC: ${{ matrix.config.cc }}
       CXX: ${{ matrix.config.cxx }}
-    name: ${{ matrix.config.name }}
+    name: '${{ matrix.config.name }} (No RouteEditor: ${{ matrix.no_route_editor }})'
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
+        no_route_editor: [ON, OFF]
         config:
         - {
             name: "Windows MSVC", artifact: "Windows",
@@ -82,6 +83,7 @@ jobs:
           -DBUILD_TESTING=OFF \
           -DUSE_SYSTEM_LIBUV=OFF \
           -DUSE_SYSTEM_UVW=OFF \
+          -DQV2RAY_NO_NODEEDITOR=${{ matrix.no_route_editor }} \
           -GNinja
         cmake --build . --parallel
 
@@ -100,7 +102,7 @@ jobs:
         path: QvPersonal.7z
 
     - name: Get the version
-      if: github.event_name == 'release' && matrix.config.has_release
+      if: github.event_name == 'release' && matrix.config.has_release && matrix.no_route_editor == 'OFF'
       id: get_version
       run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
 
