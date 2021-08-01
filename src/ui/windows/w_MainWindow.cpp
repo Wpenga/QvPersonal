@@ -11,7 +11,11 @@
 #include "ui/widgets/ConnectionInfoWidget.hpp"
 #include "ui/windows/editors/w_JsonEditor.hpp"
 #include "ui/windows/editors/w_OutboundEditor.hpp"
+
+#ifndef QV2RAY_NO_NODEEDITOR
 #include "ui/windows/editors/w_RoutesEditor.hpp"
+#endif
+
 #include "ui/windows/w_AboutWindow.hpp"
 #include "ui/windows/w_GroupManager.hpp"
 #include "ui/windows/w_ImportConfig.hpp"
@@ -485,14 +489,19 @@ void MainWindow::Action_EditComplex()
         const auto id = widget->Identifier();
         ProfileContent root = QvProfileManager->GetConnection(id.connectionId);
 
+#ifdef QV2RAY_NO_NODEEDITOR
+        JsonEditor editor(root.toJson(), this);
+        root = ProfileContent::fromJson(editor.OpenEditor());
+        QvProfileManager->UpdateConnection(id.connectionId, root);
+#else
         QvLog() << "Opening route editor.";
         RouteEditor routeWindow(root, this);
         root = routeWindow.OpenEditor();
-
         if (routeWindow.result() == QDialog::Accepted)
         {
             QvProfileManager->UpdateConnection(id.connectionId, root);
         }
+#endif
     }
 }
 
@@ -611,9 +620,14 @@ void MainWindow::OnEditRequested(const ConnectionId &id)
     const auto original = QvProfileManager->GetConnection(id);
     if (IsComplexConfig(id))
     {
+#ifdef QV2RAY_NO_NODEEDITOR
+        JsonEditor editor(original.toJson(), this);
+        const auto root = ProfileContent::fromJson(editor.OpenEditor());
+#else
         QvLog() << "INFO: Opening route editor.";
         RouteEditor editor(original, this);
         ProfileContent root = editor.OpenEditor();
+#endif
         if (editor.result() == QDialog::Accepted)
             QvProfileManager->UpdateConnection(id, root);
     }
@@ -825,6 +839,7 @@ void MainWindow::on_newConnectionBtn_clicked()
 
 void MainWindow::on_newComplexConnectionBtn_clicked()
 {
+#ifndef QV2RAY_NO_NODEEDITOR
     RouteEditor w({}, this);
     const auto root = w.OpenEditor();
     if (w.result() == QDialog::Accepted)
@@ -833,6 +848,16 @@ void MainWindow::on_newComplexConnectionBtn_clicked()
         const auto id = item.isValid() ? GetIndexWidget(item)->Identifier().groupId : DefaultGroupId;
         QvProfileManager->CreateConnection(root, QStringLiteral("New Connection"), id);
     }
+#else
+    JsonEditor w({}, this);
+    const auto root = ProfileContent::fromJson(w.OpenEditor());
+    if (w.result() == QDialog::Accepted)
+    {
+        const auto item = connectionTreeView->currentIndex();
+        const auto id = item.isValid() ? GetIndexWidget(item)->Identifier().groupId : DefaultGroupId;
+        QvProfileManager->CreateConnection(root, QStringLiteral("New Connection"), id);
+    }
+#endif
 }
 
 void MainWindow::on_collapseGroupsBtn_clicked()

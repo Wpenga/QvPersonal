@@ -69,6 +69,11 @@ if(NOT QV2RAY_AUTO_UPDATE)
     add_definitions(-DQV2RAY_NO_AUTOUPDATE=1)
 endif()
 
+option(QV2RAY_NO_NODEEDITOR "Build without complex configuration editor support." OFF)
+if(QV2RAY_NO_NODEEDITOR)
+    add_definitions(-DQV2RAY_NO_NODEEDITOR=1)
+endif()
+
 # ==================================================================================
 # Default Core/Assets Path
 # ==================================================================================
@@ -109,10 +114,12 @@ else()
     add_subdirectory(3rdparty/SingleApplication)
 endif()
 
-if(QV2RAY_QNODEEDITOR_PROVIDER STREQUAL "package")
-    find_package(NodeEditor REQUIRED)
-else()
-    add_subdirectory(3rdparty/QNodeEditor)
+if(NOT QV2RAY_NO_NODEEDITOR)
+    if(QV2RAY_QNODEEDITOR_PROVIDER STREQUAL "package")
+        find_package(NodeEditor REQUIRED)
+    else()
+        add_subdirectory(3rdparty/QNodeEditor)
+    endif()
 endif()
 
 # ==================================================================================
@@ -128,7 +135,7 @@ include(src/plugins/v2ray/plugin.cmake)
 include(cmake/qrencode.cmake)
 include(cmake/qv2ray-sources.cmake)
 
-if (QV2RAY_HAS_BUILTIN_THEMES)
+if(QV2RAY_HAS_BUILTIN_THEMES)
     include(3rdparty/uistyles/uistyles.cmake)
 endif()
 
@@ -196,11 +203,14 @@ target_link_libraries(qv2ray PRIVATE
     Qv2ray::QREncode
     Qv2ray::Qv2rayBase
     Qv2ray::QvPluginInterface
-    NodeEditor::nodes
     OpenSSL::SSL
     OpenSSL::Crypto
     SingleApplication
     )
+
+if(NOT QV2RAY_NO_NODEEDITOR)
+    target_link_libraries(qv2ray PRIVATE NodeEditor::nodes)
+endif()
 
 if(QV2RAY_STATIC_PLUGINS)
     target_link_libraries(qv2ray PRIVATE
