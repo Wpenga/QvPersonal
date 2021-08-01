@@ -177,6 +177,6 @@ namespace Qv2ray::components::QueryParser
         return SemanticAnalyze(SyntaxAnalyze(Tokenize(source)));
     }
 
-    bool EvaluateProgram(const SemanticAnalyzer::Program &prog, const QVariantMap &variables);
+    bool EvaluateProgram(const SemanticAnalyzer::Program &prog, const QVariantMap &variables, Qt::CaseSensitivity caseSensitive = Qt::CaseSensitive);
 
 } // namespace Qv2ray::components::QueryParser

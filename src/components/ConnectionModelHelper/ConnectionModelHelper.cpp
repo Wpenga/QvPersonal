@@ -123,7 +123,7 @@ void ConnectionListHelper::Filter(const components::QueryParser::SemanticAnalyze
                 variables.insert(u"port"_qs, conn.outbounds.first().outboundSettings.port.from);
             }
 
-            bool hasMatch = Qv2ray::components::QueryParser::EvaluateProgram(program, variables);
+            bool hasMatch = Qv2ray::components::QueryParser::EvaluateProgram(program, variables, Qt::CaseInsensitive);
 
             const auto connectionIndex = model->indexFromItem(pairs[{ connectionId, groupId }]);
             parentView->setRowHidden(connectionIndex.row(), connectionIndex.parent(), !hasMatch);
