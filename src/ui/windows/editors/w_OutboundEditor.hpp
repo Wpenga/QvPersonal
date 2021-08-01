@@ -1,12 +1,11 @@
 #pragma once
-#include "QvPlugin/Common/CommonTypes.hpp"
 #include "GuiPluginHost/GuiPluginHost.hpp"
 #include "MessageBus/MessageBus.hpp"
-#include "ui/widgets/editors/StreamSettingsWidget.hpp"
 #include "ui_w_OutboundEditor.h"
 
 #include <QDialog>
-#include <QtCore>
+
+class StreamSettingsWidget;
 
 class OutboundEditor
     : public QDialog

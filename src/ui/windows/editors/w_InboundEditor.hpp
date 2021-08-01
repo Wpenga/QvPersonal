@@ -1,5 +1,4 @@
 #pragma once
-
 #include "GuiPluginHost/GuiPluginHost.hpp"
 #include "MessageBus/MessageBus.hpp"
 #include "ui_w_InboundEditor.h"

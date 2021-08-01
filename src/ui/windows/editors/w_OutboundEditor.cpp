@@ -1,8 +1,7 @@
 #include "w_OutboundEditor.hpp"
 
-#include "ui/WidgetUIBase.hpp"
-#include "ui/windows/editors/w_JsonEditor.hpp"
-#include "ui/windows/editors/w_RoutesEditor.hpp"
+#include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
+#include "ui/widgets/editors/StreamSettingsWidget.hpp"
 
 #include <QFile>
 #include <QIntValidator>
@@ -40,7 +39,7 @@ QvMessageBusSlotImpl(OutboundEditor)
         MBShowDefaultImpl;
         MBHideDefaultImpl;
         MBRetranslateDefaultImpl;
-        case MessageBus::UPDATE_COLORSCHEME: break;
+        case Qv2ray::components::MessageBus::UPDATE_COLORSCHEME: break;
     }
 }
 
@@ -103,7 +102,7 @@ void OutboundEditor::reloadGUI()
     outboundProtocol = originalConfig.outboundSettings.protocol;
 
     muxConfig = originalConfig.outboundSettings.muxSettings;
-    streamSettingsWidget->SetStreamObject(StreamSettingsObject::fromJson(originalConfig.outboundSettings.streamSettings));
+    streamSettingsWidget->SetStreamObject(Qv2ray::Models::StreamSettingsObject::fromJson(originalConfig.outboundSettings.streamSettings));
 
     muxEnabledCB->setChecked(muxConfig.enabled);
     muxConcurrencyTxt->setValue(muxConfig.concurrency);

@@ -67,7 +67,6 @@ qv2ray_add_window(w_PluginManager)
 qv2ray_add_window(w_PreferencesWindow)
 #qv2ray_add_window(w_ScreenShot_Core)
 
-qv2ray_add_window(editors/w_InboundEditor)
 qv2ray_add_window(editors/w_JsonEditor)
 qv2ray_add_window(editors/w_OutboundEditor)
 
@@ -79,6 +78,9 @@ qv2ray_add_widget(widgets/editors/RouteSettingsMatrix)
 qv2ray_add_widget(widgets/editors/StreamSettingsWidget)
 
 if(NOT QV2RAY_NO_NODEEDITOR)
+    # only used in route editor.
+    qv2ray_add_window(editors/w_InboundEditor)
+
     qv2ray_add_class(ui/node/models/ChainOutboundNodeModel)
     qv2ray_add_class(ui/node/models/InboundNodeModel)
     qv2ray_add_class(ui/node/models/OutboundNodeModel)
