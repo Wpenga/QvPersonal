@@ -97,7 +97,7 @@ ProfileContent InternalProfilePreprocessor::PreprocessProfile(const ProfileConte
 
     auto result = p;
     if (result.outbounds.first().name.isEmpty())
-        result.outbounds.first().name = GenerateRandomString();
+        result.outbounds.first().name = u"Default"_qs;
 
     bool hasAddr1 = !GlobalConfig->inboundConfig->ListenAddress1->isEmpty();
     bool hasAddr2 = !GlobalConfig->inboundConfig->ListenAddress2->isEmpty();
