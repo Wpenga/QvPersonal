@@ -26,7 +26,7 @@
     qvProxyAddressTxt->setEnabled(_enabled);                                                                                                                             \
     qvProxyPortCB->setEnabled(_enabled);
 
-PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral("PreferenceWindow"), parent), AppConfig()
+PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(u"PreferenceWindow"_qs, parent), AppConfig()
 {
     setupUi(this);
     QvMessageBusConnect();
@@ -36,7 +36,7 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
     {
         languageComboBox->setDisabled(true);
         // Since we can't have languages detected. It worths nothing to translate these.
-        languageComboBox->setToolTip(QStringLiteral("Cannot find any language providers."));
+        languageComboBox->setToolTip(u"Cannot find any language providers."_qs);
     }
 
     // Set auto start button state
@@ -69,18 +69,22 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
         AppConfig.inboundConfig->HasHTTP.ReadWriteBind(httpGroupBox, "checked", &QGroupBox::toggled);
         AppConfig.inboundConfig->HTTPConfig->ListenPort.ReadWriteBind(httpPortLE, "value", &QSpinBox::valueChanged);
         AppConfig.inboundConfig->HTTPConfig->Sniffing.ReadWriteBind(httpSniffingCB, "currentIndex", &QComboBox::currentIndexChanged);
-        AppConfig.inboundConfig->HTTPConfig->Sniffing.Observe([this](auto newVal) {
-            const bool hasHttp = AppConfig.inboundConfig->HasHTTP;
-            httpOverrideHTTPCB->setEnabled(hasHttp && newVal == ProtocolInboundBase::SNIFFING_FULL);
-            httpOverrideTLSCB->setEnabled(hasHttp && newVal == ProtocolInboundBase::SNIFFING_FULL);
-            httpOverrideFakeDNSCB->setEnabled(hasHttp && newVal != ProtocolInboundBase::SNIFFING_OFF);
-        });
+        AppConfig.inboundConfig->HTTPConfig->Sniffing.Observe(
+            [this](auto newVal)
+            {
+                const bool hasHttp = AppConfig.inboundConfig->HasHTTP;
+                httpOverrideHTTPCB->setEnabled(hasHttp && newVal == ProtocolInboundBase::SNIFFING_FULL);
+                httpOverrideTLSCB->setEnabled(hasHttp && newVal == ProtocolInboundBase::SNIFFING_FULL);
+                httpOverrideFakeDNSCB->setEnabled(hasHttp && newVal != ProtocolInboundBase::SNIFFING_OFF);
+            });
 
-        AppConfig.inboundConfig->HTTPConfig->DestinationOverride.Observe([this](auto newVal) {
-            httpOverrideHTTPCB->setChecked(newVal.contains("http"));
-            httpOverrideTLSCB->setChecked(newVal.contains("tls"));
-            httpOverrideFakeDNSCB->setChecked(newVal.contains("fakedns"));
-        });
+        AppConfig.inboundConfig->HTTPConfig->DestinationOverride.Observe(
+            [this](auto newVal)
+            {
+                httpOverrideHTTPCB->setChecked(newVal.contains("http"));
+                httpOverrideTLSCB->setChecked(newVal.contains("tls"));
+                httpOverrideFakeDNSCB->setChecked(newVal.contains("fakedns"));
+            });
     }
     // END OF HTTP CONFIGURATION
 
@@ -94,18 +98,22 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
         AppConfig.inboundConfig->SOCKSConfig->UDPLocalAddress.ReadWriteBind(socksUDPIP, "text", &QLineEdit::textEdited);
 
         AppConfig.inboundConfig->SOCKSConfig->Sniffing.ReadWriteBind(socksSniffingCB, "currentIndex", &QComboBox::currentIndexChanged);
-        AppConfig.inboundConfig->SOCKSConfig->Sniffing.Observe([this](auto newVal) {
-            const bool hasSocks = AppConfig.inboundConfig->HasSOCKS;
-            socksOverrideHTTPCB->setEnabled(hasSocks && newVal == ProtocolInboundBase::SNIFFING_FULL);
-            socksOverrideTLSCB->setEnabled(hasSocks && newVal == ProtocolInboundBase::SNIFFING_FULL);
-            socksOverrideFakeDNSCB->setEnabled(hasSocks && newVal != ProtocolInboundBase::SNIFFING_OFF);
-        });
+        AppConfig.inboundConfig->SOCKSConfig->Sniffing.Observe(
+            [this](auto newVal)
+            {
+                const bool hasSocks = AppConfig.inboundConfig->HasSOCKS;
+                socksOverrideHTTPCB->setEnabled(hasSocks && newVal == ProtocolInboundBase::SNIFFING_FULL);
+                socksOverrideTLSCB->setEnabled(hasSocks && newVal == ProtocolInboundBase::SNIFFING_FULL);
+                socksOverrideFakeDNSCB->setEnabled(hasSocks && newVal != ProtocolInboundBase::SNIFFING_OFF);
+            });
 
-        AppConfig.inboundConfig->SOCKSConfig->DestinationOverride.Observe([this](auto newVal) {
-            socksOverrideHTTPCB->setChecked(newVal.contains("http"));
-            socksOverrideTLSCB->setChecked(newVal.contains("tls"));
-            socksOverrideFakeDNSCB->setChecked(newVal.contains("fakedns"));
-        });
+        AppConfig.inboundConfig->SOCKSConfig->DestinationOverride.Observe(
+            [this](auto newVal)
+            {
+                socksOverrideHTTPCB->setChecked(newVal.contains("http"));
+                socksOverrideTLSCB->setChecked(newVal.contains("tls"));
+                socksOverrideFakeDNSCB->setChecked(newVal.contains("fakedns"));
+            });
     }
     // END OF SOCKS CONFIGURATION
 
@@ -115,18 +123,22 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
         AppConfig.inboundConfig->DokodemoDoorConfig->ListenPort.ReadWriteBind(tProxyPort, "value", &QSpinBox::valueChanged);
 
         AppConfig.inboundConfig->DokodemoDoorConfig->Sniffing.ReadWriteBind(dokoSniffingCB, "currentIndex", &QComboBox::currentIndexChanged);
-        AppConfig.inboundConfig->DokodemoDoorConfig->Sniffing.Observe([this](auto newVal) {
-            const bool hasSocks = AppConfig.inboundConfig->HasDokodemoDoor;
-            tproxyOverrideHTTPCB->setEnabled(hasSocks && newVal == ProtocolInboundBase::SNIFFING_FULL);
-            tproxyOverrideTLSCB->setEnabled(hasSocks && newVal == ProtocolInboundBase::SNIFFING_FULL);
-            tproxyOverrideFakeDNSCB->setEnabled(hasSocks && newVal != ProtocolInboundBase::SNIFFING_OFF);
-        });
+        AppConfig.inboundConfig->DokodemoDoorConfig->Sniffing.Observe(
+            [this](auto newVal)
+            {
+                const bool hasSocks = AppConfig.inboundConfig->HasDokodemoDoor;
+                tproxyOverrideHTTPCB->setEnabled(hasSocks && newVal == ProtocolInboundBase::SNIFFING_FULL);
+                tproxyOverrideTLSCB->setEnabled(hasSocks && newVal == ProtocolInboundBase::SNIFFING_FULL);
+                tproxyOverrideFakeDNSCB->setEnabled(hasSocks && newVal != ProtocolInboundBase::SNIFFING_OFF);
+            });
 
-        AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride.Observe([this](auto val) {
-            tproxyOverrideHTTPCB->setChecked(val.contains("http"));
-            tproxyOverrideTLSCB->setChecked(val.contains("tls"));
-            tproxyOverrideFakeDNSCB->setChecked(val.contains("fakedns"));
-        });
+        AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride.Observe(
+            [this](auto val)
+            {
+                tproxyOverrideHTTPCB->setChecked(val.contains("http"));
+                tproxyOverrideTLSCB->setChecked(val.contains("tls"));
+                tproxyOverrideFakeDNSCB->setChecked(val.contains("fakedns"));
+            });
 
         AppConfig.inboundConfig->DokodemoDoorConfig->WorkingMode.ReadWriteBind(tproxyModeCB, "currentIndex", &QComboBox::currentIndexChanged);
     }
@@ -160,13 +172,15 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(QStringLiteral(
     }
 
     {
-        AppConfig.behaviorConfig->AutoConnectBehavior.Observe([this](const auto &newval) {
-            noAutoConnectRB->setChecked(newval == Qv2rayBehaviorConfig::AUTOCONNECT_NONE);
-            lastConnectedRB->setChecked(newval == Qv2rayBehaviorConfig::AUTOCONNECT_LAST_CONNECTED);
-            fixedAutoConnectRB->setChecked(newval == Qv2rayBehaviorConfig::AUTOCONNECT_FIXED);
-            autoStartConnCombo->setEnabled(newval == Qv2rayBehaviorConfig::AUTOCONNECT_FIXED);
-            autoStartSubsCombo->setEnabled(newval == Qv2rayBehaviorConfig::AUTOCONNECT_FIXED);
-        });
+        AppConfig.behaviorConfig->AutoConnectBehavior.Observe(
+            [this](const auto &newval)
+            {
+                noAutoConnectRB->setChecked(newval == Qv2rayBehaviorConfig::AUTOCONNECT_NONE);
+                lastConnectedRB->setChecked(newval == Qv2rayBehaviorConfig::AUTOCONNECT_LAST_CONNECTED);
+                fixedAutoConnectRB->setChecked(newval == Qv2rayBehaviorConfig::AUTOCONNECT_FIXED);
+                autoStartConnCombo->setEnabled(newval == Qv2rayBehaviorConfig::AUTOCONNECT_FIXED);
+                autoStartSubsCombo->setEnabled(newval == Qv2rayBehaviorConfig::AUTOCONNECT_FIXED);
+            });
 
         if (AppConfig.behaviorConfig->AutoConnectProfileId->isNull())
             AppConfig.behaviorConfig->AutoConnectProfileId->groupId = DefaultGroupId;
@@ -379,7 +393,7 @@ void PreferencesWindow::on_tproxyOverrideHTTPCB_stateChanged(int arg1)
     if (arg1 != Qt::Checked)
         AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride->removeAll("http");
     else if (!AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride->contains("http"))
-        AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride->append(QStringLiteral("http"));
+        AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride->append(u"http"_qs);
     AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride.EmitNotify();
 }
 
@@ -389,7 +403,7 @@ void PreferencesWindow::on_tproxyOverrideTLSCB_stateChanged(int arg1)
     if (arg1 != Qt::Checked)
         AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride->removeAll("tls");
     else if (!AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride->contains("tls"))
-        AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride->append(QStringLiteral("tls"));
+        AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride->append(u"tls"_qs);
     AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride.EmitNotify();
 }
 
@@ -399,7 +413,7 @@ void PreferencesWindow::on_tproxyOverrideFakeDNSCB_stateChanged(int arg1)
     if (arg1 != Qt::Checked)
         AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride->removeAll("fakedns");
     else if (!AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride->contains("fakedns"))
-        AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride->append(QStringLiteral("fakedns"));
+        AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride->append(u"fakedns"_qs);
     AppConfig.inboundConfig->DokodemoDoorConfig->DestinationOverride.EmitNotify();
 }
 
@@ -409,7 +423,7 @@ void PreferencesWindow::on_httpOverrideHTTPCB_stateChanged(int arg1)
     if (arg1 != Qt::Checked)
         AppConfig.inboundConfig->HTTPConfig->DestinationOverride->removeAll("http");
     else if (!AppConfig.inboundConfig->HTTPConfig->DestinationOverride->contains("http"))
-        AppConfig.inboundConfig->HTTPConfig->DestinationOverride->append(QStringLiteral("http"));
+        AppConfig.inboundConfig->HTTPConfig->DestinationOverride->append(u"http"_qs);
     AppConfig.inboundConfig->HTTPConfig->DestinationOverride.EmitNotify();
 }
 
@@ -419,7 +433,7 @@ void PreferencesWindow::on_httpOverrideTLSCB_stateChanged(int arg1)
     if (arg1 != Qt::Checked)
         AppConfig.inboundConfig->HTTPConfig->DestinationOverride->removeAll("tls");
     else if (!AppConfig.inboundConfig->HTTPConfig->DestinationOverride->contains("tls"))
-        AppConfig.inboundConfig->HTTPConfig->DestinationOverride->append(QStringLiteral("tls"));
+        AppConfig.inboundConfig->HTTPConfig->DestinationOverride->append(u"tls"_qs);
     AppConfig.inboundConfig->HTTPConfig->DestinationOverride.EmitNotify();
 }
 
@@ -429,7 +443,7 @@ void PreferencesWindow::on_httpOverrideFakeDNSCB_stateChanged(int arg1)
     if (arg1 != Qt::Checked)
         AppConfig.inboundConfig->HTTPConfig->DestinationOverride->removeAll("fakedns");
     else if (!AppConfig.inboundConfig->HTTPConfig->DestinationOverride->contains("fakedns"))
-        AppConfig.inboundConfig->HTTPConfig->DestinationOverride->append(QStringLiteral("fakedns"));
+        AppConfig.inboundConfig->HTTPConfig->DestinationOverride->append(u"fakedns"_qs);
     AppConfig.inboundConfig->HTTPConfig->DestinationOverride.EmitNotify();
 }
 
@@ -439,7 +453,7 @@ void PreferencesWindow::on_socksOverrideHTTPCB_stateChanged(int arg1)
     if (arg1 != Qt::Checked)
         AppConfig.inboundConfig->SOCKSConfig->DestinationOverride->removeAll("http");
     else if (!AppConfig.inboundConfig->SOCKSConfig->DestinationOverride->contains("http"))
-        AppConfig.inboundConfig->SOCKSConfig->DestinationOverride->append(QStringLiteral("http"));
+        AppConfig.inboundConfig->SOCKSConfig->DestinationOverride->append(u"http"_qs);
     AppConfig.inboundConfig->SOCKSConfig->DestinationOverride.EmitNotify();
 }
 
@@ -449,7 +463,7 @@ void PreferencesWindow::on_socksOverrideTLSCB_stateChanged(int arg1)
     if (arg1 != Qt::Checked)
         AppConfig.inboundConfig->SOCKSConfig->DestinationOverride->removeAll("tls");
     else if (!AppConfig.inboundConfig->SOCKSConfig->DestinationOverride->contains("tls"))
-        AppConfig.inboundConfig->SOCKSConfig->DestinationOverride->append(QStringLiteral("tls"));
+        AppConfig.inboundConfig->SOCKSConfig->DestinationOverride->append(u"tls"_qs);
     AppConfig.inboundConfig->SOCKSConfig->DestinationOverride.EmitNotify();
 }
 
@@ -459,7 +473,7 @@ void PreferencesWindow::on_socksOverrideFakeDNSCB_stateChanged(int arg1)
     if (arg1 != Qt::Checked)
         AppConfig.inboundConfig->SOCKSConfig->DestinationOverride->removeAll("fakedns");
     else if (!AppConfig.inboundConfig->SOCKSConfig->DestinationOverride->contains("fakedns"))
-        AppConfig.inboundConfig->SOCKSConfig->DestinationOverride->append(QStringLiteral("fakedns"));
+        AppConfig.inboundConfig->SOCKSConfig->DestinationOverride->append(u"fakedns"_qs);
     AppConfig.inboundConfig->SOCKSConfig->DestinationOverride.EmitNotify();
 }
 

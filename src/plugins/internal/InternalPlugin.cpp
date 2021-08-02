@@ -5,12 +5,12 @@
 const Qv2rayPlugin::QvPluginMetadata Qv2rayInternalPlugin::GetMetadata() const
 {
     return Qv2rayPlugin::QvPluginMetadata{
-        QStringLiteral("Qv2ray Internal Plugin"),                                                            //
-        QStringLiteral("Moody"),                                                                             //
-        PluginId{ QStringLiteral("qvinternal") },                                                            //
-        QStringLiteral("Apply your globally configured inbounds and routing rules for simple connections."), //
-        QStringLiteral(""),                                                                                  //
-        { Qv2rayPlugin::COMPONENT_PROFILE_PREPROCESSOR }                                                     //
+        u"Qv2ray Internal Plugin"_qs,                                                            //
+        u"Moody"_qs,                                                                             //
+        PluginId{ u"qvinternal"_qs },                                                            //
+        u"Apply your globally configured inbounds and routing rules for simple connections."_qs, //
+        u""_qs,                                                                                  //
+        { Qv2rayPlugin::COMPONENT_PROFILE_PREPROCESSOR }                                         //
     };
 }
 

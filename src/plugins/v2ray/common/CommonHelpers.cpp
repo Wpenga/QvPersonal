@@ -22,8 +22,8 @@ std::pair<bool, std::optional<QString>> ValidateKernel(const QString &corePath, 
     //
     // Check file existance.
     // From: https://www.v2fly.org/chapter_02/env.html#asset-location
-    bool hasGeoIP = QDir(assetsPath).entryList().contains(QStringLiteral("geoip.dat"));
-    bool hasGeoSite = QDir(assetsPath).entryList().contains(QStringLiteral("geosite.dat"));
+    bool hasGeoIP = QDir(assetsPath).entryList().contains(u"geoip.dat"_qs);
+    bool hasGeoSite = QDir(assetsPath).entryList().contains(u"geosite.dat"_qs);
 
     if (!hasGeoIP && !hasGeoSite)
         return { false, QObject::tr("V2Ray assets path is not valid.") };
@@ -40,10 +40,10 @@ std::pair<bool, std::optional<QString>> ValidateKernel(const QString &corePath, 
     // nativeArguments are required for Windows platform, without a reason...
     proc.setProcessChannelMode(QProcess::MergedChannels);
     proc.setProgram(corePath);
-    proc.setNativeArguments(QStringLiteral("--version"));
+    proc.setNativeArguments(u"--version"_qs);
     proc.start();
 #else
-    proc.start(corePath, { QStringLiteral("--version") });
+    proc.start(corePath, { u"--version"_qs });
 #endif
     proc.waitForStarted();
     proc.waitForFinished();

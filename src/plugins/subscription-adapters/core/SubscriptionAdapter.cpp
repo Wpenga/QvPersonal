@@ -12,7 +12,7 @@
 
 const inline QStringList SplitLines(const QString &_string)
 {
-    return _string.split(QRegularExpression(QStringLiteral("[\r\n]")), Qt::SkipEmptyParts);
+    return _string.split(QRegularExpression(u"[\r\n]"_qs), Qt::SkipEmptyParts);
 }
 
 static QString SafeBase64Decode(QString string)
@@ -31,7 +31,7 @@ QString SafeBase64Encode(const QString &string)
 SubscriptionResult SimpleBase64Decoder::DecodeSubscription(const QByteArray &data) const
 {
     const auto source = QString::fromUtf8(data).trimmed();
-    const auto resultList = source.contains(QStringLiteral("://")) ? source : SafeBase64Decode(source);
+    const auto resultList = source.contains(u"://"_qs) ? source : SafeBase64Decode(source);
 
     SubscriptionResult result;
     result.SetValue<SR_Links>(SplitLines(resultList));
@@ -46,7 +46,7 @@ SubscriptionResult SIP008Decoder::DecodeSubscription(const QByteArray &data) con
     // const auto version = root["version"].toString();
     // const auto username = root["username"].toString();
     // const auto user_uuid = root["user_uuid"].toString();
-    const auto servers = root[QStringLiteral("servers")].toArray();
+    const auto servers = root[u"servers"_qs].toArray();
 
     // ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpwYXNzQGhvc3Q6MTIzNA/?plugin=plugin%3Bopt#sssip003
 

@@ -85,7 +85,7 @@ namespace Qv2ray::components::autolaunch
 
 #elif defined Q_OS_LINUX
         QString appName = QCoreApplication::applicationName();
-        QString desktopFileLocation = getUserAutostartDir_private() + appName + QStringLiteral(".desktop");
+        QString desktopFileLocation = getUserAutostartDir_private() + appName + u".desktop"_qs;
         return QFile::exists(desktopFileLocation);
     }
 #endif
@@ -166,7 +166,7 @@ namespace Qv2ray::components::autolaunch
         // From https://github.com/nextcloud/desktop/blob/master/src/common/utility_unix.cpp
         QString appName = QCoreApplication::applicationName();
         QString userAutoStartPath = getUserAutostartDir_private();
-        QString desktopFileLocation = userAutoStartPath + appName + QStringLiteral(".desktop");
+        QString desktopFileLocation = userAutoStartPath + appName + u".desktop"_qs;
         QStringList appCmdList = QCoreApplication::arguments();
         appCmdList.replace(0, binPath);
 
@@ -192,23 +192,23 @@ namespace Qv2ray::components::autolaunch
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             ts.setCodec("UTF-8");
 #endif
-            ts << QStringLiteral("[Desktop Entry]") << NEWLINE                                  //
-               << QStringLiteral("Name=") << appName << NEWLINE                                 //
-               << QStringLiteral("GenericName=") << QStringLiteral("V2Ray Frontend") << NEWLINE //
-               << QStringLiteral("Exec=") << appCmdList.join(' ') << NEWLINE                    //
-               << QStringLiteral("Terminal=") << QStringLiteral("false") << NEWLINE             //
-               << QStringLiteral("Icon=") << QStringLiteral("qv2ray") << NEWLINE                //
-               << QStringLiteral("Categories=") << QStringLiteral("Network") << NEWLINE         //
-               << QStringLiteral("Type=") << QStringLiteral("Application") << NEWLINE           //
-               << QStringLiteral("StartupNotify=") << QStringLiteral("false") << NEWLINE        //
-               << QStringLiteral("X-GNOME-Autostart-enabled=") << QStringLiteral("true") << NEWLINE;
+            ts << u"[Desktop Entry]"_qs << NEWLINE                      //
+               << u"Name="_qs << appName << NEWLINE                     //
+               << u"GenericName="_qs << u"V2Ray Frontend"_qs << NEWLINE //
+               << u"Exec="_qs << appCmdList.join(' ') << NEWLINE        //
+               << u"Terminal="_qs << u"false"_qs << NEWLINE             //
+               << u"Icon="_qs << u"qv2ray"_qs << NEWLINE                //
+               << u"Categories="_qs << u"Network"_qs << NEWLINE         //
+               << u"Type="_qs << u"Application"_qs << NEWLINE           //
+               << u"StartupNotify="_qs << u"false"_qs << NEWLINE        //
+               << u"X-GNOME-Autostart-enabled="_qs << u"true"_qs << NEWLINE;
             ts.flush();
             iniFile.close();
         }
         else
         {
             QFile::remove(desktopFileLocation);
-            QFile::remove(desktopFileLocation.replace(QStringLiteral("qv2ray"), QStringLiteral("Qv2ray")));
+            QFile::remove(desktopFileLocation.replace(u"qv2ray"_qs, u"Qv2ray"_qs));
         }
     }
 #endif

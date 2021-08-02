@@ -41,12 +41,12 @@ namespace Qv2ray::components::LogHighlighter
         }
 
         dateFormat.setForeground(darkMode ? Qt::cyan : Qt::darkCyan);
-        rule.pattern = QRegularExpression(QStringLiteral("\\d\\d\\d\\d/\\d\\d/\\d\\d"));
+        rule.pattern = QRegularExpression(u"\\d\\d\\d\\d/\\d\\d/\\d\\d"_qs);
         rule.format = dateFormat;
         highlightingRules.append(rule);
         //
         timeFormat.setForeground(darkMode ? Qt::cyan : Qt::darkCyan);
-        rule.pattern = QRegularExpression(QStringLiteral("\\d\\d:\\d\\d:\\d\\d"));
+        rule.pattern = QRegularExpression(u"\\d\\d:\\d\\d:\\d\\d"_qs);
         rule.format = timeFormat;
         highlightingRules.append(rule);
         //
@@ -85,7 +85,7 @@ namespace Qv2ray::components::LogHighlighter
         acceptedFormat.setForeground(darkGreenColor);
         acceptedFormat.setFontItalic(true);
         acceptedFormat.setFontWeight(QFont::Bold);
-        rule.pattern = QRegularExpression(QStringLiteral("\\saccepted\\s"));
+        rule.pattern = QRegularExpression(u"\\saccepted\\s"_qs);
         rule.format = acceptedFormat;
         highlightingRules.append(rule);
         //
@@ -99,7 +99,7 @@ namespace Qv2ray::components::LogHighlighter
         highlightingRules.append(rule);
         //
         v2rayComponentFormat.setForeground(darkMode ? darkGreenColor : Qt::darkYellow);
-        rule.pattern = QRegularExpression(QStringLiteral(R"( (\w+\/)+\w+: )"));
+        rule.pattern = QRegularExpression(uR"( (\w+\/)+\w+: )"_qs);
         rule.format = v2rayComponentFormat;
         highlightingRules.append(rule);
         //
@@ -111,17 +111,17 @@ namespace Qv2ray::components::LogHighlighter
         failedFormat.setFontWeight(QFont::Bold);
         failedFormat.setBackground(Qt::red);
         failedFormat.setForeground(Qt::white);
-        rule.pattern = QRegularExpression(QStringLiteral("failed"));
+        rule.pattern = QRegularExpression(u"failed"_qs);
         rule.format = failedFormat;
         highlightingRules.append(rule);
         //
         qvAppLogFormat.setForeground(darkMode ? Qt::cyan : Qt::darkCyan);
-        rule.pattern = QRegularExpression(QStringLiteral("\\[[A-Z]*\\]:"));
+        rule.pattern = QRegularExpression(u"\\[[A-Z]*\\]:"_qs);
         rule.format = qvAppLogFormat;
         highlightingRules.append(rule);
         //
         qvAppDebugLogFormat.setForeground(darkMode ? Qt::yellow : Qt::darkYellow);
-        rule.pattern = QRegularExpression(QStringLiteral(R"( \[\w+\] )"));
+        rule.pattern = QRegularExpression(uR"( \[\w+\] )"_qs);
         rule.format = qvAppDebugLogFormat;
         highlightingRules.append(rule);
     }

@@ -1,7 +1,7 @@
 #include "DnsSettingsWidget.hpp"
 
-#include "Qv2rayBase/Common/Utils.hpp"
 #include "GeositeReader/GeositeReader.hpp"
+#include "Qv2rayBase/Common/Utils.hpp"
 #include "ui/WidgetUIBase.hpp"
 #include "ui/widgets/AutoCompleteTextEdit.hpp"
 
@@ -12,11 +12,11 @@
         moveServerDownBtn->setEnabled(false);                                                                                                                            \
     }
 
-#define UPDATE_UI_ENABLED_STATE                                                                                                                      \
-    detailsSettingsGB->setEnabled(serversListbox->count() > 0);                                                                                      \
-    serverAddressTxt->setEnabled(serversListbox->count() > 0);                                                                                       \
-    removeServerBtn->setEnabled(serversListbox->count() > 0);                                                                                        \
-    ProcessDnsPortEnabledState();                                                                                                                    \
+#define UPDATE_UI_ENABLED_STATE                                                                                                                                          \
+    detailsSettingsGB->setEnabled(serversListbox->count() > 0);                                                                                                          \
+    serverAddressTxt->setEnabled(serversListbox->count() > 0);                                                                                                           \
+    removeServerBtn->setEnabled(serversListbox->count() > 0);                                                                                                            \
+    ProcessDnsPortEnabledState();                                                                                                                                        \
     CHECK_DISABLE_MOVE_BTN
 
 #define currentServerIndex serversListbox->currentRow()
@@ -41,10 +41,8 @@ DnsSettingsWidget::DnsSettingsWidget(QWidget *parent) : QWidget(parent)
 
     domainListTxt = new AutoCompleteTextEdit("geosite", sourceStringsDomain, this);
     ipListTxt = new AutoCompleteTextEdit("geoip", sourceStringsIP, this);
-    connect(domainListTxt, &AutoCompleteTextEdit::textChanged,
-            [&]() { (*dns.servers)[currentServerIndex].domains = SplitLines(domainListTxt->toPlainText()); });
-    connect(ipListTxt, &AutoCompleteTextEdit::textChanged,
-            [&]() { (*dns.servers)[currentServerIndex].expectIPs = SplitLines(ipListTxt->toPlainText()); });
+    connect(domainListTxt, &AutoCompleteTextEdit::textChanged, [&]() { (*dns.servers)[currentServerIndex].domains = SplitLines(domainListTxt->toPlainText()); });
+    connect(ipListTxt, &AutoCompleteTextEdit::textChanged, [&]() { (*dns.servers)[currentServerIndex].expectIPs = SplitLines(ipListTxt->toPlainText()); });
 
     domainsLayout->addWidget(domainListTxt);
     expectedIPsLayout->addWidget(ipListTxt);
@@ -186,7 +184,7 @@ void DnsSettingsWidget::on_dnsTagTxt_textEdited(const QString &arg1)
 void DnsSettingsWidget::on_addServerBtn_clicked()
 {
     Qv2ray::Models::V2RayDNSObject::V2RayDNSServerObject o;
-    o.address = QStringLiteral("1.1.1.1");
+    o.address = u"1.1.1.1"_qs;
     o.port = 53;
     dns.servers->push_back(o);
     serversListbox->addItem(o.address);

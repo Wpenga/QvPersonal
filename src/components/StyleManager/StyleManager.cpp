@@ -39,13 +39,13 @@ namespace Qv2ray::components::QvStyleManager
             styles.insert(key, style);
         }
 
-        for (const auto &styleDir : QvBaselib->GetAssetsPaths(QStringLiteral("uistyles")))
+        for (const auto &styleDir : QvBaselib->GetAssetsPaths(u"uistyles"_qs))
         {
             for (const auto &fileInfo : QDir(styleDir).entryInfoList(QDir::Files))
             {
                 if (!fileInfo.isFile())
                     break;
-                if (fileInfo.suffix() == QStringLiteral("css") || fileInfo.suffix() == QStringLiteral("qss") || fileInfo.suffix() == QStringLiteral("qvstyle"))
+                if (fileInfo.suffix() == u"css"_qs || fileInfo.suffix() == u"qss"_qs || fileInfo.suffix() == u"qvstyle"_qs)
                 {
                     QvLog() << "Found QSS style at:" << fileInfo;
                     QvStyle style;
@@ -62,7 +62,7 @@ namespace Qv2ray::components::QvStyleManager
     {
         if (!styles.contains(style))
             return false;
-        qApp->setStyle(QStringLiteral("fusion"));
+        qApp->setStyle(u"fusion"_qs);
         if (style == QV2RAY_SYSTEM_STYLE)
         {
             qApp->setStyle(Qv2ray::Models::Qv2rayAppearanceConfig::_system_theme);
@@ -100,7 +100,7 @@ namespace Qv2ray::components::QvStyleManager
             darkPalette.setColor(QPalette::BrightText, Qt::red);
             darkPalette.setColor(QPalette::HighlightedText, Qt::black);
             qApp->setPalette(darkPalette);
-            qApp->setStyleSheet(QStringLiteral("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }"));
+            qApp->setStyleSheet(u"QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }"_qs);
             return true;
         }
 
@@ -120,7 +120,7 @@ namespace Qv2ray::components::QvStyleManager
                 const auto _style = QStyleFactory::create(s.Name);
                 qApp->setPalette(_style->standardPalette());
                 qApp->setStyle(_style);
-                qApp->setStyleSheet(QStringLiteral(""));
+                qApp->setStyleSheet(u""_qs);
                 break;
             }
             default:

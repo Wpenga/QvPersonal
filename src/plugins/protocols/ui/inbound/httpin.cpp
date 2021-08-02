@@ -28,13 +28,13 @@ void HTTPInboundEditor::changeEvent(QEvent *e)
 void HTTPInboundEditor::Load()
 {
     isLoading = true;
-    httpTimeoutSpinBox->setValue(settings[QStringLiteral("timeout")].toInt());
-    httpTransparentCB->setChecked(settings[QStringLiteral("allowTransparent")].toBool());
+    httpTimeoutSpinBox->setValue(settings[u"timeout"_qs].toInt());
+    httpTransparentCB->setChecked(settings[u"allowTransparent"_qs].toBool());
     httpAccountListBox->clear();
 
-    for (const auto &user : settings[QStringLiteral("accounts")].toArray())
+    for (const auto &user : settings[u"accounts"_qs].toArray())
     {
-        httpAccountListBox->addItem(user.toObject()[QStringLiteral("user")].toString() + ":" + user.toObject()[QStringLiteral("pass")].toString());
+        httpAccountListBox->addItem(user.toObject()[u"user"_qs].toString() + ":" + user.toObject()[u"pass"_qs].toString());
     }
     isLoading = false;
 }
@@ -43,14 +43,14 @@ void HTTPInboundEditor::on_httpTimeoutSpinBox_valueChanged(int arg1)
 {
     if (isLoading)
         return;
-    settings[QStringLiteral("timeout")] = arg1;
+    settings[u"timeout"_qs] = arg1;
 }
 
 void HTTPInboundEditor::on_httpTransparentCB_stateChanged(int arg1)
 {
     if (isLoading)
         return;
-    settings[QStringLiteral("allowTransparent")] = arg1 == Qt::Checked;
+    settings[u"allowTransparent"_qs] = arg1 == Qt::Checked;
 }
 
 void HTTPInboundEditor::on_httpRemoveUserBtn_clicked()
@@ -63,16 +63,16 @@ void HTTPInboundEditor::on_httpRemoveUserBtn_clicked()
         return;
     }
     const auto item = httpAccountListBox->currentItem();
-    auto list = settings[QStringLiteral("accounts")].toArray();
+    auto list = settings[u"accounts"_qs].toArray();
 
     for (int i = 0; i < list.count(); i++)
     {
         const auto user = list[i].toObject();
-        const auto entry = user[QStringLiteral("user")].toString() + ":" + user[QStringLiteral("pass")].toString();
+        const auto entry = user[u"user"_qs].toString() + ":" + user[u"pass"_qs].toString();
         if (entry == item->text().trimmed())
         {
             list.removeAt(i);
-            settings[QStringLiteral("accounts")] = list;
+            settings[u"accounts"_qs] = list;
             httpAccountListBox->takeItem(httpAccountListBox->currentRow());
             return;
         }
@@ -86,12 +86,12 @@ void HTTPInboundEditor::on_httpAddUserBtn_clicked()
     const auto user = httpAddUserTxt->text();
     const auto pass = httpAddPasswordTxt->text();
     //
-    auto list = settings[QStringLiteral("accounts")].toArray();
+    auto list = settings[u"accounts"_qs].toArray();
 
     for (int i = 0; i < list.count(); i++)
     {
         const auto _user = list[i].toObject();
-        if (_user[QStringLiteral("user")].toString() == user)
+        if (_user[u"user"_qs].toString() == user)
         {
             InternalProtocolSupportPlugin::ShowMessageBox(tr("Add a user"), tr("This user exists already."));
             return;
@@ -102,5 +102,5 @@ void HTTPInboundEditor::on_httpAddUserBtn_clicked()
     httpAddPasswordTxt->clear();
     list.append(QJsonObject{ { "user", user }, { "pass", pass } });
     httpAccountListBox->addItem(user + ":" + pass);
-    settings[QStringLiteral("accounts")] = list;
+    settings[u"accounts"_qs] = list;
 }

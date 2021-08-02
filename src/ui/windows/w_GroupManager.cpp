@@ -13,7 +13,7 @@
 
 QString RemoveInvalidFileName(QString fileName)
 {
-    const static QString pattern = QStringLiteral(R"("/\?%&^*;:|><)");
+    const static QString pattern = uR"("/\?%&^*;:|><)"_qs;
     std::replace_if(
         fileName.begin(), fileName.end(), [](QChar c) { return pattern.contains(c); }, '_');
     return fileName;

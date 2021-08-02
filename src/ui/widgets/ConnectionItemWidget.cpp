@@ -74,7 +74,7 @@ ConnectionItemWidget::ConnectionItemWidget(const GroupId &id, QWidget *parent) :
     font.setBold(true);
     connNameLabel->setFont(font);
     //
-    OnGroupItemRenamed(id, QStringLiteral(""), originalItemName);
+    OnGroupItemRenamed(id, u""_qs, originalItemName);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionCreated, this, &ConnectionItemWidget::RecalculateConnections);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionModified, this, &ConnectionItemWidget::RecalculateConnections);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionLinkedWithGroup, this, &ConnectionItemWidget::RecalculateConnections);
@@ -154,7 +154,7 @@ void ConnectionItemWidget::BeginRename()
     if (IsConnection())
     {
         stackedWidget->setCurrentIndex(1);
-        renameTxt->setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
+        renameTxt->setStyle(QStyleFactory::create(u"Fusion"_qs));
         renameTxt->setStyleSheet("background-color: " + this->palette().color(this->backgroundRole()).name(QColor::HexRgb));
         renameTxt->setText(originalItemName);
         renameTxt->setFocus();
@@ -176,7 +176,7 @@ void ConnectionItemWidget::OnConnectionItemRenamed(const ConnectionId &id, const
 {
     if (id == connectionId)
     {
-        connNameLabel->setText(QvProfileManager->IsConnected({ connectionId, groupId }) ? QStringLiteral("● ") + newName : newName);
+        connNameLabel->setText(QvProfileManager->IsConnected({ connectionId, groupId }) ? u"● "_qs + newName : newName);
         originalItemName = newName;
         const auto conn = QvProfileManager->GetConnectionObject(connectionId);
         this->setToolTip(newName + NEWLINE + tr("Last Connected: ") + TimeToString(conn.last_connected) + NEWLINE + tr("Last Updated: ") + TimeToString(conn.updated));

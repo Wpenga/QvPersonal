@@ -1,7 +1,7 @@
 #include "RouteSettingsMatrix.hpp"
 
-#include "Qv2rayBase/Common/Utils.hpp"
 #include "GeositeReader/GeositeReader.hpp"
+#include "Qv2rayBase/Common/Utils.hpp"
 #include "ui/WidgetUIBase.hpp"
 
 #include <QFileDialog>
@@ -28,14 +28,14 @@ RouteSettingsMatrixWidget::RouteSettingsMatrixWidget(QWidget *parent) : QWidget(
     builtInSchemeBtn->setMenu(builtInSchemesMenu);
 
     const auto sourceStringsDomain = GeositeReader::ReadGeoSiteFromFile(GlobalConfig->behaviorConfig->GeoSitePath);
-    directDomainTxt = new AutoCompleteTextEdit(QStringLiteral("geosite"), sourceStringsDomain, this);
-    proxyDomainTxt = new AutoCompleteTextEdit(QStringLiteral("geosite"), sourceStringsDomain, this);
-    blockDomainTxt = new AutoCompleteTextEdit(QStringLiteral("geosite"), sourceStringsDomain, this);
+    directDomainTxt = new AutoCompleteTextEdit(u"geosite"_qs, sourceStringsDomain, this);
+    proxyDomainTxt = new AutoCompleteTextEdit(u"geosite"_qs, sourceStringsDomain, this);
+    blockDomainTxt = new AutoCompleteTextEdit(u"geosite"_qs, sourceStringsDomain, this);
 
     const auto sourceStringsIP = GeositeReader::ReadGeoSiteFromFile(GlobalConfig->behaviorConfig->GeoIPPath);
-    directIPTxt = new AutoCompleteTextEdit(QStringLiteral("geoip"), sourceStringsIP, this);
-    proxyIPTxt = new AutoCompleteTextEdit(QStringLiteral("geoip"), sourceStringsIP, this);
-    blockIPTxt = new AutoCompleteTextEdit(QStringLiteral("geoip"), sourceStringsIP, this);
+    directIPTxt = new AutoCompleteTextEdit(u"geoip"_qs, sourceStringsIP, this);
+    proxyIPTxt = new AutoCompleteTextEdit(u"geoip"_qs, sourceStringsIP, this);
+    blockIPTxt = new AutoCompleteTextEdit(u"geoip"_qs, sourceStringsIP, this);
 
     directTxtLayout->addWidget(directDomainTxt, 0, 0);
     proxyTxtLayout->addWidget(proxyDomainTxt, 0, 0);
@@ -49,7 +49,7 @@ RouteSettingsMatrixWidget::RouteSettingsMatrixWidget(QWidget *parent) : QWidget(
 void RouteSettingsMatrixWidget::SetRoute(const Qv2ray::Models::RouteMatrixConfig &conf)
 {
     domainStrategyCombo->setCurrentText(conf.domainStrategy);
-    domainMatcherCombo->setCurrentIndex(conf.domainMatcher == QStringLiteral("mph") ? 1 : 0);
+    domainMatcherCombo->setCurrentIndex(conf.domainMatcher == u"mph"_qs ? 1 : 0);
     //
     directDomainTxt->setPlainText(conf.domains->direct->join('\n'));
     proxyDomainTxt->setPlainText(conf.domains->proxy->join('\n'));
@@ -67,7 +67,7 @@ Qv2ray::Models::RouteMatrixConfig RouteSettingsMatrixWidget::GetRouteConfig() co
     const auto index = domainMatcherCombo->currentIndex();
     conf.domainMatcher->clear();
     if (index != 0)
-        conf.domainMatcher = QStringLiteral("mph");
+        conf.domainMatcher = u"mph"_qs;
     conf.domainStrategy = domainStrategyCombo->currentText();
     conf.domains->block = SplitLines(blockDomainTxt->toPlainText());
     conf.domains->direct = SplitLines(directDomainTxt->toPlainText());
@@ -115,7 +115,7 @@ void RouteSettingsMatrixWidget::on_exportSchemeBtn_clicked()
     if (!ok)
         return;
 
-    const auto schemeAuthor = QInputDialog::getText(this, dialogTitle, tr("Author:"), QLineEdit::Normal, QStringLiteral("Anonymous <mystery@example.com>"), &ok);
+    const auto schemeAuthor = QInputDialog::getText(this, dialogTitle, tr("Author:"), QLineEdit::Normal, u"Anonymous <mystery@example.com>"_qs, &ok);
     if (!ok)
         return;
 

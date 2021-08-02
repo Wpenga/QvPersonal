@@ -25,7 +25,7 @@ inline void BLACK(QWidget *obj)
     obj->setPalette(qApp->palette());
 }
 
-#define _COLOR_RESX(isDark) ((isDark) ? QStringLiteral(":/ui_dark/") : QStringLiteral(":/ui_light/"))
+#define _COLOR_RESX(isDark) ((isDark) ? u":/ui_dark/"_qs : u":/ui_light/"_qs)
 #define STYLE_RESX(file) (_COLOR_RESX(StyleManager->isDarkMode()) + file + ".svg")
 #define Q_TRAYICON(name) (QPixmap(_COLOR_RESX(GlobalConfig->appearanceConfig->DarkModeTrayIcon) + "glyph-" + name + ".png"))
 

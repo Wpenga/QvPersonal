@@ -29,7 +29,7 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeOldVMess(cons
 {
     QString vmess = link.trimmed();
 
-    if (!vmess.startsWith(QStringLiteral("vmess://"), Qt::CaseInsensitive))
+    if (!vmess.startsWith(u"vmess://"_qs, Qt::CaseInsensitive))
     {
         // QObject::tr("VMess string should start with 'vmess://'");
         return std::nullopt;
@@ -53,18 +53,18 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeOldVMess(cons
     // --------------------------------------------------------------------------------------
 
     // vmess v1 upgrader
-    if (!vmessConf.contains(QStringLiteral("v")))
+    if (!vmessConf.contains(u"v"_qs))
     {
         // LOG("Detected deprecated vmess v1. Trying to upgrade...");
-        if (const auto network = vmessConf[QStringLiteral("net")].toString(); network == QStringLiteral("ws") || network == QStringLiteral("h2"))
+        if (const auto network = vmessConf[u"net"_qs].toString(); network == u"ws"_qs || network == u"h2"_qs)
         {
-            const QStringList hostComponents = vmessConf[QStringLiteral("host")].toString().replace(' ', '\0').split(';');
+            const QStringList hostComponents = vmessConf[u"host"_qs].toString().replace(' ', '\0').split(';');
             if (const auto nParts = hostComponents.length(); nParts == 1)
-                vmessConf[QStringLiteral("path")] = hostComponents[0], vmessConf[QStringLiteral("host")] = QStringLiteral("");
+                vmessConf[u"path"_qs] = hostComponents[0], vmessConf[u"host"_qs] = u""_qs;
             else if (nParts == 2)
-                vmessConf[QStringLiteral("path")] = hostComponents[0], vmessConf[QStringLiteral("host")] = hostComponents[1];
+                vmessConf[u"path"_qs] = hostComponents[0], vmessConf[u"host"_qs] = hostComponents[1];
             else
-                vmessConf[QStringLiteral("path")] = QStringLiteral("/"), vmessConf[QStringLiteral("host")] = QStringLiteral("");
+                vmessConf[u"path"_qs] = u"/"_qs, vmessConf[u"host"_qs] = u""_qs;
         }
     }
 
@@ -86,11 +86,12 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeOldVMess(cons
 #define __vmess_checker__func(key, vals)                                                                                                                                 \
     do                                                                                                                                                                   \
     {                                                                                                                                                                    \
+        const auto _key = u"" #key##_qs;                                                                                                                                 \
         auto val = QStringList() vals;                                                                                                                                   \
-        if (vmessConf.contains(QStringLiteral(#key)) && !vmessConf[QStringLiteral(#key)].toVariant().toString().trimmed().isEmpty() &&                                   \
-            (val.size() <= 1 || val.contains(vmessConf[QStringLiteral(#key)].toVariant().toString())))                                                                   \
+        if (vmessConf.contains(_key) && !vmessConf[_key].toVariant().toString().trimmed().isEmpty() &&                                                                   \
+            (val.size() <= 1 || val.contains(vmessConf[_key].toVariant().toString())))                                                                                   \
         {                                                                                                                                                                \
-            key = vmessConf[QStringLiteral(#key)].toVariant().toString();                                                                                                \
+            key = vmessConf[u"" #key##_qs].toVariant().toString();                                                                                                       \
         }                                                                                                                                                                \
         else if (!val.isEmpty())                                                                                                                                         \
         {                                                                                                                                                                \
@@ -107,31 +108,31 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeOldVMess(cons
     //
     // Get Alias (AKA ps) from address and port.
     {
-        __vmess_checker__func(ps, << vmessConf[QStringLiteral("add")].toString() + QStringLiteral(":") + vmessConf[QStringLiteral("port")].toVariant().toString()); //
+        __vmess_checker__func(ps, << vmessConf[u"add"_qs].toString() + u":"_qs + vmessConf[u"port"_qs].toVariant().toString()); //
         __vmess_checker__func(add, );
         __vmess_checker__func(id, );
-        __vmess_checker__func(scy, << QStringLiteral("aes-128-gcm")       //
-                                   << QStringLiteral("chacha20-poly1305") //
-                                   << QStringLiteral("auto")              //
-                                   << QStringLiteral("none")              //
-                                   << QStringLiteral("zero"));            //
+        __vmess_checker__func(scy, << u"aes-128-gcm"_qs       //
+                                   << u"chacha20-poly1305"_qs //
+                                   << u"auto"_qs              //
+                                   << u"none"_qs              //
+                                   << u"zero"_qs);            //
 
-        __vmess_checker__func(type, << QStringLiteral("none")           //
-                                    << QStringLiteral("http")           //
-                                    << QStringLiteral("srtp")           //
-                                    << QStringLiteral("utp")            //
-                                    << QStringLiteral("wechat-video")); //
+        __vmess_checker__func(type, << u"none"_qs           //
+                                    << u"http"_qs           //
+                                    << u"srtp"_qs           //
+                                    << u"utp"_qs            //
+                                    << u"wechat-video"_qs); //
 
-        __vmess_checker__func(net, << QStringLiteral("tcp")    //
-                                   << QStringLiteral("http")   //
-                                   << QStringLiteral("h2")     //
-                                   << QStringLiteral("ws")     //
-                                   << QStringLiteral("kcp")    //
-                                   << QStringLiteral("quic")   //
-                                   << QStringLiteral("grpc")); //
+        __vmess_checker__func(net, << u"tcp"_qs    //
+                                   << u"http"_qs   //
+                                   << u"h2"_qs     //
+                                   << u"ws"_qs     //
+                                   << u"kcp"_qs    //
+                                   << u"quic"_qs   //
+                                   << u"grpc"_qs); //
 
-        __vmess_checker__func(tls, << QStringLiteral("none")  //
-                                   << QStringLiteral("tls")); //
+        __vmess_checker__func(tls, << u"none"_qs  //
+                                   << u"tls"_qs); //
 
         path = vmessConf.contains("path") ? vmessConf["path"].toVariant().toString() : (net == "quic" ? "" : "/");
         host = vmessConf.contains("host") ? vmessConf["host"].toVariant().toString() : (net == "quic" ? "none" : "");
@@ -147,7 +148,7 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeOldVMess(cons
         }
     }
 
-    port = vmessConf[QStringLiteral("port")].toVariant().toInt();
+    port = vmessConf[u"port"_qs].toVariant().toInt();
 
     //
     // Apply the settings.
@@ -158,7 +159,7 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeOldVMess(cons
     client.security = scy;
     conn.port = port;
     conn.address = add;
-    conn.protocol = QStringLiteral("vmess");
+    conn.protocol = u"vmess"_qs;
     conn.protocolSettings = IOProtocolSettings{ client.toJson() };
 
     //
@@ -223,27 +224,27 @@ std::optional<QString> BuiltinSerializer::Serialize(const QString &name, const I
     const auto out = outbound.protocolSettings;
     const auto stream = outbound.streamSettings;
 
-    if (protocol == QStringLiteral("http") || protocol == QStringLiteral("socks"))
+    if (protocol == u"http"_qs || protocol == u"socks"_qs)
     {
         QUrl url;
         url.setScheme(protocol);
         url.setHost(outbound.address);
         url.setPort(outbound.port.from);
-        if (out.contains(QStringLiteral("user")))
-            url.setUserName(out[QStringLiteral("user")].toString());
-        if (out.contains(QStringLiteral("pass")))
-            url.setUserName(out[QStringLiteral("pass")].toString());
+        if (out.contains(u"user"_qs))
+            url.setUserName(out[u"user"_qs].toString());
+        if (out.contains(u"pass"_qs))
+            url.setUserName(out[u"pass"_qs].toString());
         return url.toString();
     }
-    if (protocol == QStringLiteral("vless"))
+    if (protocol == u"vless"_qs)
     {
         return SerializeVLESS(name, outbound);
     }
-    if (protocol == QStringLiteral("vmess"))
+    if (protocol == u"vmess"_qs)
     {
         return SerializeVMess(name, outbound);
     }
-    if (protocol == QStringLiteral("shadowsocks"))
+    if (protocol == u"shadowsocks"_qs)
     {
         return SerializeSS(name, outbound);
     }
@@ -253,7 +254,7 @@ std::optional<QString> BuiltinSerializer::Serialize(const QString &name, const I
 
 std::optional<std::pair<QString, IOConnectionSettings>> BuiltinSerializer::Deserialize(const QString &link) const
 {
-    if (link.startsWith(QStringLiteral("http://")) || link.startsWith(QStringLiteral("socks://")))
+    if (link.startsWith(u"http://"_qs) || link.startsWith(u"socks://"_qs))
     {
         const QUrl url{ link };
         IOConnectionSettings out;
@@ -265,13 +266,13 @@ std::optional<std::pair<QString, IOConnectionSettings>> BuiltinSerializer::Deser
         return std::make_pair(url.fragment(), out);
     }
 
-    if (link.startsWith(QStringLiteral("ss://")))
+    if (link.startsWith(u"ss://"_qs))
         return DeserializeSS(link);
 
-    if (link.startsWith(QStringLiteral("vmess://")))
+    if (link.startsWith(u"vmess://"_qs))
         return link.contains('@') ? DeserializeVMess(link) : DeserializeOldVMess(link);
 
-    if (link.startsWith(QStringLiteral("vless://")))
+    if (link.startsWith(u"vless://"_qs))
         return DeserializeVLESS(link);
 
     return std::nullopt;
@@ -283,40 +284,40 @@ QString SerializeVLESS(const QString &name, const IOConnectionSettings &conn)
     const auto stream = conn.streamSettings;
     QUrl url;
     url.setFragment(QUrl::toPercentEncoding(name));
-    url.setScheme(QStringLiteral("vless"));
+    url.setScheme(u"vless"_qs);
     url.setHost(conn.address);
     url.setPort(conn.port.from);
-    url.setUserName(out[QStringLiteral("id")].toString());
+    url.setUserName(out[u"id"_qs].toString());
 
     // -------- COMMON INFORMATION --------
     QUrlQuery query;
-    const auto enc = out[QStringLiteral("encryption")].toString(QStringLiteral("none"));
-    if (enc != QStringLiteral("none"))
-        query.addQueryItem(QStringLiteral("encryption"), enc);
+    const auto enc = out[u"encryption"_qs].toString(u"none"_qs);
+    if (enc != u"none"_qs)
+        query.addQueryItem(u"encryption"_qs, enc);
 
-    const auto network = QJsonIO::GetValue(stream, "network").toString(QStringLiteral("tcp"));
-    if (network != QStringLiteral("tcp"))
-        query.addQueryItem(QStringLiteral("type"), network);
+    const auto network = QJsonIO::GetValue(stream, "network").toString(u"tcp"_qs);
+    if (network != u"tcp"_qs)
+        query.addQueryItem(u"type"_qs, network);
 
-    const auto security = QJsonIO::GetValue(stream, "security").toString(QStringLiteral("none"));
-    if (security != QStringLiteral("none"))
-        query.addQueryItem(QStringLiteral("security"), security);
+    const auto security = QJsonIO::GetValue(stream, "security").toString(u"none"_qs);
+    if (security != u"none"_qs)
+        query.addQueryItem(u"security"_qs, security);
 
     // -------- TRANSPORT RELATED --------
-    if (network == QStringLiteral("kcp"))
+    if (network == u"kcp"_qs)
     {
         const auto seed = QJsonIO::GetValue(stream, { "kcpSettings", "seed" }).toString();
         if (!seed.isEmpty())
-            query.addQueryItem(QStringLiteral("seed"), QUrl::toPercentEncoding(seed));
+            query.addQueryItem(u"seed"_qs, QUrl::toPercentEncoding(seed));
 
-        const auto headerType = QJsonIO::GetValue(stream, { "kcpSettings", "header", "type" }).toString(QStringLiteral("none"));
-        if (headerType != QStringLiteral("none"))
-            query.addQueryItem(QStringLiteral("headerType"), headerType);
+        const auto headerType = QJsonIO::GetValue(stream, { "kcpSettings", "header", "type" }).toString(u"none"_qs);
+        if (headerType != u"none"_qs)
+            query.addQueryItem(u"headerType"_qs, headerType);
     }
-    else if (network == QStringLiteral("http"))
+    else if (network == u"http"_qs)
     {
-        const auto path = QJsonIO::GetValue(stream, { "HTTPConfig", "path" }).toString(QStringLiteral("/"));
-        query.addQueryItem(QStringLiteral("path"), QUrl::toPercentEncoding(path));
+        const auto path = QJsonIO::GetValue(stream, { "HTTPConfig", "path" }).toString(u"/"_qs);
+        query.addQueryItem(u"path"_qs, QUrl::toPercentEncoding(path));
 
         const auto hosts = QJsonIO::GetValue(stream, { "HTTPConfig", "host" }).toArray();
         QStringList hostList;
@@ -326,46 +327,46 @@ QString SerializeVLESS(const QString &name, const IOConnectionSettings &conn)
             if (!host.isEmpty())
                 hostList << host;
         }
-        query.addQueryItem(QStringLiteral("host"), QUrl::toPercentEncoding(hostList.join(QStringLiteral(","))));
+        query.addQueryItem(u"host"_qs, QUrl::toPercentEncoding(hostList.join(u","_qs)));
     }
-    else if (network == QStringLiteral("ws"))
+    else if (network == u"ws"_qs)
     {
-        const auto path = QJsonIO::GetValue(stream, { "wsSettings", "path" }).toString(QStringLiteral("/"));
-        query.addQueryItem(QStringLiteral("path"), QUrl::toPercentEncoding(path));
+        const auto path = QJsonIO::GetValue(stream, { "wsSettings", "path" }).toString(u"/"_qs);
+        query.addQueryItem(u"path"_qs, QUrl::toPercentEncoding(path));
 
         const auto host = QJsonIO::GetValue(stream, { "wsSettings", "headers", "Host" }).toString();
-        query.addQueryItem(QStringLiteral("host"), host);
+        query.addQueryItem(u"host"_qs, host);
     }
-    else if (network == QStringLiteral("quic"))
+    else if (network == u"quic"_qs)
     {
-        const auto quicSecurity = QJsonIO::GetValue(stream, { "quicSettings", "security" }).toString(QStringLiteral("none"));
-        if (quicSecurity != QStringLiteral("none"))
+        const auto quicSecurity = QJsonIO::GetValue(stream, { "quicSettings", "security" }).toString(u"none"_qs);
+        if (quicSecurity != u"none"_qs)
         {
-            query.addQueryItem(QStringLiteral("quicSecurity"), quicSecurity);
+            query.addQueryItem(u"quicSecurity"_qs, quicSecurity);
 
             const auto key = QJsonIO::GetValue(stream, { "quicSettings", "key" }).toString();
-            query.addQueryItem(QStringLiteral("key"), QUrl::toPercentEncoding(key));
+            query.addQueryItem(u"key"_qs, QUrl::toPercentEncoding(key));
 
-            const auto headerType = QJsonIO::GetValue(stream, { "quicSettings", "header", "type" }).toString(QStringLiteral("none"));
-            if (headerType != QStringLiteral("none"))
-                query.addQueryItem(QStringLiteral("headerType"), headerType);
+            const auto headerType = QJsonIO::GetValue(stream, { "quicSettings", "header", "type" }).toString(u"none"_qs);
+            if (headerType != u"none"_qs)
+                query.addQueryItem(u"headerType"_qs, headerType);
         }
     }
-    else if (network == QStringLiteral("grpc"))
+    else if (network == u"grpc"_qs)
     {
-        const auto serviceName = QJsonIO::GetValue(stream, { "grpcSettings", "serviceName" }).toString(QStringLiteral("GunService"));
-        if (serviceName != QStringLiteral("GunService"))
-            query.addQueryItem(QStringLiteral("serviceName"), QUrl::toPercentEncoding(serviceName));
+        const auto serviceName = QJsonIO::GetValue(stream, { "grpcSettings", "serviceName" }).toString(u"GunService"_qs);
+        if (serviceName != u"GunService"_qs)
+            query.addQueryItem(u"serviceName"_qs, QUrl::toPercentEncoding(serviceName));
     }
     // -------- TLS RELATED --------
-    const auto tlsKey = security == QStringLiteral("xtls") ? "xtlsSettings" : "tlsSettings";
+    const auto tlsKey = security == u"xtls"_qs ? "xtlsSettings" : "tlsSettings";
 
     const auto sni = QJsonIO::GetValue(stream, { tlsKey, "serverName" }).toString();
     if (!sni.isEmpty())
-        query.addQueryItem(QStringLiteral("sni"), sni);
+        query.addQueryItem(u"sni"_qs, sni);
 
     // ALPN
-    const auto alpnArray = QJsonIO::GetValue(stream, { tlsKey, QStringLiteral("alpn") }).toArray();
+    const auto alpnArray = QJsonIO::GetValue(stream, { tlsKey, u"alpn"_qs }).toArray();
     QStringList alpnList;
     for (const auto v : alpnArray)
     {
@@ -373,13 +374,13 @@ QString SerializeVLESS(const QString &name, const IOConnectionSettings &conn)
         if (!alpn.isEmpty())
             alpnList << alpn;
     }
-    query.addQueryItem(QStringLiteral("alpn"), QUrl::toPercentEncoding(alpnList.join(QStringLiteral(","))));
+    query.addQueryItem(u"alpn"_qs, QUrl::toPercentEncoding(alpnList.join(u","_qs)));
 
     // -------- XTLS Flow --------
-    if (security == QStringLiteral("xtls"))
+    if (security == u"xtls"_qs)
     {
-        const auto flow = out[QStringLiteral("flow")].toString();
-        query.addQueryItem(QStringLiteral("flow"), flow);
+        const auto flow = out[u"flow"_qs].toString();
+        query.addQueryItem(u"flow"_qs, flow);
     }
 
     // ======== END OF QUERY ========
@@ -399,56 +400,56 @@ QString SerializeVMess(const QString &alias, const IOConnectionSettings &connect
     QUrlQuery query;
     url.setFragment(alias, QUrl::StrictMode);
 
-    if (stream.network == QStringLiteral("tcp"))
+    if (stream.network == u"tcp"_qs)
     {
-        if (!stream.tcpSettings->header->type->isEmpty() && stream.tcpSettings->header->type != QStringLiteral("none"))
-            query.addQueryItem(QStringLiteral("type"), stream.tcpSettings->header->type);
+        if (!stream.tcpSettings->header->type->isEmpty() && stream.tcpSettings->header->type != u"none"_qs)
+            query.addQueryItem(u"type"_qs, stream.tcpSettings->header->type);
     }
-    else if (stream.network == QStringLiteral("http"))
+    else if (stream.network == u"http"_qs)
     {
         if (!stream.httpSettings->host->isEmpty())
-            query.addQueryItem(QStringLiteral("host"), stream.httpSettings->host->first());
-        query.addQueryItem(QStringLiteral("path"), stream.httpSettings->path->isEmpty() ? QStringLiteral("/") : *stream.httpSettings->path);
+            query.addQueryItem(u"host"_qs, stream.httpSettings->host->first());
+        query.addQueryItem(u"path"_qs, stream.httpSettings->path->isEmpty() ? u"/"_qs : *stream.httpSettings->path);
     }
-    else if (stream.network == QStringLiteral("ws"))
+    else if (stream.network == u"ws"_qs)
     {
-        if (stream.wsSettings->headers->contains(QStringLiteral("Host")) && !stream.wsSettings->headers->value(QStringLiteral("Host")).isEmpty())
-            query.addQueryItem(QStringLiteral("host"), stream.wsSettings->headers->value(QStringLiteral("Host")));
-        if (!stream.wsSettings->path->isEmpty() && stream.wsSettings->path != QStringLiteral("/"))
-            query.addQueryItem(QStringLiteral("path"), stream.wsSettings->path);
+        if (stream.wsSettings->headers->contains(u"Host"_qs) && !stream.wsSettings->headers->value(u"Host"_qs).isEmpty())
+            query.addQueryItem(u"host"_qs, stream.wsSettings->headers->value(u"Host"_qs));
+        if (!stream.wsSettings->path->isEmpty() && stream.wsSettings->path != u"/"_qs)
+            query.addQueryItem(u"path"_qs, stream.wsSettings->path);
     }
-    else if (stream.network == QStringLiteral("kcp"))
+    else if (stream.network == u"kcp"_qs)
     {
         if (!stream.kcpSettings->seed->isEmpty())
-            query.addQueryItem(QStringLiteral("seed"), stream.kcpSettings->seed);
-        if (!stream.kcpSettings->header->type->isEmpty() && stream.kcpSettings->header->type != QStringLiteral("none"))
-            query.addQueryItem(QStringLiteral("type"), stream.kcpSettings->header->type);
+            query.addQueryItem(u"seed"_qs, stream.kcpSettings->seed);
+        if (!stream.kcpSettings->header->type->isEmpty() && stream.kcpSettings->header->type != u"none"_qs)
+            query.addQueryItem(u"type"_qs, stream.kcpSettings->header->type);
     }
-    else if (stream.network == QStringLiteral("quic"))
+    else if (stream.network == u"quic"_qs)
     {
-        if (!stream.quicSettings->security->isEmpty() && stream.quicSettings->security != QStringLiteral("none"))
-            query.addQueryItem(QStringLiteral("security"), stream.quicSettings->security);
+        if (!stream.quicSettings->security->isEmpty() && stream.quicSettings->security != u"none"_qs)
+            query.addQueryItem(u"security"_qs, stream.quicSettings->security);
         if (!stream.quicSettings->key->isEmpty())
-            query.addQueryItem(QStringLiteral("key"), stream.quicSettings->key);
-        if (!stream.quicSettings->header->type->isEmpty() && stream.quicSettings->header->type != QStringLiteral("none"))
-            query.addQueryItem(QStringLiteral("headers"), stream.quicSettings->header->type);
+            query.addQueryItem(u"key"_qs, stream.quicSettings->key);
+        if (!stream.quicSettings->header->type->isEmpty() && stream.quicSettings->header->type != u"none"_qs)
+            query.addQueryItem(u"headers"_qs, stream.quicSettings->header->type);
     }
     else
     {
         return {};
     }
-    bool hasTLS = stream.security == QStringLiteral("tls");
+    bool hasTLS = stream.security == u"tls"_qs;
     auto protocol = *stream.network;
     if (hasTLS)
     {
         // if (stream.tlsSettings.allowInsecure)
         //    query.addQueryItem("allowInsecure", "true");
         if (!stream.tlsSettings->serverName->isEmpty())
-            query.addQueryItem(QStringLiteral("tlsServerName"), stream.tlsSettings->serverName);
-        protocol += QStringLiteral("+tls");
+            query.addQueryItem(u"tlsServerName"_qs, stream.tlsSettings->serverName);
+        protocol += u"+tls"_qs;
     }
-    url.setPath(QStringLiteral("/"));
-    url.setScheme(QStringLiteral("vmess"));
+    url.setPath(u"/"_qs);
+    url.setScheme(u"vmess"_qs);
     url.setPassword(server.id + "-0");
     url.setHost(connection.address);
     url.setPort(connection.port.from);
@@ -465,7 +466,7 @@ QString SerializeSS(const QString &name, const IOConnectionSettings &connection)
     const auto plainUserInfo = server.method + ":" + server.password;
     const auto userinfo = plainUserInfo.toUtf8().toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
     url.setUserInfo(userinfo);
-    url.setScheme(QStringLiteral("ss"));
+    url.setScheme(u"ss"_qs);
     url.setHost(connection.address);
     url.setPort(connection.port.from);
     url.setFragment(name);
@@ -508,120 +509,120 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeVLESS(const Q
     QJsonObject outbound;
     QJsonObject stream;
 
-    outbound[QStringLiteral("id")] = uuid;
+    outbound[u"id"_qs] = uuid;
 
     // parse query
     QUrlQuery query(url.query());
 
     // handle type
-    const auto hasType = query.hasQueryItem(QStringLiteral("type"));
-    const auto type = hasType ? query.queryItemValue(QStringLiteral("type")) : QStringLiteral("tcp");
-    if (type != QStringLiteral("tcp"))
-        QJsonIO::SetValue(stream, type, QStringLiteral("network"));
+    const auto hasType = query.hasQueryItem(u"type"_qs);
+    const auto type = hasType ? query.queryItemValue(u"type"_qs) : u"tcp"_qs;
+    if (type != u"tcp"_qs)
+        QJsonIO::SetValue(stream, type, u"network"_qs);
 
     // handle encryption
-    const auto hasEncryption = query.hasQueryItem(QStringLiteral("encryption"));
-    const auto encryption = hasEncryption ? query.queryItemValue(QStringLiteral("encryption")) : QStringLiteral("none");
-    outbound[QStringLiteral("encryption")] = encryption;
+    const auto hasEncryption = query.hasQueryItem(u"encryption"_qs);
+    const auto encryption = hasEncryption ? query.queryItemValue(u"encryption"_qs) : u"none"_qs;
+    outbound[u"encryption"_qs] = encryption;
 
     // type-wise settings
-    if (type == QStringLiteral("kcp"))
+    if (type == u"kcp"_qs)
     {
-        const auto hasSeed = query.hasQueryItem(QStringLiteral("seed"));
+        const auto hasSeed = query.hasQueryItem(u"seed"_qs);
         if (hasSeed)
-            QJsonIO::SetValue(stream, query.queryItemValue(QStringLiteral("seed")), { QStringLiteral("kcpSettings"), QStringLiteral("seed") });
+            QJsonIO::SetValue(stream, query.queryItemValue(u"seed"_qs), { u"kcpSettings"_qs, u"seed"_qs });
 
-        const auto hasHeaderType = query.hasQueryItem(QStringLiteral("headerType"));
-        const auto headerType = hasHeaderType ? query.queryItemValue(QStringLiteral("headerType")) : QStringLiteral("none");
-        if (headerType != QStringLiteral("none"))
-            QJsonIO::SetValue(stream, headerType, { QStringLiteral("kcpSettings"), QStringLiteral("header"), QStringLiteral("type") });
+        const auto hasHeaderType = query.hasQueryItem(u"headerType"_qs);
+        const auto headerType = hasHeaderType ? query.queryItemValue(u"headerType"_qs) : u"none"_qs;
+        if (headerType != u"none"_qs)
+            QJsonIO::SetValue(stream, headerType, { u"kcpSettings"_qs, u"header"_qs, u"type"_qs });
     }
-    else if (type == QStringLiteral("http"))
+    else if (type == u"http"_qs)
     {
-        const auto hasPath = query.hasQueryItem(QStringLiteral("path"));
-        const auto path = hasPath ? QUrl::fromPercentEncoding(query.queryItemValue(QStringLiteral("path")).toUtf8()) : QStringLiteral("/");
-        if (path != QStringLiteral("/"))
-            QJsonIO::SetValue(stream, path, { QStringLiteral("httpSettings"), QStringLiteral("path") });
+        const auto hasPath = query.hasQueryItem(u"path"_qs);
+        const auto path = hasPath ? QUrl::fromPercentEncoding(query.queryItemValue(u"path"_qs).toUtf8()) : u"/"_qs;
+        if (path != u"/"_qs)
+            QJsonIO::SetValue(stream, path, { u"httpSettings"_qs, u"path"_qs });
 
-        const auto hasHost = query.hasQueryItem(QStringLiteral("host"));
+        const auto hasHost = query.hasQueryItem(u"host"_qs);
         if (hasHost)
         {
-            const auto hosts = QJsonArray::fromStringList(query.queryItemValue(QStringLiteral("host")).split(','));
-            QJsonIO::SetValue(stream, hosts, { QStringLiteral("httpSettings"), QStringLiteral("host") });
+            const auto hosts = QJsonArray::fromStringList(query.queryItemValue(u"host"_qs).split(','));
+            QJsonIO::SetValue(stream, hosts, { u"httpSettings"_qs, u"host"_qs });
         }
     }
-    else if (type == QStringLiteral("ws"))
+    else if (type == u"ws"_qs)
     {
-        const auto hasPath = query.hasQueryItem(QStringLiteral("path"));
-        const auto path = hasPath ? QUrl::fromPercentEncoding(query.queryItemValue(QStringLiteral("path")).toUtf8()) : QStringLiteral("/");
-        if (path != QStringLiteral("/"))
-            QJsonIO::SetValue(stream, path, { QStringLiteral("wsSettings"), QStringLiteral("path") });
+        const auto hasPath = query.hasQueryItem(u"path"_qs);
+        const auto path = hasPath ? QUrl::fromPercentEncoding(query.queryItemValue(u"path"_qs).toUtf8()) : u"/"_qs;
+        if (path != u"/"_qs)
+            QJsonIO::SetValue(stream, path, { u"wsSettings"_qs, u"path"_qs });
 
-        const auto hasHost = query.hasQueryItem(QStringLiteral("host"));
+        const auto hasHost = query.hasQueryItem(u"host"_qs);
         if (hasHost)
         {
-            QJsonIO::SetValue(stream, query.queryItemValue(QStringLiteral("host")), { QStringLiteral("wsSettings"), QStringLiteral("headers"), QStringLiteral("Host") });
+            QJsonIO::SetValue(stream, query.queryItemValue(u"host"_qs), { u"wsSettings"_qs, u"headers"_qs, u"Host"_qs });
         }
     }
-    else if (type == QStringLiteral("quic"))
+    else if (type == u"quic"_qs)
     {
-        const auto hasQuicSecurity = query.hasQueryItem(QStringLiteral("quicSecurity"));
+        const auto hasQuicSecurity = query.hasQueryItem(u"quicSecurity"_qs);
         if (hasQuicSecurity)
         {
-            const auto quicSecurity = query.queryItemValue(QStringLiteral("quicSecurity"));
-            QJsonIO::SetValue(stream, quicSecurity, { QStringLiteral("quicSettings"), QStringLiteral("security") });
+            const auto quicSecurity = query.queryItemValue(u"quicSecurity"_qs);
+            QJsonIO::SetValue(stream, quicSecurity, { u"quicSettings"_qs, u"security"_qs });
 
-            if (quicSecurity != QStringLiteral("none"))
+            if (quicSecurity != u"none"_qs)
             {
-                const auto key = query.queryItemValue(QStringLiteral("key"));
-                QJsonIO::SetValue(stream, key, { QStringLiteral("quicSettings"), QStringLiteral("key") });
+                const auto key = query.queryItemValue(u"key"_qs);
+                QJsonIO::SetValue(stream, key, { u"quicSettings"_qs, u"key"_qs });
             }
 
-            const auto hasHeaderType = query.hasQueryItem(QStringLiteral("headerType"));
-            const auto headerType = hasHeaderType ? query.queryItemValue(QStringLiteral("headerType")) : QStringLiteral("none");
-            if (headerType != QStringLiteral("none"))
-                QJsonIO::SetValue(stream, headerType, { QStringLiteral("quicSettings"), QStringLiteral("header"), QStringLiteral("type") });
+            const auto hasHeaderType = query.hasQueryItem(u"headerType"_qs);
+            const auto headerType = hasHeaderType ? query.queryItemValue(u"headerType"_qs) : u"none"_qs;
+            if (headerType != u"none"_qs)
+                QJsonIO::SetValue(stream, headerType, { u"quicSettings"_qs, u"header"_qs, u"type"_qs });
         }
     }
-    else if (type == QStringLiteral("grpc"))
+    else if (type == u"grpc"_qs)
     {
-        const auto hasServiceName = query.hasQueryItem(QStringLiteral("serviceName"));
+        const auto hasServiceName = query.hasQueryItem(u"serviceName"_qs);
         if (hasServiceName)
         {
-            const auto serviceName = QUrl::fromPercentEncoding(query.queryItemValue(QStringLiteral("serviceName")).toUtf8());
-            if (serviceName != QStringLiteral("GunService"))
+            const auto serviceName = QUrl::fromPercentEncoding(query.queryItemValue(u"serviceName"_qs).toUtf8());
+            if (serviceName != u"GunService"_qs)
             {
-                QJsonIO::SetValue(stream, serviceName, { QStringLiteral("grpcSettings"), QStringLiteral("serviceName") });
+                QJsonIO::SetValue(stream, serviceName, { u"grpcSettings"_qs, u"serviceName"_qs });
             }
         }
     }
 
     // tls-wise settings
-    const auto hasSecurity = query.hasQueryItem(QStringLiteral("security"));
-    const auto security = hasSecurity ? query.queryItemValue(QStringLiteral("security")) : QStringLiteral("none");
-    const auto tlsKey = security == QStringLiteral("xtls") ? QStringLiteral("xtlsSettings") : QStringLiteral("tlsSettings");
-    if (security != QStringLiteral("none"))
+    const auto hasSecurity = query.hasQueryItem(u"security"_qs);
+    const auto security = hasSecurity ? query.queryItemValue(u"security"_qs) : u"none"_qs;
+    const auto tlsKey = security == u"xtls"_qs ? u"xtlsSettings"_qs : u"tlsSettings"_qs;
+    if (security != u"none"_qs)
     {
-        QJsonIO::SetValue(stream, security, QStringLiteral("security"));
+        QJsonIO::SetValue(stream, security, u"security"_qs);
     }
     // sni
-    const auto hasSNI = query.hasQueryItem(QStringLiteral("sni"));
+    const auto hasSNI = query.hasQueryItem(u"sni"_qs);
     if (hasSNI)
     {
-        const auto sni = query.queryItemValue(QStringLiteral("sni"));
-        QJsonIO::SetValue(stream, sni, { tlsKey, QStringLiteral("serverName") });
+        const auto sni = query.queryItemValue(u"sni"_qs);
+        QJsonIO::SetValue(stream, sni, { tlsKey, u"serverName"_qs });
     }
     // alpn
-    const auto hasALPN = query.hasQueryItem(QStringLiteral("alpn"));
+    const auto hasALPN = query.hasQueryItem(u"alpn"_qs);
     if (hasALPN)
     {
-        const auto alpnRaw = QUrl::fromPercentEncoding(query.queryItemValue(QStringLiteral("alpn")).toUtf8());
+        const auto alpnRaw = QUrl::fromPercentEncoding(query.queryItemValue(u"alpn"_qs).toUtf8());
         const auto alpnArray = QJsonArray::fromStringList(alpnRaw.split(','));
-        QJsonIO::SetValue(stream, alpnArray, { tlsKey, QStringLiteral("alpn") });
+        QJsonIO::SetValue(stream, alpnArray, { tlsKey, u"alpn"_qs });
     }
 
     IOConnectionSettings conn;
-    conn.protocol = QStringLiteral("vless");
+    conn.protocol = u"vless"_qs;
     conn.address = host;
     conn.port = port;
     conn.protocolSettings = IOProtocolSettings{ outbound };
@@ -632,7 +633,7 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeVLESS(const Q
 std::optional<std::pair<QString, IOConnectionSettings>> DeserializeVMess(const QString &link)
 {
     IOConnectionSettings conn;
-    conn.protocol = QStringLiteral("vmess");
+    conn.protocol = u"vmess"_qs;
     QUrl url{ link };
     QUrlQuery query{ url };
     if (!url.isValid())
@@ -650,7 +651,7 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeVMess(const Q
     {
         for (const auto &_protocol : url.userName().split('+'))
         {
-            if (_protocol == QStringLiteral("tls"))
+            if (_protocol == u"tls"_qs)
                 tls = true;
             else
                 net = _protocol;
@@ -662,7 +663,7 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeVMess(const Q
         // L("net: " << net.toStdString());
         // L("tls: " << tls);
         stream.network = net;
-        stream.security = tls ? QStringLiteral("tls") : QStringLiteral("");
+        stream.security = tls ? u"tls"_qs : u""_qs;
     }
     // Host Port UUID AlterID
     {
@@ -678,10 +679,11 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeVMess(const Q
         conn.address = host;
         conn.port = port;
         client.id = uuid;
-        client.security = QStringLiteral("auto");
+        client.security = u"auto"_qs;
     }
 
-    const static auto getQueryValue = [&query](const QString &key, const QString &defaultValue) {
+    const static auto getQueryValue = [&query](const QString &key, const QString &defaultValue)
+    {
         if (query.hasQueryItem(key))
             return query.queryItemValue(key, QUrl::FullyDecoded);
         else
@@ -691,37 +693,37 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeVMess(const Q
     //
     // Begin transport settings parser
     {
-        if (net == QStringLiteral("tcp"))
+        if (net == u"tcp"_qs)
         {
-            stream.tcpSettings->header->type = getQueryValue(QStringLiteral("type"), QStringLiteral("none"));
+            stream.tcpSettings->header->type = getQueryValue(u"type"_qs, u"none"_qs);
         }
-        else if (net == QStringLiteral("http"))
+        else if (net == u"http"_qs)
         {
-            stream.httpSettings->host->append(getQueryValue(QStringLiteral("host"), QStringLiteral("")));
-            stream.httpSettings->path = getQueryValue(QStringLiteral("path"), QStringLiteral("/"));
+            stream.httpSettings->host->append(getQueryValue(u"host"_qs, u""_qs));
+            stream.httpSettings->path = getQueryValue(u"path"_qs, u"/"_qs);
         }
-        else if (net == QStringLiteral("ws"))
+        else if (net == u"ws"_qs)
         {
-            stream.wsSettings->headers->insert(QStringLiteral("Host"), getQueryValue(QStringLiteral("host"), QStringLiteral("")));
-            stream.wsSettings->path = getQueryValue(QStringLiteral("path"), QStringLiteral("/"));
+            stream.wsSettings->headers->insert(u"Host"_qs, getQueryValue(u"host"_qs, u""_qs));
+            stream.wsSettings->path = getQueryValue(u"path"_qs, u"/"_qs);
         }
-        else if (net == QStringLiteral("kcp"))
+        else if (net == u"kcp"_qs)
         {
-            stream.kcpSettings->seed = getQueryValue(QStringLiteral("seed"), QStringLiteral(""));
-            stream.kcpSettings->header->type = getQueryValue(QStringLiteral("type"), QStringLiteral("none"));
+            stream.kcpSettings->seed = getQueryValue(u"seed"_qs, u""_qs);
+            stream.kcpSettings->header->type = getQueryValue(u"type"_qs, u"none"_qs);
         }
-        else if (net == QStringLiteral("quic"))
+        else if (net == u"quic"_qs)
         {
-            stream.quicSettings->security = getQueryValue(QStringLiteral("security"), QStringLiteral("none"));
-            stream.quicSettings->key = getQueryValue(QStringLiteral("key"), QStringLiteral(""));
-            stream.quicSettings->header->type = getQueryValue(QStringLiteral("type"), QStringLiteral("none"));
+            stream.quicSettings->security = getQueryValue(u"security"_qs, u"none"_qs);
+            stream.quicSettings->key = getQueryValue(u"key"_qs, u""_qs);
+            stream.quicSettings->header->type = getQueryValue(u"type"_qs, u"none"_qs);
         }
     }
 
     if (tls)
     {
         // stream.tlsSettings.allowInsecure = !FalseTypes.contains(getQueryValue("allowInsecure", "false"));
-        stream.tlsSettings->serverName = getQueryValue(QStringLiteral("tlsServerName"), QStringLiteral(""));
+        stream.tlsSettings->serverName = getQueryValue(u"tlsServerName"_qs, u""_qs);
     }
 
     conn.protocolSettings = IOProtocolSettings{ client.toJson() };
@@ -807,7 +809,7 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeSS(const QStr
     }
 
     d_name = QUrl::fromPercentEncoding(d_name.toUtf8());
-    conn.protocol = QStringLiteral("shadowsocks");
+    conn.protocol = u"shadowsocks"_qs;
     conn.protocolSettings = IOProtocolSettings{ server.toJson() };
     return std::make_pair(d_name, conn);
 }

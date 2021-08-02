@@ -5,7 +5,7 @@
 #include "Qv2rayBase/Interfaces/IStorageProvider.hpp"
 #include "Qv2rayBase/Plugin/PluginAPIHost.hpp"
 
-PluginManageWindow::PluginManageWindow(QWidget *parent) : QvDialog(QStringLiteral("PluginManager"), parent)
+PluginManageWindow::PluginManageWindow(QWidget *parent) : QvDialog(u"PluginManager"_qs, parent)
 {
     setupUi(this);
     userPluginDirLabel->setText(QvStorageProvider->GetUserPluginDirectory().absolutePath());

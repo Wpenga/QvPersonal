@@ -268,17 +268,17 @@ void MainWindow::ProcessCommand(const QString &command, QStringList commands, QM
 {
     if (commands.isEmpty())
         return;
-    if (command == QStringLiteral("open"))
+    if (command == u"open"_qs)
     {
         const auto subcommand = commands.takeFirst();
         QvDialog *w;
-        if (subcommand == QStringLiteral("preference"))
+        if (subcommand == u"preference"_qs)
             w = new PreferencesWindow();
-        else if (subcommand == QStringLiteral("plugin"))
+        else if (subcommand == u"plugin"_qs)
             w = new PluginManageWindow();
-        else if (subcommand == QStringLiteral("group"))
+        else if (subcommand == u"group"_qs)
             w = new GroupManager();
-        else if (subcommand == QStringLiteral("import"))
+        else if (subcommand == u"import"_qs)
             w = new ImportConfigWindow();
         else
             return;
@@ -584,10 +584,8 @@ void MainWindow::OnStatsAvailable(const ProfileId &id, const StatisticsObject &d
     netspeedLabel->setText(totalSpeedUp + NEWLINE + totalSpeedDown);
     dataamountLabel->setText(totalDataUp + NEWLINE + totalDataDown);
 
-    QvApp->GetTrayManager()->SetTrayTooltip(QStringLiteral("Qv2ray %1\n"
-                                                           "Connected: %2\n"
-                                                           "Up: %3 Down: %4")
-                                                .arg(QStringLiteral(QV2RAY_VERSION_STRING), GetDisplayName(id.connectionId), totalSpeedUp, totalSpeedDown));
+    const static auto format = u"Qv2ray %1\nConnected: %2\nUp: %3 Down: %4"_qs;
+    QvApp->GetTrayManager()->SetTrayTooltip(format.arg(QV2RAY_VERSION_STRING, GetDisplayName(id.connectionId), totalSpeedUp, totalSpeedDown));
 }
 
 void MainWindow::OnKernelLogAvailable(const ProfileId &id, const QString &log)
@@ -846,7 +844,7 @@ void MainWindow::on_newComplexConnectionBtn_clicked()
     {
         const auto item = connectionTreeView->currentIndex();
         const auto id = item.isValid() ? GetIndexWidget(item)->Identifier().groupId : DefaultGroupId;
-        QvProfileManager->CreateConnection(root, QStringLiteral("New Connection"), id);
+        QvProfileManager->CreateConnection(root, u"New Connection"_qs, id);
     }
 #else
     JsonEditor w({}, this);
@@ -855,7 +853,7 @@ void MainWindow::on_newComplexConnectionBtn_clicked()
     {
         const auto item = connectionTreeView->currentIndex();
         const auto id = item.isValid() ? GetIndexWidget(item)->Identifier().groupId : DefaultGroupId;
-        QvProfileManager->CreateConnection(root, QStringLiteral("New Connection"), id);
+        QvProfileManager->CreateConnection(root, u"New Connection"_qs, id);
     }
 #endif
 }

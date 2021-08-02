@@ -61,9 +61,9 @@ void V2RayKernelSettings::on_checkVCoreSettings_clicked()
     else
     {
         const auto content = tr("V2Ray path configuration check passed.") + //
-                             QStringLiteral("\n\n") +                       //
+                             u"\n\n"_qs +                                   //
                              tr("Kernel Output: ") +                        //
-                             QStringLiteral("\n") +                         //
+                             u"\n"_qs +                                     //
                              *msg;
         BuiltinV2RayCorePlugin::ShowMessageBox(tr("V2Ray Core Settings"), content);
     }
@@ -80,7 +80,7 @@ void V2RayKernelSettings::on_detectCoreBtn_clicked()
 #define PATH_SPLITTER ':'
 #endif
 
-    searchPaths << QProcessEnvironment::systemEnvironment().value(QStringLiteral("PATH")).split(QChar::fromLatin1(PATH_SPLITTER));
+    searchPaths << QProcessEnvironment::systemEnvironment().value(u"PATH"_qs).split(QChar::fromLatin1(PATH_SPLITTER));
 
     searchPaths << QDir::homePath();
     for (const auto &sp : {
@@ -94,38 +94,38 @@ void V2RayKernelSettings::on_detectCoreBtn_clicked()
              QStandardPaths::DownloadLocation,     //
          })
         for (const auto &dn : {
-                 QStringLiteral("v2ray"),            //
-                 QStringLiteral("v2ray-core"),       //
-                 QStringLiteral("v2ray-windows-64"), //
+                 u"v2ray"_qs,            //
+                 u"v2ray-core"_qs,       //
+                 u"v2ray-windows-64"_qs, //
              })
             searchPaths << QStandardPaths::locateAll(sp, dn, QStandardPaths::LocateDirectory);
 
 #ifdef Q_OS_WINDOWS
     // Scoop shim causes problems: https://github.com/lukesampson/scoop/issues/3294
-    searchPaths.removeIf([](const QString &s) { return s.contains(QStringLiteral("shims")); });
-    searchPaths << QDir::homePath() + QStringLiteral("/scoop/apps/v2ray/current/");
-    searchPaths << QDir::homePath() + QStringLiteral("/source/repos/v2ray-core/");
-    searchPaths << QDir::homePath() + QStringLiteral("/source/repos/v2ray/");
+    searchPaths.removeIf([](const QString &s) { return s.contains(u"shims"_qs); });
+    searchPaths << QDir::homePath() + u"/scoop/apps/v2ray/current/"_qs;
+    searchPaths << QDir::homePath() + u"/source/repos/v2ray-core/"_qs;
+    searchPaths << QDir::homePath() + u"/source/repos/v2ray/"_qs;
 
     for (const auto &dl : QDir::drives())
         for (const auto &dn : {
-                 QStringLiteral("v2ray"),            //
-                 QStringLiteral("v2ray-core"),       //
-                 QStringLiteral("v2ray-windows-64"), //
+                 u"v2ray"_qs,            //
+                 u"v2ray-core"_qs,       //
+                 u"v2ray-windows-64"_qs, //
              })
             searchPaths << dl.absolutePath() + dn;
 #elif defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-    searchPaths << QStringLiteral("/bin");
-    searchPaths << QStringLiteral("/usr/bin");
-    searchPaths << QStringLiteral("/usr/local/bin");
-    searchPaths << QStringLiteral("/usr/share/v2ray");
-    searchPaths << QStringLiteral("/usr/local/share/v2ray");
-    searchPaths << QStringLiteral("/usr/lib/v2ray");
-    searchPaths << QStringLiteral("/usr/local/lib/v2ray");
-    searchPaths << QStringLiteral("/opt/bin");
-    searchPaths << QStringLiteral("/opt/v2ray");
-    searchPaths << QStringLiteral("/usr/local/opt/bin");
-    searchPaths << QStringLiteral("/usr/local/opt/v2ray");
+    searchPaths << u"/bin"_qs;
+    searchPaths << u"/usr/bin"_qs;
+    searchPaths << u"/usr/local/bin"_qs;
+    searchPaths << u"/usr/share/v2ray"_qs;
+    searchPaths << u"/usr/local/share/v2ray"_qs;
+    searchPaths << u"/usr/lib/v2ray"_qs;
+    searchPaths << u"/usr/local/lib/v2ray"_qs;
+    searchPaths << u"/opt/bin"_qs;
+    searchPaths << u"/opt/v2ray"_qs;
+    searchPaths << u"/usr/local/opt/bin"_qs;
+    searchPaths << u"/usr/local/opt/v2ray"_qs;
 #endif
 
     searchPaths << settingsObject.AssetsPath;
@@ -137,7 +137,7 @@ void V2RayKernelSettings::on_detectCoreBtn_clicked()
     bool assetsFound = false;
     bool coreFound = false;
 
-    const auto result = QStandardPaths::findExecutable(QStringLiteral("v2ray"), searchPaths);
+    const auto result = QStandardPaths::findExecutable(u"v2ray"_qs, searchPaths);
     if (!result.isEmpty())
     {
         corePath = result;
@@ -147,7 +147,7 @@ void V2RayKernelSettings::on_detectCoreBtn_clicked()
     for (const auto &d : searchPaths)
     {
         const QDir assetsdir{ d };
-        if (assetsdir.entryList().contains(QStringLiteral("geosite.dat")) && assetsdir.entryList().contains(QStringLiteral("geoip.dat")))
+        if (assetsdir.entryList().contains(u"geosite.dat"_qs) && assetsdir.entryList().contains(u"geoip.dat"_qs))
         {
             assetsFound = true;
             assetsPath = assetsdir.path();
@@ -156,10 +156,10 @@ void V2RayKernelSettings::on_detectCoreBtn_clicked()
     }
 
     QStringList messages;
-    messages << (coreFound ? QStringLiteral("Found v2ray core at: ") + corePath : QStringLiteral("Cannot find v2ray core."));
-    messages << (assetsFound ? QStringLiteral("Found v2ray assets at: ") + assetsPath : QStringLiteral("Cannot find v2ray assets."));
+    messages << (coreFound ? u"Found v2ray core at: "_qs + corePath : u"Cannot find v2ray core."_qs);
+    messages << (assetsFound ? u"Found v2ray assets at: "_qs + assetsPath : u"Cannot find v2ray assets."_qs);
 
-    BuiltinV2RayCorePlugin::ShowMessageBox(QStringLiteral("V2Ray Core Detection"), messages.join(QChar::fromLatin1('\n')));
+    BuiltinV2RayCorePlugin::ShowMessageBox(u"V2Ray Core Detection"_qs, messages.join(QChar::fromLatin1('\n')));
 
     settingsObject.CorePath = corePath;
     settingsObject.AssetsPath = assetsPath;
@@ -167,10 +167,10 @@ void V2RayKernelSettings::on_detectCoreBtn_clicked()
 
 void V2RayKernelSettings::on_resetVCoreBtn_clicked()
 {
-    settingsObject.CorePath = QStringLiteral(QV2RAY_DEFAULT_VCORE_PATH);
+    settingsObject.CorePath = QString::fromUtf8(QV2RAY_DEFAULT_VCORE_PATH);
 }
 
 void V2RayKernelSettings::on_resetVAssetBtn_clicked()
 {
-    settingsObject.AssetsPath = QStringLiteral(QV2RAY_DEFAULT_VASSETS_PATH);
+    settingsObject.AssetsPath = QString::fromUtf8(QV2RAY_DEFAULT_VASSETS_PATH);
 }

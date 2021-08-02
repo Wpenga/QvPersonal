@@ -18,26 +18,26 @@ constexpr auto Qv2ray_GRPC_ERROR_RETCODE = -1;
 const std::map<StatisticsObject::StatisticsType, QStringList> DefaultOutboundAPIConfig //
     { { StatisticsObject::PROXY,
         {
-            QStringLiteral("http"),        //
-            QStringLiteral("shadowsocks"), //
-            QStringLiteral("socks"),       //
-            QStringLiteral("vmess"),       //
-            QStringLiteral("vless"),       //
-            QStringLiteral("trojan")       //
+            u"http"_qs,        //
+            u"shadowsocks"_qs, //
+            u"socks"_qs,       //
+            u"vmess"_qs,       //
+            u"vless"_qs,       //
+            u"trojan"_qs       //
         } },
       { StatisticsObject::DIRECT,
         {
-            QStringLiteral("freedom"), //
-            QStringLiteral("dns"),     //
+            u"freedom"_qs, //
+            u"dns"_qs,     //
         } } };
 
 APIWorker::APIWorker()
 {
     workThread = new QThread();
     this->moveToThread(workThread);
-    BuiltinV2RayCorePlugin::Log(QStringLiteral("API Worker initialised."));
+    BuiltinV2RayCorePlugin::Log(u"API Worker initialised."_qs);
     connect(workThread, &QThread::started, this, &APIWorker::process);
-    connect(workThread, &QThread::finished, [] { BuiltinV2RayCorePlugin::Log(QStringLiteral("API thread stopped")); });
+    connect(workThread, &QThread::finished, [] { BuiltinV2RayCorePlugin::Log(u"API thread stopped"_qs); });
     started = true;
     workThread->start();
 }
@@ -79,7 +79,7 @@ APIWorker::~APIWorker()
 // Start processing data.
 void APIWorker::process()
 {
-    BuiltinV2RayCorePlugin::Log(QStringLiteral("API Worker started."));
+    BuiltinV2RayCorePlugin::Log(u"API Worker started."_qs);
     while (started)
     {
         QThread::msleep(1000);
@@ -91,8 +91,8 @@ void APIWorker::process()
             if (!dialed)
             {
 #ifndef QV2RAY_NO_GRPC
-                const QString channelAddress = QStringLiteral("127.0.0.1:") + QString::number(BuiltinV2RayCorePlugin::PluginInstance->settings.APIPort);
-                BuiltinV2RayCorePlugin::Log(QStringLiteral("gRPC Version: ") + QString::fromStdString(grpc::Version()));
+                const QString channelAddress = u"127.0.0.1:"_qs + QString::number(BuiltinV2RayCorePlugin::PluginInstance->settings.APIPort);
+                BuiltinV2RayCorePlugin::Log(u"gRPC Version: "_qs + QString::fromStdString(grpc::Version()));
                 grpc_channel = grpc::CreateChannel(channelAddress.toStdString(), grpc::InsecureChannelCredentials());
                 stats_service_stub = v2ray::core::app::stats::command::StatsService::NewStub(grpc_channel);
                 dialed = true;
@@ -100,7 +100,7 @@ void APIWorker::process()
             }
             if (apiFailCounter == QV2RAY_API_CALL_FAILEDCHECK_THRESHOLD)
             {
-                BuiltinV2RayCorePlugin::Log(QStringLiteral("API call failure threshold reached, cancelling further API aclls."));
+                BuiltinV2RayCorePlugin::Log(u"API call failure threshold reached, cancelling further API aclls."_qs);
                 emit OnAPIErrored(tr("Failed to get statistics data, please check if V2Ray is running properly"));
                 apiFailCounter++;
                 QThread::msleep(1000);
@@ -117,8 +117,8 @@ void APIWorker::process()
             bool hasError = false;
             for (const auto &[tag, statType] : tagProtocolConfig)
             {
-                const auto value_up = CallStatsAPIByName(QStringLiteral("outbound>>>") + tag + QStringLiteral(">>>traffic>>>uplink"));
-                const auto value_down = CallStatsAPIByName(QStringLiteral("outbound>>>") + tag + QStringLiteral(">>>traffic>>>downlink"));
+                const auto value_up = CallStatsAPIByName(u"outbound>>>"_qs + tag + u">>>traffic>>>uplink"_qs);
+                const auto value_down = CallStatsAPIByName(u"outbound>>>"_qs + tag + u">>>traffic>>>downlink"_qs);
                 hasError = hasError || value_up == Qv2ray_GRPC_ERROR_RETCODE || value_down == Qv2ray_GRPC_ERROR_RETCODE;
                 if (statType == StatisticsObject::PROXY)
                 {
@@ -153,8 +153,7 @@ qint64 APIWorker::CallStatsAPIByName(const QString &name)
     const auto status = stats_service_stub->GetStats(&context, request, &response);
     if (!status.ok())
     {
-        BuiltinV2RayCorePlugin::Log(QStringLiteral("API call returns:") + QString::number(status.error_code()) + QStringLiteral(":") +
-                                    QString::fromStdString(status.error_message()));
+        BuiltinV2RayCorePlugin::Log(u"API call returns:"_qs + QString::number(status.error_code()) + u":"_qs + QString::fromStdString(status.error_message()));
         return Qv2ray_GRPC_ERROR_RETCODE;
     }
     else

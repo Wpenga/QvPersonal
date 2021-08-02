@@ -172,7 +172,7 @@ void TrayManager::SetTrayTooltip(const QString &tooltip)
 
 void TrayManager::ShowTrayMessage(const QString &m, int msecs)
 {
-    hTray->showMessage(QStringLiteral("Qv2ray"), m, QvApp->Qv2rayLogo, msecs);
+    hTray->showMessage(u"Qv2ray"_qs, m, QvApp->Qv2rayLogo, msecs);
 }
 
 void TrayManager::SetMainWindowCurrentState(MainWindowState s)

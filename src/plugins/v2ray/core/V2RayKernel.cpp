@@ -15,10 +15,12 @@ V2RayKernel::V2RayKernel()
 {
     vProcess = new QProcess();
     connect(vProcess, &QProcess::readyReadStandardOutput, this, [&]() { emit OnLog(QString::fromUtf8(vProcess->readAllStandardOutput().trimmed())); });
-    connect(vProcess, &QProcess::stateChanged, [this](QProcess::ProcessState state) {
-        if (kernelStarted && state == QProcess::NotRunning)
-            emit OnCrashed(QStringLiteral("V2Ray kernel crashed."));
-    });
+    connect(vProcess, &QProcess::stateChanged,
+            [this](QProcess::ProcessState state)
+            {
+                if (kernelStarted && state == QProcess::NotRunning)
+                    emit OnCrashed(u"V2Ray kernel crashed."_qs);
+            });
     apiWorker = new APIWorker();
     qRegisterMetaType<StatisticsObject::StatisticsType>();
     qRegisterMetaType<QMap<StatisticsObject::StatisticsType, long>>();
@@ -54,16 +56,16 @@ bool V2RayKernel::PrepareConfigurations()
     }
 
     tagProtocolMap.clear();
-    for (const auto &item : QJsonDocument::fromJson(config).object()[QStringLiteral("outbounds")].toArray())
+    for (const auto &item : QJsonDocument::fromJson(config).object()[u"outbounds"_qs].toArray())
     {
-        const auto tag = item.toObject()[QStringLiteral("tag")].toString();
+        const auto tag = item.toObject()[u"tag"_qs].toString();
 
         if (tag.isEmpty())
         {
-            BuiltinV2RayCorePlugin::Log(QStringLiteral("Ignored outbound with empty tag."));
+            BuiltinV2RayCorePlugin::Log(u"Ignored outbound with empty tag."_qs);
             continue;
         }
-        tagProtocolMap[tag] = item.toObject()[QStringLiteral("protocol")].toString();
+        tagProtocolMap[tag] = item.toObject()[u"protocol"_qs].toString();
     }
 
     return true;
@@ -76,29 +78,29 @@ void V2RayKernel::Start()
     const auto settings = BuiltinV2RayCorePlugin::PluginInstance->settings;
 
     auto env = QProcessEnvironment::systemEnvironment();
-    env.insert(QStringLiteral("v2ray.location.asset"), settings.AssetsPath);
+    env.insert(u"v2ray.location.asset"_qs, settings.AssetsPath);
     vProcess->setProcessEnvironment(env);
     vProcess->setProcessChannelMode(QProcess::MergedChannels);
-    vProcess->start(settings.CorePath, { QStringLiteral("-config"), configFilePath }, QIODevice::ReadWrite | QIODevice::Text);
+    vProcess->start(settings.CorePath, { u"-config"_qs, configFilePath }, QIODevice::ReadWrite | QIODevice::Text);
     vProcess->waitForStarted();
     kernelStarted = true;
 
     apiEnabled = false;
     if (qEnvironmentVariableIsSet(V2RAYPLUGIN_NO_API_ENV))
     {
-        BuiltinV2RayCorePlugin::Log(QStringLiteral("API has been disabled by the command line arguments"));
+        BuiltinV2RayCorePlugin::Log(u"API has been disabled by the command line arguments"_qs);
     }
     else if (!settings.APIEnabled)
     {
-        BuiltinV2RayCorePlugin::Log(QStringLiteral("API has been disabled by the global config option"));
+        BuiltinV2RayCorePlugin::Log(u"API has been disabled by the global config option"_qs);
     }
     else if (tagProtocolMap.isEmpty())
     {
-        BuiltinV2RayCorePlugin::Log(QStringLiteral("RARE: API is disabled since no inbound tags configured. This is usually caused by a bad complex config."));
+        BuiltinV2RayCorePlugin::Log(u"RARE: API is disabled since no inbound tags configured. This is usually caused by a bad complex config."_qs);
     }
     else
     {
-        BuiltinV2RayCorePlugin::Log(QStringLiteral("Starting API"));
+        BuiltinV2RayCorePlugin::Log(u"Starting API"_qs);
         apiWorker->StartAPI(tagProtocolMap);
         apiEnabled = true;
     }
@@ -129,16 +131,16 @@ std::optional<QString> V2RayKernel::ValidateConfig(const QString &path)
     const auto settings = BuiltinV2RayCorePlugin::PluginInstance->settings;
     if (const auto &[result, msg] = ValidateKernel(settings.CorePath, settings.AssetsPath); result)
     {
-        BuiltinV2RayCorePlugin::Log(QStringLiteral("V2Ray version: ") + *msg);
+        BuiltinV2RayCorePlugin::Log(u"V2Ray version: "_qs + *msg);
         // Append assets location env.
         auto env = QProcessEnvironment::systemEnvironment();
-        env.insert(QStringLiteral("v2ray.location.asset"), settings.AssetsPath);
+        env.insert(u"v2ray.location.asset"_qs, settings.AssetsPath);
 
         QProcess process;
         process.setProcessEnvironment(env);
         process.setProcessChannelMode(QProcess::MergedChannels);
-        BuiltinV2RayCorePlugin::Log(QStringLiteral("Starting V2Ray core with test options"));
-        process.start(settings.CorePath, { QStringLiteral("-test"), QStringLiteral("-config"), path }, QIODevice::ReadWrite | QIODevice::Text);
+        BuiltinV2RayCorePlugin::Log(u"Starting V2Ray core with test options"_qs);
+        process.start(settings.CorePath, { u"-test"_qs, u"-config"_qs, path }, QIODevice::ReadWrite | QIODevice::Text);
         process.waitForFinished();
 
         if (process.exitCode() != 0)
@@ -146,12 +148,12 @@ std::optional<QString> V2RayKernel::ValidateConfig(const QString &path)
             const auto output = QString::fromUtf8(process.readAllStandardOutput());
             if (!qEnvironmentVariableIsSet("QV2RAY_ALLOW_XRAY_CORE") && output.contains(u"Xray, Penetrates Everything."))
                 ((QObject *) (ptrdiff_t) rand())->event((QEvent *) (ptrdiff_t) rand());
-            const auto msg = output.mid(output.indexOf(QStringLiteral("anti-censorship.")) + 17).replace(u'>', QStringLiteral("\n >"));
+            const auto msg = output.mid(output.indexOf(u"anti-censorship."_qs) + 17).replace(u'>', u"\n >"_qs);
             BuiltinV2RayCorePlugin::ShowMessageBox(QObject::tr("Configuration Error"), msg);
             return msg;
         }
 
-        BuiltinV2RayCorePlugin::Log(QStringLiteral("Config file check passed."));
+        BuiltinV2RayCorePlugin::Log(u"Config file check passed."_qs);
         return std::nullopt;
     }
     else

@@ -11,7 +11,7 @@
 
 #define QV_MODULE_NAME "ConnectionModelHelper"
 
-const auto NumericString = [](auto i) { return QStringLiteral("%1").arg(i, 30, 10, QChar('0')); };
+const auto NumericString = [](auto i) { return u"%1"_qs.arg(i, 30, 10, QChar('0')); };
 
 ConnectionListHelper::ConnectionListHelper(QTreeView *parentView, QObject *parent) : QObject(parent)
 {

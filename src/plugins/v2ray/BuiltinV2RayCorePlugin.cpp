@@ -13,7 +13,7 @@ class GuiInterface : public Qv2rayPlugin::Gui::Qv2rayGUIInterface
   public:
     virtual QIcon Icon() const override
     {
-        return QIcon(QStringLiteral(":/qv2ray.png"));
+        return QIcon(u":/qv2ray.png"_qs);
     }
     virtual QList<PLUGIN_GUI_COMPONENT_TYPE> GetComponents() const override
     {
@@ -44,11 +44,11 @@ class GuiInterface : public Qv2rayPlugin::Gui::Qv2rayGUIInterface
 
 const QvPluginMetadata BuiltinV2RayCorePlugin::GetMetadata() const
 {
-    return { QStringLiteral("V2Ray Core Plugin"),                 //
-             QStringLiteral("Moody"),                             //
-             PluginId{ QStringLiteral("builtin_v2ray_support") }, //
-             QStringLiteral("Basic V2Ray kernel support"),        //
-             QStringLiteral(""),                                  //
+    return { u"V2Ray Core Plugin"_qs,                 //
+             u"Moody"_qs,                             //
+             PluginId{ u"builtin_v2ray_support"_qs }, //
+             u"Basic V2Ray kernel support"_qs,        //
+             u""_qs,                                  //
              { COMPONENT_KERNEL, COMPONENT_GUI } };
 }
 

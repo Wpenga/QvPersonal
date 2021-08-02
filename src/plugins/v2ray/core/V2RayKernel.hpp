@@ -5,7 +5,7 @@
 class QProcess;
 class APIWorker;
 
-const inline KernelId v2ray_kernel_id{ QStringLiteral("v2ray_kernel") };
+const inline KernelId v2ray_kernel_id{ u"v2ray_kernel"_qs };
 
 class V2RayKernel : public Qv2rayPlugin::Kernel::PluginKernel
 {
@@ -52,18 +52,18 @@ class V2RayKernelInterface : public Qv2rayPlugin::Kernel::IKernelHandler
         Qv2rayPlugin::Kernel::KernelFactory v2ray;
         v2ray.Capabilities.setFlag(Qv2rayPlugin::Kernel::KERNELCAP_ROUTER);
         v2ray.Id = v2ray_kernel_id;
-        v2ray.Name = QStringLiteral("V2Ray");
+        v2ray.Name = u"V2Ray"_qs;
         v2ray.Create = std::function{ []() { return std::make_unique<V2RayKernel>(); } };
-        v2ray.SupportedProtocols << QStringLiteral("blackhole")   //
-                                 << QStringLiteral("dns")         //
-                                 << QStringLiteral("freedom")     //
-                                 << QStringLiteral("http")        //
-                                 << QStringLiteral("loopback")    //
-                                 << QStringLiteral("shadowsocks") //
-                                 << QStringLiteral("socks")       //
-                                 << QStringLiteral("trojan")      //
-                                 << QStringLiteral("vless")       //
-                                 << QStringLiteral("vmess");
+        v2ray.SupportedProtocols << u"blackhole"_qs   //
+                                 << u"dns"_qs         //
+                                 << u"freedom"_qs     //
+                                 << u"http"_qs        //
+                                 << u"loopback"_qs    //
+                                 << u"shadowsocks"_qs //
+                                 << u"socks"_qs       //
+                                 << u"trojan"_qs      //
+                                 << u"vless"_qs       //
+                                 << u"vmess"_qs;
         return { v2ray };
     }
 };

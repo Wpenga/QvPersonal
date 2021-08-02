@@ -35,11 +35,11 @@ int main(int argc, char *argv[])
     //
     // This line must be called before any other ones, since we are using these
     // values to identify instances.
-    QCoreApplication::setApplicationVersion(QStringLiteral(QV2RAY_VERSION_STRING));
-    QApplication::setApplicationDisplayName(QStringLiteral("Qv2ray"));
+    QCoreApplication::setApplicationVersion(QString::fromUtf8(QV2RAY_VERSION_STRING));
+    QApplication::setApplicationDisplayName(u"Qv2ray"_qs);
 
 #ifdef QT_DEBUG
-    QCoreApplication::setApplicationName(QStringLiteral("qv2ray_debug"));
+    QCoreApplication::setApplicationName(u"qv2ray_debug"_qs);
     std::cerr << "WARNING: ================ This is a debug build, many features are not stable enough. ================" << std::endl;
 #else
     QCoreApplication::setApplicationName("qv2ray");
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
         const auto reason = app.GetExitReason();
         if (reason == EXIT_INITIALIZATION_FAILED)
         {
-            init_msgbox(QStringLiteral("Qv2ray Initialization Failed"), "PreInitialization Failed." NEWLINE "For more information, please see the log.");
+            init_msgbox(u"Qv2ray Initialization Failed"_qs, "PreInitialization Failed." NEWLINE "For more information, please see the log.");
             QvLog() << "Qv2ray initialization failed:" << reason;
         }
         return reason;

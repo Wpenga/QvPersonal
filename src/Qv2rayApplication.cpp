@@ -36,7 +36,7 @@ Qv2rayApplication::Qv2rayApplication(int &argc, char *argv[]) : SingleApplicatio
     Q_UNUSED(SSL_new(nullptr));
 
     baseLibrary = new Qv2rayBase::Qv2rayBaseLibrary;
-    Qv2rayLogo = QPixmap{ QStringLiteral(":/qv2ray.png") };
+    Qv2rayLogo = QPixmap{ u":/qv2ray.png"_qs };
     installEventFilter(this);
 }
 
@@ -98,7 +98,7 @@ bool Qv2rayApplication::Initialize()
     connect(this, &SingleApplication::receivedMessage, this, &Qv2rayApplication::onMessageReceived, Qt::QueuedConnection);
     if (isSecondary())
     {
-        StartupArguments.version = QStringLiteral(QV2RAY_VERSION_STRING);
+        StartupArguments.version = QV2RAY_VERSION_STRING;
         StartupArguments.fullArgs = arguments();
         if (StartupArguments.arguments.isEmpty())
             StartupArguments.arguments << Qv2rayStartupArguments::NORMAL;
@@ -141,14 +141,14 @@ Qv2rayExitReason Qv2rayApplication::RunQv2ray()
         {
             const auto url = QUrl::fromUserInput(link);
             const auto command = url.host();
-            auto subcommands = url.path().split(QStringLiteral("/"));
+            auto subcommands = url.path().split(u"/"_qs);
             subcommands.removeAll("");
             QMap<QString, QString> args;
             for (const auto &kvp : QUrlQuery(url).queryItems())
             {
                 args.insert(kvp.first, kvp.second);
             }
-            if (command == QStringLiteral("open"))
+            if (command == u"open"_qs)
             {
                 mainWindow->ProcessCommand(command, subcommands, args);
             }
@@ -180,13 +180,13 @@ bool Qv2rayApplication::parseCommandLine(QString *errorMessage, bool *canContinu
         filteredArgs << arg;
     }
     QCommandLineParser parser;
-    QCommandLineOption noAPIOption(QStringLiteral("noAPI"), QObject::tr("Disable gRPC API subsystem"));
-    QCommandLineOption noPluginsOption(QStringLiteral("noPlugin"), QObject::tr("Disable plugins feature"));
-    QCommandLineOption debugLogOption(QStringLiteral("debug"), QObject::tr("Enable debug output"));
-    QCommandLineOption noAutoConnectionOption(QStringLiteral("noAutoConnection"), QObject::tr("Do not automatically connect"));
-    QCommandLineOption disconnectOption(QStringLiteral("disconnect"), QObject::tr("Stop current connection"));
-    QCommandLineOption reconnectOption(QStringLiteral("reconnect"), QObject::tr("Reconnect last connection"));
-    QCommandLineOption exitOption(QStringLiteral("exit"), QObject::tr("Exit Qv2ray"));
+    QCommandLineOption noAPIOption(u"noAPI"_qs, QObject::tr("Disable gRPC API subsystem"));
+    QCommandLineOption noPluginsOption(u"noPlugin"_qs, QObject::tr("Disable plugins feature"));
+    QCommandLineOption debugLogOption(u"debug"_qs, QObject::tr("Enable debug output"));
+    QCommandLineOption noAutoConnectionOption(u"noAutoConnection"_qs, QObject::tr("Do not automatically connect"));
+    QCommandLineOption disconnectOption(u"disconnect"_qs, QObject::tr("Stop current connection"));
+    QCommandLineOption reconnectOption(u"reconnect"_qs, QObject::tr("Reconnect last connection"));
+    QCommandLineOption exitOption(u"exit"_qs, QObject::tr("Exit Qv2ray"));
 
     parser.setApplicationDescription(QObject::tr("Qv2ray - A cross-platform Qt frontend for V2Ray."));
     parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
@@ -328,16 +328,16 @@ void Qv2rayApplication::onMessageReceived(quint32 clientId, const QByteArray &_m
     QvLog() << "Received message, version:" << msg.version << "From client ID:" << clientId;
     QvLog() << _msg;
 
-    if (QVersionNumber::fromString(msg.version) > QVersionNumber::fromString(QStringLiteral(QV2RAY_VERSION_STRING)))
+    if (QVersionNumber::fromString(msg.version) > QVersionNumber::fromString(QV2RAY_VERSION_STRING))
     {
         const auto newPath = msg.fullArgs.constFirst();
         QString message;
         message += tr("A new version of Qv2ray is starting:") + NEWLINE;
-        message += QStringLiteral(NEWLINE);
-        message += tr("New version information: ") + NEWLINE;
-        message += tr("Version: %1").arg(msg.version) + NEWLINE;
-        message += tr("Path: %1").arg(newPath) + NEWLINE;
-        message += QStringLiteral(NEWLINE);
+        message += '\n';
+        message += tr("New version information: ") + '\n';
+        message += tr("Version: %1").arg(msg.version) + '\n';
+        message += tr("Path: %1").arg(newPath) + '\n';
+        message += '\n';
         message += tr("Do you want to exit and launch that new version?");
 
         const auto result = p_MessageBoxAsk(tr("New version detected"), message, { Qv2rayBase::MessageOpt::Yes, Qv2rayBase::MessageOpt::No });
@@ -389,7 +389,7 @@ void Qv2rayApplication::onMessageReceived(quint32 clientId, const QByteArray &_m
                     {
                         args.insert(kvp.first, kvp.second);
                     }
-                    if (command == QStringLiteral("open"))
+                    if (command == u"open"_qs)
                     {
                         mainWindow->ProcessCommand(command, subcommands, args);
                     }

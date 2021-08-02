@@ -11,7 +11,7 @@ enum class NodeItemType
     RULE,
 };
 
-const auto OUTBOUND_META_OBJECT_TYPE_KEY{ QStringLiteral("OutboundMetaType") };
+const auto OUTBOUND_META_OBJECT_TYPE_KEY{ u"OutboundMetaType"_qs };
 
 class NodeDispatcher
     : public QObject

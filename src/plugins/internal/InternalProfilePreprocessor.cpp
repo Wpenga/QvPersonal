@@ -39,8 +39,8 @@ inline RuleObject GenerateSingleRouteRule(const QStringList &rules, const QStrin
 // -------------------------- BEGIN CONFIG GENERATIONS
 void ProcessRoutes(RoutingObject &root, bool ForceDirectConnection, bool bypassCN, bool bypassLAN, const QString &outTag, const RouteMatrixConfig &routeConfig)
 {
-    root.extraOptions.insert(QStringLiteral("domainStrategy"), *routeConfig.domainStrategy);
-    root.extraOptions.insert(QStringLiteral("domainMatcher"), *routeConfig.domainMatcher);
+    root.extraOptions.insert(u"domainStrategy"_qs, *routeConfig.domainStrategy);
+    root.extraOptions.insert(u"domainMatcher"_qs, *routeConfig.domainMatcher);
     //
     // For Rules list
     QList<RuleObject> newRulesList;
@@ -108,7 +108,7 @@ ProfileContent InternalProfilePreprocessor::PreprocessProfile(const ProfileConte
         if (GlobalConfig->inboundConfig->Has##PROTOCOL)                                                                                                                  \
         {                                                                                                                                                                \
             InboundObject in;                                                                                                                                            \
-            in.inboundSettings.protocol = QStringLiteral(_protocol);                                                                                                     \
+            in.inboundSettings.protocol = u"" _protocol##_qs;                                                                                                            \
             GlobalConfig->inboundConfig->PROTOCOL##Config->Propagate(in);                                                                                                \
             if (hasAddr1)                                                                                                                                                \
             {                                                                                                                                                            \
@@ -131,15 +131,15 @@ ProfileContent InternalProfilePreprocessor::PreprocessProfile(const ProfileConte
     {
         switch (m)
         {
-            case Qv2ray::Models::DokodemoDoorInboundConfig::TPROXY: return QStringLiteral("tproxy");
-            case Qv2ray::Models::DokodemoDoorInboundConfig::REDIRECT: return QStringLiteral("redirect");
+            case Qv2ray::Models::DokodemoDoorInboundConfig::TPROXY: return u"tproxy"_qs;
+            case Qv2ray::Models::DokodemoDoorInboundConfig::REDIRECT: return u"redirect"_qs;
         }
-        return QStringLiteral("redirect");
+        return u"redirect"_qs;
     }(GlobalConfig->inboundConfig->DokodemoDoorConfig->WorkingMode);
 
     AddInbound(HTTP, "http", {});
     AddInbound(SOCKS, "socks", {});
-    AddInbound(DokodemoDoor, "dokodemo-door", in.inboundSettings.streamSettings[QStringLiteral("sockopt")] = QJsonObject{ { QStringLiteral("tproxy"), dokoMode } });
+    AddInbound(DokodemoDoor, "dokodemo-door", in.inboundSettings.streamSettings[u"sockopt"_qs] = QJsonObject{ { u"tproxy"_qs, dokoMode } });
 
     const auto routeMatrixConfig = RouteMatrixConfig::fromJson(p.routing.extraOptions[RouteMatrixConfig::EXTRA_OPTIONS_ID].toObject());
 
@@ -153,7 +153,7 @@ ProfileContent InternalProfilePreprocessor::PreprocessProfile(const ProfileConte
     if (GlobalConfig->connectionConfig->BypassBittorrent)
     {
         RuleObject r;
-        r.protocols.append(QStringLiteral("bittorrent"));
+        r.protocols.append(u"bittorrent"_qs);
         r.outboundTag = QString::fromUtf8(DEFAULT_FREEDOM_OUTBOUND_TAG);
         result.routing.rules.prepend(r);
     }
@@ -181,7 +181,7 @@ ProfileContent InternalProfilePreprocessor::PreprocessProfile(const ProfileConte
         if (!dnsRuleInboundTags.isEmpty())
         {
             IOConnectionSettings _dns;
-            _dns.protocol = QStringLiteral("dns");
+            _dns.protocol = u"dns"_qs;
             auto DNSOutbound = OutboundObject(_dns);
             DNSOutbound.name = QString::fromUtf8(DNS_INTERCEPTION_OUTBOUND_TAG);
 
@@ -196,12 +196,12 @@ ProfileContent InternalProfilePreprocessor::PreprocessProfile(const ProfileConte
     }
     {
         // Generate Blackhole
-        OutboundObject black{ IOConnectionSettings{ QStringLiteral("blackhole"), QStringLiteral("0.0.0.0"), 0 } };
+        OutboundObject black{ IOConnectionSettings{ u"blackhole"_qs, u"0.0.0.0"_qs, 0 } };
         black.name = QString::fromUtf8(DEFAULT_BLACKHOLE_OUTBOUND_TAG);
         result.outbounds << black;
 
         // Generate Freedom
-        OutboundObject freedom{ IOConnectionSettings{ QStringLiteral("freedom"), QStringLiteral("0.0.0.0"), 0 } };
+        OutboundObject freedom{ IOConnectionSettings{ u"freedom"_qs, u"0.0.0.0"_qs, 0 } };
         freedom.name = QString::fromUtf8(DEFAULT_FREEDOM_OUTBOUND_TAG);
         if (GlobalConfig->connectionConfig->UseDirectOutboundAsPrimary)
             result.outbounds.prepend(freedom);

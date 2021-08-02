@@ -71,10 +71,10 @@ namespace Qv2ray::Models
         virtual void Propagate(InboundObject &in) const
         {
             in.inboundSettings.port = ListenPort;
-            in.options[QStringLiteral("sniffing")] = QJsonObject{
-                { QStringLiteral("enabled"), Sniffing != SNIFFING_OFF },                             //
-                { QStringLiteral("metadataOnly"), Sniffing == SNIFFING_METADATA_ONLY },              //
-                { QStringLiteral("destOverride"), QJsonArray::fromStringList(DestinationOverride) }, //
+            in.options[u"sniffing"_qs] = QJsonObject{
+                { u"enabled"_qs, Sniffing != SNIFFING_OFF },                             //
+                { u"metadataOnly"_qs, Sniffing == SNIFFING_METADATA_ONLY },              //
+                { u"destOverride"_qs, QJsonArray::fromStringList(DestinationOverride) }, //
             };
         }
     };
@@ -91,8 +91,8 @@ namespace Qv2ray::Models
         virtual void Propagate(InboundObject &in) const
         {
             ProtocolInboundBase::Propagate(in);
-            in.inboundSettings.protocolSettings[QStringLiteral("udp")] = *EnableUDP;
-            in.inboundSettings.protocolSettings[QStringLiteral("ip")] = *UDPLocalAddress;
+            in.inboundSettings.protocolSettings[u"udp"_qs] = *EnableUDP;
+            in.inboundSettings.protocolSettings[u"ip"_qs] = *UDPLocalAddress;
         }
     };
 
@@ -119,8 +119,8 @@ namespace Qv2ray::Models
         virtual void Propagate(InboundObject &in) const
         {
             ProtocolInboundBase::Propagate(in);
-            in.inboundSettings.protocolSettings[QStringLiteral("network")] = QStringLiteral("tcp,udp");
-            in.inboundSettings.protocolSettings[QStringLiteral("followRedirect")] = true;
+            in.inboundSettings.protocolSettings[u"network"_qs] = u"tcp,udp"_qs;
+            in.inboundSettings.protocolSettings[u"followRedirect"_qs] = true;
         }
     };
 
