@@ -1,6 +1,5 @@
 #include "Qv2rayApplication.hpp"
 
-#include "DarkmodeDetector/DarkmodeDetector.hpp"
 #include "GuiPluginHost/GuiPluginHost.hpp"
 #include "Qv2rayBase/Common/Utils.hpp"
 #include "Qv2rayBase/Interfaces/IStorageProvider.hpp"

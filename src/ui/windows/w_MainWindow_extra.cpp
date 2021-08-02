@@ -1,4 +1,3 @@
-#include "ProxyConfigurator/ProxyConfigurator.hpp"
 #include "Qv2rayApplication.hpp"
 #include "Qv2rayBase/Common/Utils.hpp"
 #include "Qv2rayBase/Profile/KernelManager.hpp"
