@@ -11,7 +11,7 @@ endif()
 
 if(QV2RAY_QNODEEDITOR_PROVIDER STREQUAL "module")
     if(BUILD_SHARED_LIBS)
-        if(NOT QV2RAY_NO_NODEEDITOR)
+        if(QV2RAY_ROUTE_EDITOR)
             install(TARGETS nodes)
         endif()
     endif()

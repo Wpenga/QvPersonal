@@ -69,10 +69,7 @@ if(NOT QV2RAY_AUTO_UPDATE)
     add_definitions(-DQV2RAY_NO_AUTOUPDATE=1)
 endif()
 
-option(QV2RAY_NO_NODEEDITOR "Build without complex configuration editor support." OFF)
-if(QV2RAY_NO_NODEEDITOR)
-    add_definitions(-DQV2RAY_NO_NODEEDITOR=1)
-endif()
+option(QV2RAY_ROUTE_EDITOR "Build without complex configuration editor support." OFF)
 
 # ==================================================================================
 # Default Core/Assets Path
@@ -114,7 +111,7 @@ else()
     add_subdirectory(3rdparty/SingleApplication)
 endif()
 
-if(NOT QV2RAY_NO_NODEEDITOR)
+if(QV2RAY_ROUTE_EDITOR)
     if(QV2RAY_QNODEEDITOR_PROVIDER STREQUAL "package")
         find_package(NodeEditor REQUIRED)
     else()
@@ -208,7 +205,7 @@ target_link_libraries(qv2ray PRIVATE
     SingleApplication
     )
 
-if(NOT QV2RAY_NO_NODEEDITOR)
+if(QV2RAY_ROUTE_EDITOR)
     target_link_libraries(qv2ray PRIVATE NodeEditor::nodes)
 endif()
 
