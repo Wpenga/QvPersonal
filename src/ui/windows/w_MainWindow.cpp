@@ -37,8 +37,6 @@
 #define GetIndexWidget(item) (qobject_cast<ConnectionItemWidget *>(connectionTreeView->indexWidget(item)))
 #define NumericString(i) (QString("%1").arg(i, 30, 10, QLatin1Char('0')))
 
-constexpr auto BUTTON_PROP_PLUGIN_MAINWIDGETITEM_INDEX = "plugin_list_index";
-
 QvMessageBusSlotImpl(MainWindow)
 {
     switch (msg)
@@ -49,170 +47,207 @@ QvMessageBusSlotImpl(MainWindow)
         case MessageBus::RETRANSLATE:
         {
             retranslateUi(this);
-            updateActionTranslations();
+            RetranslateMenuActions();
             break;
         }
     }
 }
 
-void MainWindow::SortConnectionList(ConnectionInfoRole byCol, bool asending)
-{
-    modelHelper->Sort(byCol, asending ? Qt::AscendingOrder : Qt::DescendingOrder);
-    on_locateBtn_clicked();
-}
-
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setupUi(this);
-    constexpr auto sizeRatioA = 0.382;
-    constexpr auto sizeRatioB = 1 - sizeRatioA;
-    splitter->setSizes({ (int) (width() * sizeRatioA), (int) (width() * sizeRatioB) });
-
+    this->setWindowIcon(QvApp->Qv2rayLogo);
     QvMessageBusConnect();
 
-    infoWidget = new ConnectionInfoWidget(this);
-    connectionInfoLayout->addWidget(infoWidget);
-    vCoreLogHighlighter = new LogHighlighter::LogHighlighter(masterLogBrowser->document());
+    connectionModelHelper = new ConnectionListHelper(connectionTreeView);
 
-    // For charts
-    speedChartWidget = new SpeedWidget(this);
-    speedChart->addWidget(speedChartWidget);
-
-    modelHelper = new ConnectionListHelper(connectionTreeView);
-
-    this->setWindowIcon(QvApp->Qv2rayLogo);
-    updateColorScheme();
-    updateActionTranslations();
-    //
-    //
-    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnCrashed,
-            [this](const ProfileId &, const QString &reason)
-            {
-                MWShowWindow();
-                QvBaselib->Warn(tr("Kernel terminated."), tr("The kernel terminated unexpectedly:") + NEWLINE + reason + NEWLINE + NEWLINE +
-                                                              tr("To solve the problem, read the kernel log in the log text browser."));
-            });
-
-    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnConnected, this, &MainWindow::OnConnected);
-    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnDisconnected, this, &MainWindow::OnDisconnected);
-    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, this, &MainWindow::OnStatsAvailable);
-    connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnKernelLogAvailable, this, &MainWindow::OnKernelLogAvailable);
-    connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnSubscriptionUpdateFinished,
-            [](const GroupId &gid) { QvApp->GetTrayManager()->ShowTrayMessage(tr("Subscription \"%1\" has been updated").arg(GetDisplayName(gid))); });
-
-    connect(infoWidget, &ConnectionInfoWidget::OnTagSearchRequested, this,
-            [this](QString tag)
-            {
-                if (tag.isEmpty())
-                    return;
-
-                if (tag[0].isDigit() || tag.contains(' ') || tag.contains('"'))
-                {
-                    tag.replace('"', R"(\")");
-                    tag = '"' + tag + '"';
-                }
-                connectionFilterTxt->setText("> tags=" + tag);
-                on_connectionFilterTxt_textEdited("> tags=" + tag);
-            });
-    connect(infoWidget, &ConnectionInfoWidget::OnEditRequested, this, &MainWindow::OnEditRequested);
-    connect(infoWidget, &ConnectionInfoWidget::OnJsonEditRequested, this, &MainWindow::OnEditJsonRequested);
-
-    connect(masterLogBrowser->verticalScrollBar(), &QSlider::valueChanged, this, &MainWindow::OnLogScrollbarValueChanged);
-    //
-    // Actions for right click the log text browser
-    //
-    logRCM_Menu->addAction(action_RCM_CopySelected);
-    logRCM_Menu->addAction(action_RCM_CopyRecentLogs);
-    connect(masterLogBrowser, &QTextBrowser::customContextMenuRequested, [this](QPoint) { logRCM_Menu->popup(QCursor::pos()); });
-    connect(action_RCM_CopyRecentLogs, &QAction::triggered, this, &MainWindow::Action_CopyRecentLogs);
-    connect(action_RCM_CopySelected, &QAction::triggered, masterLogBrowser, &QTextBrowser::copy);
-    //
-    speedChartWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(speedChartWidget, &QWidget::customContextMenuRequested, [this](QPoint) { graphWidgetMenu->popup(QCursor::pos()); });
-    //
-    masterLogBrowser->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     {
-        auto font = masterLogBrowser->font();
-        font.setPointSize(9);
-        masterLogBrowser->document()->setDefaultFont(font);
+        //
+        // ConnectionInfo widget
+        //
+        connectionInfoWidget = new ConnectionInfoWidget(this);
+        connectionInfoLayout->addWidget(connectionInfoWidget);
+
+        const auto searchHandler = [this](QString tag)
+        {
+            if (tag.isEmpty())
+                return;
+
+            if (tag[0].isDigit() || tag.contains(' ') || tag.contains('"'))
+            {
+                tag.replace('"', uR"(\")"_qs);
+                tag = '"' + tag + '"';
+            }
+            tag.prepend(u"> tags="_qs);
+            connectionFilterTxt->setText(tag);
+            on_connectionFilterTxt_textEdited(tag);
+        };
+
+        connect(connectionInfoWidget, &ConnectionInfoWidget::OnTagSearchRequested, this, searchHandler);
+        connect(connectionInfoWidget, &ConnectionInfoWidget::OnEditRequested, this, &MainWindow::OnEditRequested);
+        connect(connectionInfoWidget, &ConnectionInfoWidget::OnJsonEditRequested, this, &MainWindow::OnEditJsonRequested);
     }
-    //
-    // Globally invokable signals.
-    //
-    connect(this, &MainWindow::StartConnection, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::RestartConnection);
-    connect(this, &MainWindow::StopConnection, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::StopConnection);
-    connect(this, &MainWindow::RestartConnection, QvProfileManager, &Qv2rayBase::Profile::ProfileManager::RestartConnection);
-    //
-    // Actions for right click the connection list
-    //
-    connectionListRCM_Menu->addAction(action_RCM_Start);
-    connectionListRCM_Menu->addSeparator();
-    connectionListRCM_Menu->addAction(action_RCM_Edit);
-    connectionListRCM_Menu->addAction(action_RCM_EditJson);
-    connectionListRCM_Menu->addAction(action_RCM_EditComplex);
-    connectionListRCM_Menu->addSeparator();
 
-    connectionListRCM_Menu->addAction(action_RCM_TestLatency);
+    {
+        //
+        // Speed Chart
+        //
+        speedChartWidget = new SpeedWidget(this);
+        speedChart->addWidget(speedChartWidget);
+        graphAction_CopyGraph = new QAction(speedChartWidget);
+        speedChartWidget->addAction(graphAction_CopyGraph);
+        connect(graphAction_CopyGraph, &QAction::triggered, this, &MainWindow::Action_CopyGraphAsImage);
+    }
 
-    connectionListRCM_Menu->addSeparator();
-    connectionListRCM_Menu->addAction(action_RCM_SetAutoConnection);
-    connectionListRCM_Menu->addSeparator();
-    connectionListRCM_Menu->addAction(action_RCM_RenameConnection);
-    connectionListRCM_Menu->addAction(action_RCM_DuplicateConnection);
-    connectionListRCM_Menu->addAction(action_RCM_ResetStats);
-    connectionListRCM_Menu->addAction(action_RCM_UpdateSubscription);
-    connectionListRCM_Menu->addSeparator();
+    {
+        //
+        // Splitter
+        //
+        constexpr auto sizeRatioA = 0.382;
+        constexpr auto sizeRatioB = 1 - sizeRatioA;
+        splitter->setSizes({ (int) (width() * sizeRatioA), (int) (width() * sizeRatioB) });
+    }
 
-    connectionListRCM_Menu->addAction(action_RCM_DeleteConnection);
+    {
+        //
+        // Log Browser
+        //
+        coreLogHighlighter = new LogHighlighter::LogHighlighter(logBrowser->document());
 
-    connect(action_RCM_Start, &QAction::triggered, this, &MainWindow::Action_Start);
-    connect(action_RCM_SetAutoConnection, &QAction::triggered, this, &MainWindow::Action_SetAutoConnection);
-    connect(action_RCM_Edit, &QAction::triggered, this, &MainWindow::Action_Edit);
-    connect(action_RCM_EditJson, &QAction::triggered, this, &MainWindow::Action_EditJson);
-    connect(action_RCM_EditComplex, &QAction::triggered, this, &MainWindow::Action_EditComplex);
-    connect(action_RCM_TestLatency, &QAction::triggered, this, &MainWindow::Action_TestLatency);
-    connect(action_RCM_RenameConnection, &QAction::triggered, this, &MainWindow::Action_RenameConnection);
-    connect(action_RCM_DuplicateConnection, &QAction::triggered, this, &MainWindow::Action_DuplicateConnection);
-    connect(action_RCM_ResetStats, &QAction::triggered, this, &MainWindow::Action_ResetStats);
-    connect(action_RCM_UpdateSubscription, &QAction::triggered, this, &MainWindow::Action_UpdateSubscription);
-    connect(action_RCM_DeleteConnection, &QAction::triggered, this, &MainWindow::Action_DeleteConnections);
-    //
-    // Sort Menu
-    //
-    sortMenu->addAction(sortAction_SortByName_Asc);
-    sortMenu->addAction(sortAction_SortByName_Dsc);
-    sortMenu->addSeparator();
-    sortMenu->addAction(sortAction_SortByData_Asc);
-    sortMenu->addAction(sortAction_SortByData_Dsc);
-    sortMenu->addSeparator();
-    sortMenu->addAction(sortAction_SortByPing_Asc);
-    sortMenu->addAction(sortAction_SortByPing_Dsc);
-    //
-    connect(sortAction_SortByName_Asc, &QAction::triggered, [this] { SortConnectionList(ROLE_DISPLAYNAME, true); });
-    connect(sortAction_SortByName_Dsc, &QAction::triggered, [this] { SortConnectionList(ROLE_DISPLAYNAME, false); });
-    connect(sortAction_SortByData_Asc, &QAction::triggered, [this] { SortConnectionList(ROLE_DATA_USAGE, true); });
-    connect(sortAction_SortByData_Dsc, &QAction::triggered, [this] { SortConnectionList(ROLE_DATA_USAGE, false); });
-    connect(sortAction_SortByPing_Asc, &QAction::triggered, [this] { SortConnectionList(ROLE_LATENCY, true); });
-    connect(sortAction_SortByPing_Dsc, &QAction::triggered, [this] { SortConnectionList(ROLE_LATENCY, false); });
-    //
-    sortBtn->setMenu(sortMenu);
-    //
-    graphWidgetMenu->addAction(action_RCM_CopyGraph);
-    connect(action_RCM_CopyGraph, &QAction::triggered, this, &MainWindow::Action_CopyGraphAsImage);
+        logAction_CopySelected = new QAction(logBrowser);
+        logAction_CopyRecentLogs = new QAction(logBrowser);
+        connect(logAction_CopyRecentLogs, &QAction::triggered, this, &MainWindow::Action_CopyRecentLogs);
+        connect(logAction_CopySelected, &QAction::triggered, logBrowser, &QTextBrowser::copy);
+
+        logBrowser->addActions({ logAction_CopySelected, logAction_CopyRecentLogs });
+        connect(logBrowser->verticalScrollBar(), &QSlider::valueChanged, this, [this](int v) { logAutoScoll = logBrowser->verticalScrollBar()->maximum() == v; });
+
+        auto font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+        font.setPointSize(9);
+        logBrowser->setFont(font);
+        logBrowser->document()->setDefaultFont(font);
+    }
+
+    {
+        //
+        // Actions for right click the connection list
+        //
+        connectionActions.Start = new QAction(connectionMenu);
+        connectionActions.Edit = new QAction(connectionMenu);
+        connectionActions.EditJson = new QAction(connectionMenu);
+        connectionActions.EditComplex = new QAction(connectionMenu);
+        connectionActions.TestLatency = new QAction(connectionMenu);
+        connectionActions.SetAutoConnection = new QAction(connectionMenu);
+        connectionActions.RenameConnection = new QAction(connectionMenu);
+        connectionActions.DuplicateConnection = new QAction(connectionMenu);
+        connectionActions.ResetStats = new QAction(connectionMenu);
+        connectionActions.UpdateSubscription = new QAction(connectionMenu);
+        connectionActions.DeleteConnection = new QAction(connectionMenu);
+
+        connect(connectionActions.Start, &QAction::triggered, this, &MainWindow::Action_Start);
+        connect(connectionActions.Edit, &QAction::triggered, this, &MainWindow::Action_Edit);
+        connect(connectionActions.EditJson, &QAction::triggered, this, &MainWindow::Action_EditJson);
+        connect(connectionActions.EditComplex, &QAction::triggered, this, &MainWindow::Action_EditComplex);
+        connect(connectionActions.TestLatency, &QAction::triggered, this, &MainWindow::Action_TestLatency);
+        connect(connectionActions.SetAutoConnection, &QAction::triggered, this, &MainWindow::Action_SetAutoConnection);
+        connect(connectionActions.RenameConnection, &QAction::triggered, this, &MainWindow::Action_RenameConnection);
+        connect(connectionActions.DuplicateConnection, &QAction::triggered, this, &MainWindow::Action_DuplicateConnection);
+        connect(connectionActions.ResetStats, &QAction::triggered, this, &MainWindow::Action_ResetStats);
+        connect(connectionActions.UpdateSubscription, &QAction::triggered, this, &MainWindow::Action_UpdateSubscription);
+        connect(connectionActions.DeleteConnection, &QAction::triggered, this, &MainWindow::Action_DeleteConnections);
+
+        connectionMenu->addAction(connectionActions.Start);
+        connectionMenu->addSeparator();
+        connectionMenu->addAction(connectionActions.Edit);
+        connectionMenu->addAction(connectionActions.EditJson);
+        connectionMenu->addAction(connectionActions.EditComplex);
+        connectionMenu->addSeparator();
+
+        connectionMenu->addAction(connectionActions.TestLatency);
+
+        connectionMenu->addSeparator();
+        connectionMenu->addAction(connectionActions.SetAutoConnection);
+        connectionMenu->addSeparator();
+        connectionMenu->addAction(connectionActions.RenameConnection);
+        connectionMenu->addAction(connectionActions.DuplicateConnection);
+        connectionMenu->addAction(connectionActions.ResetStats);
+        connectionMenu->addAction(connectionActions.UpdateSubscription);
+        connectionMenu->addSeparator();
+
+        connectionMenu->addAction(connectionActions.DeleteConnection);
+    }
+
+    {
+        //
+        // Sort Menu
+        //
+        sortActions.SortByName_Asc = new QAction(sortMenu);
+        sortActions.SortByName_Dsc = new QAction(sortMenu);
+        sortActions.SortByPing_Asc = new QAction(sortMenu);
+        sortActions.SortByPing_Dsc = new QAction(sortMenu);
+        sortActions.SortByData_Asc = new QAction(sortMenu);
+        sortActions.SortByData_Dsc = new QAction(sortMenu);
+
+        const auto SortConnectionList = [this](ConnectionInfoRole byCol, bool asending)
+        {
+            connectionModelHelper->Sort(byCol, asending ? Qt::AscendingOrder : Qt::DescendingOrder);
+            on_locateBtn_clicked();
+        };
+
+        connect(sortActions.SortByName_Asc, &QAction::triggered, [=] { SortConnectionList(ROLE_DISPLAYNAME, true); });
+        connect(sortActions.SortByName_Dsc, &QAction::triggered, [=] { SortConnectionList(ROLE_DISPLAYNAME, false); });
+        connect(sortActions.SortByData_Asc, &QAction::triggered, [=] { SortConnectionList(ROLE_DATA_USAGE, true); });
+        connect(sortActions.SortByData_Dsc, &QAction::triggered, [=] { SortConnectionList(ROLE_DATA_USAGE, false); });
+        connect(sortActions.SortByPing_Asc, &QAction::triggered, [=] { SortConnectionList(ROLE_LATENCY, true); });
+        connect(sortActions.SortByPing_Dsc, &QAction::triggered, [=] { SortConnectionList(ROLE_LATENCY, false); });
+        sortMenu->addAction(sortActions.SortByName_Asc);
+        sortMenu->addAction(sortActions.SortByName_Dsc);
+        sortMenu->addSeparator();
+        sortMenu->addAction(sortActions.SortByData_Asc);
+        sortMenu->addAction(sortActions.SortByData_Dsc);
+        sortMenu->addSeparator();
+        sortMenu->addAction(sortActions.SortByPing_Asc);
+        sortMenu->addAction(sortActions.SortByPing_Dsc);
+        sortBtn->setMenu(sortMenu);
+    }
+
+    {
+        //
+        // Kernel and Profile event handlers
+        //
+        const auto crashHandler = [this](const ProfileId &, const QString &reason)
+        {
+            MWShowWindow();
+            QvBaselib->Warn(tr("Kernel terminated."), tr("The kernel terminated unexpectedly:") + NEWLINE + reason + NEWLINE + NEWLINE +
+                                                          tr("To solve the problem, read the kernel log in the log text browser."));
+        };
+        connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnCrashed, crashHandler);
+        connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnConnected, this, &MainWindow::OnConnected);
+        connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnDisconnected, this, &MainWindow::OnDisconnected);
+        connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, this, &MainWindow::OnStatsAvailable);
+        connect(QvKernelManager, &Qv2rayBase::Profile::KernelManager::OnKernelLogAvailable, this, &MainWindow::OnKernelLogAvailable);
+        connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnSubscriptionUpdateFinished,
+                [](const GroupId &gid)
+                {
+                    if (!GlobalConfig->behaviorConfig->QuietMode)
+                        QvApp->GetTrayManager()->ShowTrayMessage(tr("Subscription \"%1\" has been updated").arg(GetDisplayName(gid)));
+                });
+    }
+
     //
     // Find and start if there is an auto-connection
-    const auto connectionStarted = StartAutoConnectionEntry();
+    const auto connectionStarted = TryStartAutoConnectionEntry();
 
+    // Select the first connection.
     if (!connectionStarted && !QvProfileManager->GetConnections().isEmpty())
     {
-        // Select the first connection.
         const auto groups = QvProfileManager->GetGroups();
         if (!groups.isEmpty())
         {
             const auto connections = QvProfileManager->GetConnections(groups.first());
             if (!connections.empty())
             {
-                const auto index = modelHelper->GetConnectionPairIndex({ connections.first(), groups.first() });
+                const auto index = connectionModelHelper->GetConnectionPairIndex({ connections.first(), groups.first() });
                 connectionTreeView->setCurrentIndex(index);
                 on_connectionTreeView_clicked(index);
             }
@@ -220,25 +255,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     }
 
     CheckForSubscriptionsUpdate();
+    LoadPluginMainWindowWidgets();
 
-    for (const auto &[pluginInterface, guiInterface] : GUIPluginHost->GUI_QueryByComponent(Qv2rayPlugin::GUI_COMPONENT_MAIN_WINDOW_ACTIONS))
-    {
-        auto mainWindowWidgetPtr = guiInterface->GetMainWindowWidget();
-        if (!mainWindowWidgetPtr)
-            continue;
-        const auto index = pluginWidgets.count();
-        {
-            // Let Qt manage the ownership.
-            auto widget = mainWindowWidgetPtr.release();
-            pluginWidgets.append(widget);
-        }
-        auto btn = new QPushButton(pluginInterface->GetMetadata().Name, this);
-        connect(btn, &QPushButton::clicked, this, &MainWindow::OnPluginButtonClicked);
-        btn->setProperty(BUTTON_PROP_PLUGIN_MAINWIDGETITEM_INDEX, index);
-        topButtonsLayout->addWidget(btn);
-    }
+    updateColorScheme();
+    RetranslateMenuActions();
 
-    if (connectionStarted || GlobalConfig->behaviorConfig->QuietMode)
+    if ((connectionStarted || GlobalConfig->behaviorConfig->QuietMode) && GlobalConfig->appearanceConfig->ShowTrayIcon)
         MWHideWindow();
     else
         MWShowWindow();
@@ -264,7 +286,7 @@ void MainWindow::OnPluginButtonClicked()
     widget->setVisible(!widget->isVisible());
 }
 
-void MainWindow::ProcessCommand(const QString &command, QStringList commands, QMap<QString, QString> args)
+void MainWindow::ProcessCommand(const QString &command, QStringList commands, const QMap<QString, QString> &args)
 {
     if (commands.isEmpty())
         return;
@@ -362,16 +384,9 @@ void MainWindow::changeEvent(QEvent *e)
         QvApp->GetTrayManager()->SetMainWindowCurrentState((isHidden() || isMinimized()) ? MainWindowState::State_Hidden : MainWindowState::State_Shown);
 }
 
-void MainWindow::Action_Start()
-{
-    CheckCurrentWidget;
-    if (widget->IsConnection())
-        widget->BeginConnection();
-}
-
 MainWindow::~MainWindow()
 {
-    delete modelHelper;
+    delete connectionModelHelper;
     for (auto &widget : pluginWidgets)
         widget->accept();
 }
@@ -401,14 +416,9 @@ void MainWindow::OnTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
         MWToggleVisibility();
 }
 
-void MainWindow::Action_Exit()
-{
-    QvApp->quit();
-}
-
 void MainWindow::on_clearlogButton_clicked()
 {
-    masterLogBrowser->document()->clear();
+    logBrowser->document()->clear();
 }
 
 void MainWindow::on_connectionTreeView_customContextMenuRequested(QPoint pos)
@@ -421,56 +431,16 @@ void MainWindow::on_connectionTreeView_customContextMenuRequested(QPoint pos)
     {
         bool isConnection = GetIndexWidget(item)->IsConnection();
         // Disable connection-specific settings.
-        action_RCM_Start->setEnabled(isConnection);
-        action_RCM_SetAutoConnection->setEnabled(isConnection);
-        action_RCM_Edit->setEnabled(isConnection);
-        action_RCM_EditJson->setEnabled(isConnection);
-        action_RCM_EditComplex->setEnabled(isConnection);
-        action_RCM_RenameConnection->setEnabled(isConnection);
-        action_RCM_DuplicateConnection->setEnabled(isConnection);
-        action_RCM_UpdateSubscription->setEnabled(!isConnection);
-        connectionListRCM_Menu->popup(_pos);
+        connectionActions.Start->setEnabled(isConnection);
+        connectionActions.SetAutoConnection->setEnabled(isConnection);
+        connectionActions.Edit->setEnabled(isConnection);
+        connectionActions.EditJson->setEnabled(isConnection);
+        connectionActions.EditComplex->setEnabled(isConnection);
+        connectionActions.RenameConnection->setEnabled(isConnection);
+        connectionActions.DuplicateConnection->setEnabled(isConnection);
+        connectionActions.UpdateSubscription->setEnabled(!isConnection);
+        connectionMenu->popup(_pos);
     }
-}
-
-void MainWindow::Action_DeleteConnections()
-{
-    QList<ProfileId> connlist;
-    QList<GroupId> groupsList;
-
-    for (const auto &item : connectionTreeView->selectionModel()->selectedIndexes())
-    {
-        const auto widget = GetIndexWidget(item);
-        if (!widget)
-            continue;
-
-        const auto identifier = widget->Identifier();
-        if (widget->IsConnection())
-        {
-            // Simply add the connection id
-            connlist.append(identifier);
-            continue;
-        }
-
-        for (const auto &conns : QvProfileManager->GetConnections(identifier.groupId))
-            connlist.append(ProfileId{ conns, identifier.groupId });
-
-        const auto message = tr("Do you want to remove groups as well?") + NEWLINE + tr("Group: ") + GetDisplayName(identifier.groupId);
-        if (QvBaselib->Ask(tr("Removing Connection(s)"), message) == Qv2rayBase::MessageOpt::Yes)
-            groupsList << identifier.groupId;
-    }
-
-    const auto strRemoveConnTitle = tr("Removing Connection(s)");
-    const auto strRemoveConnContent = tr("Are you sure to remove selected connection(s)?");
-
-    if (QvBaselib->Ask(strRemoveConnTitle, strRemoveConnContent) != Qv2rayBase::MessageOpt::Yes)
-        return;
-
-    for (const auto &conn : connlist)
-        QvProfileManager->RemoveFromGroup(conn.connectionId, conn.groupId);
-
-    for (const auto &group : groupsList)
-        QvProfileManager->DeleteGroup(group, false);
 }
 
 void MainWindow::on_importConfigButton_clicked()
@@ -479,28 +449,6 @@ void MainWindow::on_importConfigButton_clicked()
     const auto &[group, connections] = w.DoImportConnections();
     for (auto it = connections.keyValueBegin(); it != connections.constKeyValueEnd(); it++)
         QvProfileManager->CreateConnection(it->second, it->first, group);
-}
-
-void MainWindow::Action_EditComplex()
-{
-    CheckCurrentWidget;
-    if (widget->IsConnection())
-    {
-        const auto id = widget->Identifier();
-        ProfileContent root = QvProfileManager->GetConnection(id.connectionId);
-
-#ifdef QV2RAY_COMPONENT_RouteEditor
-        QvLog() << "Opening route editor.";
-        RouteEditor editor(root, this);
-        root = editor.OpenEditor();
-        QvProfileManager->UpdateConnection(id.connectionId, root);
-#else
-        JsonEditor editor(root.toJson(), this);
-        root = ProfileContent::fromJson(editor.OpenEditor());
-#endif
-        if (editor.result() == QDialog::Accepted)
-            QvProfileManager->UpdateConnection(id.connectionId, root);
-    }
 }
 
 void MainWindow::on_subsButton_clicked()
@@ -536,14 +484,14 @@ void MainWindow::OnConnected(const ProfileId &id)
 
 void MainWindow::on_connectionFilterTxt_textEdited(const QString &arg1)
 {
-    if (arg1.startsWith(">"))
+    if (arg1.startsWith('>'))
     {
         try
         {
             auto command = arg1;
             command = command.remove(0, 1);
             const auto prog = QueryParser::ParseProgram(command);
-            modelHelper->Filter(prog);
+            connectionModelHelper->Filter(prog);
             BLACK(connectionFilterTxt);
         }
         catch (std::runtime_error e)
@@ -554,7 +502,7 @@ void MainWindow::on_connectionFilterTxt_textEdited(const QString &arg1)
     }
     else
     {
-        modelHelper->Filter(arg1);
+        connectionModelHelper->Filter(arg1);
     }
 }
 
@@ -589,15 +537,15 @@ void MainWindow::OnStatsAvailable(const ProfileId &id, const StatisticsObject &d
 void MainWindow::OnKernelLogAvailable(const ProfileId &id, const QString &log)
 {
     Q_UNUSED(id);
-    FastAppendTextDocument(log.trimmed(), masterLogBrowser->document());
+    FastAppendTextDocument(log.trimmed(), logBrowser->document());
 
     // From https://gist.github.com/jemyzhang/7130092
     const auto maxLines = GlobalConfig->appearanceConfig->MaximizeLogLines;
-    auto block = masterLogBrowser->document()->begin();
+    auto block = logBrowser->document()->begin();
 
     while (block.isValid())
     {
-        if (masterLogBrowser->document()->blockCount() > maxLines)
+        if (logBrowser->document()->blockCount() > maxLines)
         {
             QTextCursor cursor(block);
             block = block.next();
@@ -639,82 +587,24 @@ void MainWindow::OnEditRequested(const ConnectionId &id)
             QvProfileManager->UpdateConnection(id, root);
     }
 }
+
 void MainWindow::OnEditJsonRequested(const ConnectionId &id)
 {
     JsonEditor w(QvProfileManager->GetConnection(id).toJson(), this);
-    auto root = w.OpenEditor();
-
-    ProfileContent newRoot;
-    newRoot.loadJson(root);
-
+    const auto newRoot = ProfileContent::fromJson(w.OpenEditor());
     if (w.result() == QDialog::Accepted)
-    {
         QvProfileManager->UpdateConnection(id, newRoot);
-    }
-}
-
-void MainWindow::OnLogScrollbarValueChanged(int value)
-{
-    if (masterLogBrowser->verticalScrollBar()->maximum() == value)
-        qvLogAutoScoll = true;
-    else
-        qvLogAutoScoll = false;
 }
 
 void MainWindow::on_locateBtn_clicked()
 {
     auto id = QvKernelManager->CurrentConnection();
-    if (!id.isNull())
-    {
-        const auto index = modelHelper->GetConnectionPairIndex(id);
-        connectionTreeView->setCurrentIndex(index);
-        connectionTreeView->scrollTo(index);
-        on_connectionTreeView_clicked(index);
-    }
-}
-
-void MainWindow::Action_RenameConnection()
-{
-    CheckCurrentWidget;
-    widget->BeginRename();
-}
-
-void MainWindow::Action_DuplicateConnection()
-{
-    QList<ProfileId> connlist;
-    connlist.reserve(connectionTreeView->selectionModel()->selectedIndexes().size());
-    for (const auto &item : connectionTreeView->selectionModel()->selectedIndexes())
-    {
-        auto widget = GetIndexWidget(item);
-        if (widget->IsConnection())
-            connlist.append(widget->Identifier());
-    }
-
-    QvLog() << "Selected" << connlist.count() << "items.";
-
-    const auto strDupConnTitle = tr("Duplicating Connection(s)", "", connlist.count());
-    const auto strDupConnContent = tr("Are you sure to duplicate these connection(s)?", "", connlist.count());
-
-    if (connlist.count() > 1 && QvBaselib->Ask(strDupConnTitle, strDupConnContent) != Qv2rayBase::MessageOpt::Yes)
+    if (id.isNull())
         return;
-
-    for (const auto &conn : connlist)
-    {
-        const auto profile = QvProfileManager->GetConnection(conn.connectionId);
-        QvProfileManager->CreateConnection(profile, GetDisplayName(conn.connectionId) + tr(" (Copy)"), conn.groupId);
-    }
-}
-
-void MainWindow::Action_Edit()
-{
-    CheckCurrentWidget;
-    OnEditRequested(widget->Identifier().connectionId);
-}
-
-void MainWindow::Action_EditJson()
-{
-    CheckCurrentWidget;
-    OnEditJsonRequested(widget->Identifier().connectionId);
+    const auto index = connectionModelHelper->GetConnectionPairIndex(id);
+    connectionTreeView->setCurrentIndex(index);
+    connectionTreeView->scrollTo(index);
+    on_connectionTreeView_clicked(index);
 }
 
 void MainWindow::on_chartVisibilityBtn_clicked()
@@ -724,7 +614,7 @@ void MainWindow::on_chartVisibilityBtn_clicked()
 
 void MainWindow::on_logVisibilityBtn_clicked()
 {
-    masterLogBrowser->setVisible(!masterLogBrowser->isVisible());
+    logBrowser->setVisible(!logBrowser->isVisible());
 }
 
 void MainWindow::on_clearChartBtn_clicked()
@@ -732,86 +622,12 @@ void MainWindow::on_clearChartBtn_clicked()
     speedChartWidget->Clear();
 }
 
-void MainWindow::on_masterLogBrowser_textChanged()
+void MainWindow::on_logBrowser_textChanged()
 {
-    if (!qvLogAutoScoll)
+    if (!logAutoScoll)
         return;
-    auto bar = masterLogBrowser->verticalScrollBar();
+    auto bar = logBrowser->verticalScrollBar();
     bar->setValue(bar->maximum());
-}
-
-void MainWindow::Action_SetAutoConnection()
-{
-    const auto current = connectionTreeView->currentIndex();
-    if (current.isValid())
-    {
-        const auto widget = GetIndexWidget(current);
-        const auto identifier = widget->Identifier();
-        GlobalConfig->behaviorConfig->AutoConnectProfileId = identifier;
-        GlobalConfig->behaviorConfig->AutoConnectBehavior = Qv2rayBehaviorConfig::AUTOCONNECT_FIXED;
-        if (!GlobalConfig->behaviorConfig->QuietMode)
-        {
-            QvApp->GetTrayManager()->ShowTrayMessage(tr("%1 has been set to be auto connected.").arg(GetDisplayName(identifier.connectionId)));
-        }
-        QvApp->SaveQv2raySettings();
-    }
-}
-
-void MainWindow::Action_ResetStats()
-{
-    auto current = connectionTreeView->currentIndex();
-    if (current.isValid())
-    {
-        auto widget = GetIndexWidget(current);
-        if (widget)
-        {
-            if (widget->IsConnection())
-                QvProfileManager->ClearConnectionUsage(widget->Identifier());
-            else
-                QvProfileManager->ClearGroupUsage(widget->Identifier().groupId);
-        }
-    }
-}
-
-void MainWindow::Action_UpdateSubscription()
-{
-    auto current = connectionTreeView->currentIndex();
-    if (current.isValid())
-    {
-        auto widget = GetIndexWidget(current);
-        if (widget)
-        {
-            if (widget->IsConnection())
-                return;
-            const auto gid = widget->Identifier().groupId;
-            if (QvProfileManager->GetGroupObject(gid).subscription_config.isSubscription)
-                QvProfileManager->UpdateSubscription(gid, true);
-            else
-                QvBaselib->Info(tr("Update Subscription"), tr("Selected group is not a subscription"));
-        }
-    }
-}
-
-void MainWindow::Action_TestLatency()
-{
-    for (const auto &current : connectionTreeView->selectionModel()->selectedIndexes())
-    {
-        if (!current.isValid())
-            continue;
-        const auto widget = GetIndexWidget(current);
-        if (!widget)
-            continue;
-        if (widget->IsConnection())
-            QvProfileManager->StartLatencyTest(widget->Identifier().connectionId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
-        else
-            QvProfileManager->StartLatencyTest(widget->Identifier().groupId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
-    }
-}
-
-void MainWindow::Action_CopyGraphAsImage()
-{
-    const auto image = speedChartWidget->grab();
-    qApp->clipboard()->setImage(image.toImage());
 }
 
 void MainWindow::on_pluginsBtn_clicked()
@@ -823,8 +639,7 @@ void MainWindow::on_newConnectionBtn_clicked()
 {
     OutboundEditor w(this);
     const ProfileContent root{ w.OpenEditor() };
-    bool isChanged = w.result() == QDialog::Accepted;
-    if (isChanged)
+    if (w.result() == QDialog::Accepted)
     {
         const auto alias = w.GetFriendlyName();
         const auto item = connectionTreeView->currentIndex();
@@ -838,44 +653,21 @@ void MainWindow::on_newComplexConnectionBtn_clicked()
 #ifdef QV2RAY_COMPONENT_RouteEditor
     RouteEditor w({}, this);
     const auto root = w.OpenEditor();
-    if (w.result() == QDialog::Accepted)
-    {
-        const auto item = connectionTreeView->currentIndex();
-        const auto id = item.isValid() ? GetIndexWidget(item)->Identifier().groupId : DefaultGroupId;
-        QvProfileManager->CreateConnection(root, u"New Connection"_qs, id);
-    }
 #else
     JsonEditor w({}, this);
     const auto root = ProfileContent::fromJson(w.OpenEditor());
+#endif
     if (w.result() == QDialog::Accepted)
     {
         const auto item = connectionTreeView->currentIndex();
         const auto id = item.isValid() ? GetIndexWidget(item)->Identifier().groupId : DefaultGroupId;
         QvProfileManager->CreateConnection(root, u"New Connection"_qs, id);
     }
-#endif
 }
 
 void MainWindow::on_collapseGroupsBtn_clicked()
 {
     connectionTreeView->collapseAll();
-}
-
-void MainWindow::Action_CopyRecentLogs()
-{
-    const auto lines = SplitLines(masterLogBrowser->document()->toPlainText());
-    bool accepted = false;
-    const auto line = QInputDialog::getInt(this, tr("Copy latest logs"), tr("Number of lines of logs to copy"), 20, 0, 2500, 1, &accepted);
-    if (!accepted)
-        return;
-    const auto totalLinesCount = lines.count();
-    const auto linesToCopy = std::min((int) totalLinesCount, line);
-    QStringList result;
-    for (auto i = totalLinesCount - linesToCopy; i < totalLinesCount; i++)
-    {
-        result.append(lines[i]);
-    }
-    qApp->clipboard()->setText(result.join('\n'));
 }
 
 void MainWindow::on_connectionTreeView_doubleClicked(const QModelIndex &index)
@@ -892,7 +684,7 @@ void MainWindow::on_connectionTreeView_clicked(const QModelIndex &index)
     const auto widget = GetIndexWidget(index);
     if (widget == nullptr)
         return;
-    infoWidget->ShowDetails(widget->Identifier());
+    connectionInfoWidget->ShowDetails(widget->Identifier());
 }
 
 void MainWindow::on_preferencesBtn_clicked()
@@ -903,4 +695,33 @@ void MainWindow::on_preferencesBtn_clicked()
 void MainWindow::on_aboutBtn_clicked()
 {
     AboutWindow(this).exec();
+}
+
+// ================================================================== General Actions ==================================================================
+
+void MainWindow::Action_Exit()
+{
+    QvApp->quit();
+}
+
+void MainWindow::Action_CopyGraphAsImage()
+{
+    const auto image = speedChartWidget->grab();
+    qApp->clipboard()->setImage(image.toImage());
+}
+
+void MainWindow::Action_CopyRecentLogs()
+{
+    const auto lines = SplitLines(logBrowser->document()->toPlainText());
+    bool accepted = false;
+    const auto line = QInputDialog::getInt(this, tr("Copy latest logs"), tr("Number of lines of logs to copy"), 20, 0, 2500, 1, &accepted);
+    if (!accepted)
+        return;
+    const auto totalLinesCount = lines.count();
+    const auto linesToCopy = std::min((int) totalLinesCount, line);
+    QStringList result;
+    result.reserve(linesToCopy);
+    for (auto i = totalLinesCount - linesToCopy; i < totalLinesCount; i++)
+        result.append(lines[i]);
+    qApp->clipboard()->setText(result.join('\n'));
 }

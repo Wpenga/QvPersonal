@@ -117,7 +117,7 @@ bool Qv2rayApplication::Initialize()
     GlobalConfig = new Qv2rayApplicationConfigObject;
     GlobalConfig->loadJson(QvStorageProvider->GetExtraSettings(QString::fromUtf8(QV2RAY_GUI_EXTRASETTINGS_KEY)));
 
-    GUIPluginHost = new Qv2ray::ui::common::GuiPluginAPIHost;
+    GUIPluginHost = new GuiPluginHost::GuiPluginAPIHost;
     UIMessageBus = new MessageBus::QvMessageBusObject;
     StyleManager = new QvStyleManager::QvStyleManager;
     StyleManager->ApplyStyle(GlobalConfig->appearanceConfig->UITheme);

@@ -2,7 +2,9 @@
 #include "Qv2rayBase/Common/Utils.hpp"
 #include "Qv2rayBase/Profile/KernelManager.hpp"
 #include "Qv2rayBase/Profile/ProfileManager.hpp"
+#include "components/GuiPluginHost/GuiPluginHost.hpp"
 #include "ui/WidgetUIBase.hpp"
+#include "ui/windows/editors/w_JsonEditor.hpp"
 #include "w_MainWindow.hpp"
 
 #ifdef Q_OS_MAC
@@ -43,64 +45,7 @@ void MainWindow::MWHideWindow()
     QvApp->GetTrayManager()->SetMainWindowCurrentState(MainWindowState::State_Hidden);
 }
 
-#pragma message("TODO: cleanup")
-// void MainWindow::MWSetSystemProxy()
-//{
-//    const auto inboundInfo = QvKernelManager->GetCurrentConnectionInboundInfo();
-//    bool httpEnabled = false;
-//    bool socksEnabled = false;
-//    int httpPort = 0;
-//    int socksPort = 0;
-//    QString httpAddress;
-//    QString socksAddress;
-//    for (const auto &[protocol, listenAddr, listenPort] : inboundInfo)
-//    {
-//        if (protocol == "http")
-//        {
-//            httpEnabled = true;
-//            httpAddress = listenAddr;
-//            httpPort = listenPort.from;
-//        }
-//        else if (protocol == "socks")
-//        {
-//            socksEnabled = true;
-//            socksAddress = listenAddr;
-//            socksPort = listenPort.from;
-//        }
-//    }
-
-//    QString proxyAddress;
-//    if (httpEnabled)
-//        proxyAddress = httpAddress;
-//    else if (socksEnabled)
-//        proxyAddress = socksAddress;
-
-//    const QHostAddress ha(proxyAddress);
-//    if (ha.isEqual(QHostAddress::AnyIPv4)) // "0.0.0.0"
-//        proxyAddress = "127.0.0.1";
-//    else if (ha.isEqual(QHostAddress::AnyIPv6)) // "::"
-//        proxyAddress = "::1";
-
-//    if (!proxyAddress.isEmpty())
-//    {
-//        QvLog() << "ProxyAddress:" << proxyAddress;
-//        QvLog() << "HTTP Port:" << httpPort;
-//        QvLog() << "SOCKS Port:" << socksPort;
-//        SetSystemProxy(proxyAddress, httpPort, socksPort);
-//        qvAppTrayIcon->setIcon(Q_TRAYICON("tray-systemproxy"));
-//        if (!GlobalConfig->behaviorConfig->QuietMode)
-//        {
-//            QvApp->ShowTrayMessage(tr("System proxy configured."));
-//        }
-//    }
-//    else
-//    {
-//        QvLog() << "Neither of HTTP nor SOCKS is enabled, cannot set system proxy.";
-//        QvBaselib->Warn(tr("Cannot set system proxy"), tr("Both HTTP and SOCKS inbounds are not enabled"));
-//    }
-//}
-
-bool MainWindow::StartAutoConnectionEntry()
+bool MainWindow::TryStartAutoConnectionEntry()
 {
     if (QvApp->StartupArguments.noAutoConnection)
         return false;
@@ -147,7 +92,7 @@ void MainWindow::CheckForSubscriptionsUpdate()
     else
     {
         const auto options = { Qv2rayBase::MessageOpt::Yes, Qv2rayBase::MessageOpt::No, Qv2rayBase::MessageOpt::Ignore };
-        result = QvBaselib->Ask(tr("Update Subscriptions"), tr("Do you want to update these subscriptions?") + NEWLINE + updateNamesList.join(NEWLINE), options);
+        result = QvBaselib->Ask(tr("Update Subscriptions"), tr("Do you want to update these subscriptions?") + NEWLINE + updateNamesList.join('\n'), options);
     }
 
     for (const auto &[name, id] : updateList)
@@ -173,20 +118,20 @@ void MainWindow::updateColorScheme()
         QvApp->GetTrayManager()->HideTrayIcon();
 
     QvApp->GetTrayManager()->UpdateColorScheme();
-    vCoreLogHighlighter->loadRules(StyleManager->isDarkMode());
+    coreLogHighlighter->loadRules(StyleManager->isDarkMode());
 
     importConfigButton->setIcon(QIcon(STYLE_RESX("add")));
     updownImageBox->setStyleSheet("image: url(" + STYLE_RESX("netspeed_arrow") + ")");
     updownImageBox_2->setStyleSheet("image: url(" + STYLE_RESX("netspeed_arrow") + ")");
 
-    action_RCM_Start->setIcon(QIcon(STYLE_RESX("start")));
-    action_RCM_Edit->setIcon(QIcon(STYLE_RESX("edit")));
-    action_RCM_EditJson->setIcon(QIcon(STYLE_RESX("code")));
-    action_RCM_EditComplex->setIcon(QIcon(STYLE_RESX("edit")));
-    action_RCM_DuplicateConnection->setIcon(QIcon(STYLE_RESX("copy")));
-    action_RCM_DeleteConnection->setIcon(QIcon(STYLE_RESX("ashbin")));
-    action_RCM_ResetStats->setIcon(QIcon(STYLE_RESX("ashbin")));
-    action_RCM_TestLatency->setIcon(QIcon(STYLE_RESX("ping_gauge")));
+    connectionActions.Start->setIcon(QIcon(STYLE_RESX("start")));
+    connectionActions.Edit->setIcon(QIcon(STYLE_RESX("edit")));
+    connectionActions.EditJson->setIcon(QIcon(STYLE_RESX("code")));
+    connectionActions.EditComplex->setIcon(QIcon(STYLE_RESX("edit")));
+    connectionActions.DuplicateConnection->setIcon(QIcon(STYLE_RESX("copy")));
+    connectionActions.DeleteConnection->setIcon(QIcon(STYLE_RESX("ashbin")));
+    connectionActions.ResetStats->setIcon(QIcon(STYLE_RESX("ashbin")));
+    connectionActions.TestLatency->setIcon(QIcon(STYLE_RESX("ping_gauge")));
 
     clearChartBtn->setIcon(QIcon(STYLE_RESX("ashbin")));
     clearlogButton->setIcon(QIcon(STYLE_RESX("ashbin")));
@@ -196,30 +141,239 @@ void MainWindow::updateColorScheme()
     collapseGroupsBtn->setIcon(QIcon(STYLE_RESX("arrow-up")));
 }
 
-void MainWindow::updateActionTranslations()
+void MainWindow::RetranslateMenuActions()
 {
     QvApp->GetTrayManager()->Retranslate();
-    action_RCM_Start->setText(tr("Connect to this"));
-    action_RCM_SetAutoConnection->setText(tr("Set as automatically connected"));
-    action_RCM_EditJson->setText(tr("Edit as JSON"));
-    action_RCM_UpdateSubscription->setText(tr("Update Subscription"));
-    action_RCM_EditComplex->setText(tr("Edit as Complex Config"));
-    action_RCM_RenameConnection->setText(tr("Rename"));
-    action_RCM_Edit->setText(tr("Edit"));
-    action_RCM_DuplicateConnection->setText(tr("Duplicate to the Same Group"));
-    action_RCM_TestLatency->setText(tr("Test Latency"));
-    action_RCM_ResetStats->setText(tr("Clear Usage Data"));
-    action_RCM_DeleteConnection->setText(tr("Delete Connection"));
+    connectionActions.Start->setText(tr("Connect to this"));
+    connectionActions.SetAutoConnection->setText(tr("Set as automatically connected"));
+    connectionActions.EditJson->setText(tr("Edit as JSON"));
+    connectionActions.UpdateSubscription->setText(tr("Update Subscription"));
+    connectionActions.EditComplex->setText(tr("Edit as Complex Config"));
+    connectionActions.RenameConnection->setText(tr("Rename"));
+    connectionActions.Edit->setText(tr("Edit"));
+    connectionActions.DuplicateConnection->setText(tr("Duplicate to the Same Group"));
+    connectionActions.TestLatency->setText(tr("Test Latency"));
+    connectionActions.ResetStats->setText(tr("Clear Usage Data"));
+    connectionActions.DeleteConnection->setText(tr("Delete Connection"));
 
     sortMenu->setTitle(tr("Sort connection list."));
-    sortAction_SortByName_Asc->setText(tr("By connection name, A-Z"));
-    sortAction_SortByName_Dsc->setText(tr("By connection name, Z-A"));
-    sortAction_SortByPing_Asc->setText(tr("By latency, Ascending"));
-    sortAction_SortByPing_Dsc->setText(tr("By latency, Descending"));
-    sortAction_SortByData_Asc->setText(tr("By data, Ascending"));
-    sortAction_SortByData_Dsc->setText(tr("By data, Descending"));
+    sortActions.SortByName_Asc->setText(tr("By connection name, A-Z"));
+    sortActions.SortByName_Dsc->setText(tr("By connection name, Z-A"));
+    sortActions.SortByPing_Asc->setText(tr("By latency, Ascending"));
+    sortActions.SortByPing_Dsc->setText(tr("By latency, Descending"));
+    sortActions.SortByData_Asc->setText(tr("By data, Ascending"));
+    sortActions.SortByData_Dsc->setText(tr("By data, Descending"));
 
-    action_RCM_CopyGraph->setText(tr("Copy graph as image."));
-    action_RCM_CopyRecentLogs->setText(tr("Copy latest logs."));
-    action_RCM_CopySelected->setText(tr("Copy selected."));
+    graphAction_CopyGraph->setText(tr("Copy graph as image."));
+    logAction_CopyRecentLogs->setText(tr("Copy latest logs."));
+    logAction_CopySelected->setText(tr("Copy selected."));
+}
+
+void MainWindow::LoadPluginMainWindowWidgets()
+{
+    for (const auto &[metadata, guiInterface] : GUIPluginHost->QueryByGuiComponent(Qv2rayPlugin::GUI_COMPONENT_MAIN_WINDOW_ACTIONS))
+    {
+        auto mainWindowWidgetPtr = guiInterface->GetMainWindowWidget();
+        if (!mainWindowWidgetPtr)
+            continue;
+        const auto index = pluginWidgets.count();
+        {
+            // Let Qt manage the ownership.
+            auto widget = mainWindowWidgetPtr.release();
+            pluginWidgets.append(widget);
+        }
+        auto btn = new QPushButton(metadata.Name, this);
+        connect(btn, &QPushButton::clicked, this, &MainWindow::OnPluginButtonClicked);
+        btn->setProperty(BUTTON_PROP_PLUGIN_MAINWIDGETITEM_INDEX, index);
+        topButtonsLayout->addWidget(btn);
+    }
+}
+
+// ================================================================== Connection Actions ==================================================================
+#define CheckCurrentWidget                                                                                                                                               \
+    auto widget = GetIndexWidget(connectionTreeView->currentIndex());                                                                                                    \
+    if (widget == nullptr)                                                                                                                                               \
+        return;
+
+#define GetIndexWidget(item) (qobject_cast<ConnectionItemWidget *>(connectionTreeView->indexWidget(item)))
+
+void MainWindow::Action_Start()
+{
+    CheckCurrentWidget;
+    if (widget->IsConnection())
+        widget->BeginConnection();
+}
+
+void MainWindow::Action_SetAutoConnection()
+{
+    const auto current = connectionTreeView->currentIndex();
+    if (current.isValid())
+    {
+        const auto widget = GetIndexWidget(current);
+        const auto identifier = widget->Identifier();
+        GlobalConfig->behaviorConfig->AutoConnectProfileId = identifier;
+        GlobalConfig->behaviorConfig->AutoConnectBehavior = Qv2rayBehaviorConfig::AUTOCONNECT_FIXED;
+        if (!GlobalConfig->behaviorConfig->QuietMode)
+        {
+            QvApp->GetTrayManager()->ShowTrayMessage(tr("%1 has been set to be auto connected.").arg(GetDisplayName(identifier.connectionId)));
+        }
+        QvApp->SaveQv2raySettings();
+    }
+}
+
+void MainWindow::Action_UpdateSubscription()
+{
+    auto current = connectionTreeView->currentIndex();
+    if (current.isValid())
+    {
+        auto widget = GetIndexWidget(current);
+        if (widget)
+        {
+            if (widget->IsConnection())
+                return;
+            const auto gid = widget->Identifier().groupId;
+            if (QvProfileManager->GetGroupObject(gid).subscription_config.isSubscription)
+                QvProfileManager->UpdateSubscription(gid, true);
+            else
+                QvBaselib->Info(tr("Update Subscription"), tr("Selected group is not a subscription"));
+        }
+    }
+}
+
+void MainWindow::Action_Edit()
+{
+    CheckCurrentWidget;
+    OnEditRequested(widget->Identifier().connectionId);
+}
+
+void MainWindow::Action_EditJson()
+{
+    CheckCurrentWidget;
+    OnEditJsonRequested(widget->Identifier().connectionId);
+}
+
+void MainWindow::Action_EditComplex()
+{
+    CheckCurrentWidget;
+    if (widget->IsConnection())
+    {
+        const auto id = widget->Identifier();
+        ProfileContent root = QvProfileManager->GetConnection(id.connectionId);
+
+#ifdef QV2RAY_COMPONENT_RouteEditor
+        QvLog() << "Opening route editor.";
+        RouteEditor editor(root, this);
+        root = editor.OpenEditor();
+        QvProfileManager->UpdateConnection(id.connectionId, root);
+#else
+        JsonEditor editor(root.toJson(), this);
+        root = ProfileContent::fromJson(editor.OpenEditor());
+#endif
+        if (editor.result() == QDialog::Accepted)
+            QvProfileManager->UpdateConnection(id.connectionId, root);
+    }
+}
+
+void MainWindow::Action_RenameConnection()
+{
+    CheckCurrentWidget;
+    widget->BeginRename();
+}
+
+void MainWindow::Action_DuplicateConnection()
+{
+    QList<ProfileId> connlist;
+    connlist.reserve(connectionTreeView->selectionModel()->selectedIndexes().size());
+    for (const auto &item : connectionTreeView->selectionModel()->selectedIndexes())
+    {
+        auto widget = GetIndexWidget(item);
+        if (widget->IsConnection())
+            connlist.append(widget->Identifier());
+    }
+
+    QvLog() << "Selected" << connlist.count() << "items.";
+
+    const auto strDupConnTitle = tr("Duplicating Connection(s)", "", connlist.count());
+    const auto strDupConnContent = tr("Are you sure to duplicate these connection(s)?", "", connlist.count());
+
+    if (connlist.count() > 1 && QvBaselib->Ask(strDupConnTitle, strDupConnContent) != Qv2rayBase::MessageOpt::Yes)
+        return;
+
+    for (const auto &conn : connlist)
+    {
+        const auto profile = QvProfileManager->GetConnection(conn.connectionId);
+        QvProfileManager->CreateConnection(profile, GetDisplayName(conn.connectionId) + tr(" (Copy)"), conn.groupId);
+    }
+}
+
+void MainWindow::Action_TestLatency()
+{
+    for (const auto &current : connectionTreeView->selectionModel()->selectedIndexes())
+    {
+        if (!current.isValid())
+            continue;
+        const auto widget = GetIndexWidget(current);
+        if (!widget)
+            continue;
+        if (widget->IsConnection())
+            QvProfileManager->StartLatencyTest(widget->Identifier().connectionId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
+        else
+            QvProfileManager->StartLatencyTest(widget->Identifier().groupId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
+    }
+}
+
+void MainWindow::Action_ResetStats()
+{
+    auto current = connectionTreeView->currentIndex();
+    if (current.isValid())
+    {
+        auto widget = GetIndexWidget(current);
+        if (widget)
+        {
+            if (widget->IsConnection())
+                QvProfileManager->ClearConnectionUsage(widget->Identifier());
+            else
+                QvProfileManager->ClearGroupUsage(widget->Identifier().groupId);
+        }
+    }
+}
+
+void MainWindow::Action_DeleteConnections()
+{
+    QList<ProfileId> connlist;
+    QList<GroupId> groupsList;
+
+    for (const auto &item : connectionTreeView->selectionModel()->selectedIndexes())
+    {
+        const auto widget = GetIndexWidget(item);
+        if (!widget)
+            continue;
+
+        const auto identifier = widget->Identifier();
+        if (widget->IsConnection())
+        {
+            // Simply add the connection id
+            connlist.append(identifier);
+            continue;
+        }
+
+        for (const auto &conns : QvProfileManager->GetConnections(identifier.groupId))
+            connlist.append(ProfileId{ conns, identifier.groupId });
+
+        const auto message = tr("Do you want to remove groups as well?") + NEWLINE + tr("Group: ") + GetDisplayName(identifier.groupId);
+        if (QvBaselib->Ask(tr("Removing Connection(s)"), message) == Qv2rayBase::MessageOpt::Yes)
+            groupsList << identifier.groupId;
+    }
+
+    const auto strRemoveConnTitle = tr("Removing Connection(s)");
+    const auto strRemoveConnContent = tr("Are you sure to remove selected connection(s)?");
+
+    if (QvBaselib->Ask(strRemoveConnTitle, strRemoveConnContent) != Qv2rayBase::MessageOpt::Yes)
+        return;
+
+    for (const auto &conn : connlist)
+        QvProfileManager->RemoveFromGroup(conn.connectionId, conn.groupId);
+
+    for (const auto &group : groupsList)
+        QvProfileManager->DeleteGroup(group, false);
 }

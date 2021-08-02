@@ -26,19 +26,17 @@ class MainWindow
   public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
-    void ProcessCommand(const QString &command, QStringList commands, QMap<QString, QString> args);
-
-  signals:
-    void StartConnection() const;
-    void StopConnection() const;
-    void RestartConnection() const;
+    void ProcessCommand(const QString &command, QStringList commands, const QMap<QString, QString> &args);
 
   private:
     QvMessageBusSlotDecl;
+    static constexpr auto BUTTON_PROP_PLUGIN_MAINWIDGETITEM_INDEX = "plugin_list_index";
 
   public slots:
     void OnTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
     void MWToggleVisibility();
+    void MWShowWindow();
+    void MWHideWindow();
 
   private slots:
     void on_preferencesBtn_clicked();
@@ -53,7 +51,7 @@ class MainWindow
     void on_chartVisibilityBtn_clicked();
     void on_logVisibilityBtn_clicked();
     void on_clearChartBtn_clicked();
-    void on_masterLogBrowser_textChanged();
+    void on_logBrowser_textChanged();
     //
     void on_pluginsBtn_clicked();
     void on_collapseGroupsBtn_clicked();
@@ -91,11 +89,7 @@ class MainWindow
     void OnStatsAvailable(const ProfileId &id, const StatisticsObject &speed);
     void OnKernelLogAvailable(const ProfileId &id, const QString &log);
     //
-    void SortConnectionList(ConnectionInfoRole byCol, bool asending);
-    //
-    void OnLogScrollbarValueChanged(int value);
-    //
-    void updateActionTranslations();
+    void RetranslateMenuActions();
     void OnPluginButtonClicked();
 
   protected:
@@ -104,53 +98,51 @@ class MainWindow
     void closeEvent(QCloseEvent *) override;
     void changeEvent(QEvent *e) override;
 
-  public:
-    void MWShowWindow();
-    void MWHideWindow();
-
   private:
-    // Charts
-    SpeedWidget *speedChartWidget;
-    LogHighlighter::LogHighlighter *vCoreLogHighlighter;
-    ConnectionInfoWidget *infoWidget;
-    //
-    // Declare Actions
-#define DECL_ACTION(parent, name) QAction *name = new QAction(parent)
-    QMenu *sortMenu = new QMenu(this);
-    QMenu *logRCM_Menu = new QMenu(this);
-    QMenu *connectionListRCM_Menu = new QMenu(this);
-    QMenu *graphWidgetMenu = new QMenu(this);
-    // Do not set parent=tray_RecentConnectionsMenu
-    // Calling clear() will cause this QAction being deleted.
-    DECL_ACTION(connectionListRCM_Menu, action_RCM_Start);
-    DECL_ACTION(connectionListRCM_Menu, action_RCM_SetAutoConnection);
-    DECL_ACTION(connectionListRCM_Menu, action_RCM_UpdateSubscription);
-    DECL_ACTION(connectionListRCM_Menu, action_RCM_Edit);
-    DECL_ACTION(connectionListRCM_Menu, action_RCM_EditJson);
-    DECL_ACTION(connectionListRCM_Menu, action_RCM_EditComplex);
-    DECL_ACTION(connectionListRCM_Menu, action_RCM_RenameConnection);
-    DECL_ACTION(connectionListRCM_Menu, action_RCM_DuplicateConnection);
-    DECL_ACTION(connectionListRCM_Menu, action_RCM_TestLatency);
-    DECL_ACTION(connectionListRCM_Menu, action_RCM_ResetStats);
-    DECL_ACTION(connectionListRCM_Menu, action_RCM_DeleteConnection);
-    DECL_ACTION(sortMenu, sortAction_SortByName_Asc);
-    DECL_ACTION(sortMenu, sortAction_SortByName_Dsc);
-    DECL_ACTION(sortMenu, sortAction_SortByPing_Asc);
-    DECL_ACTION(sortMenu, sortAction_SortByPing_Dsc);
-    DECL_ACTION(sortMenu, sortAction_SortByData_Asc);
-    DECL_ACTION(sortMenu, sortAction_SortByData_Dsc);
-    DECL_ACTION(graphWidgetMenu, action_RCM_CopyGraph);
-    DECL_ACTION(logRCM_Menu, action_RCM_CopySelected);
-    DECL_ACTION(logRCM_Menu, action_RCM_CopyRecentLogs);
-#undef DECL_ACTION
-
+    void LoadPluginMainWindowWidgets();
     void CheckForSubscriptionsUpdate();
-    bool StartAutoConnectionEntry();
+    bool TryStartAutoConnectionEntry();
     void updateColorScheme();
 
-    bool qvLogAutoScoll = true;
-    //    ProfileId lastConnected;
+  private:
+    SpeedWidget *speedChartWidget;
+    LogHighlighter::LogHighlighter *coreLogHighlighter;
+    ConnectionInfoWidget *connectionInfoWidget;
+
+    QMenu *connectionMenu = new QMenu(this);
+    struct
+    {
+        QAction *Start;
+        QAction *SetAutoConnection;
+        QAction *UpdateSubscription;
+        QAction *Edit;
+        QAction *EditJson;
+        QAction *EditComplex;
+        QAction *RenameConnection;
+        QAction *DuplicateConnection;
+        QAction *TestLatency;
+        QAction *ResetStats;
+        QAction *DeleteConnection;
+    } connectionActions;
+
+    QMenu *sortMenu = new QMenu(this);
+    struct
+    {
+
+        QAction *SortByName_Asc;
+        QAction *SortByName_Dsc;
+        QAction *SortByPing_Asc;
+        QAction *SortByPing_Dsc;
+        QAction *SortByData_Asc;
+        QAction *SortByData_Dsc;
+    } sortActions;
+
+    QAction *graphAction_CopyGraph;
+    QAction *logAction_CopySelected;
+    QAction *logAction_CopyRecentLogs;
+
+    bool logAutoScoll = true;
 
     QList<Qv2rayPlugin::Gui::PluginMainWindowWidget *> pluginWidgets;
-    Qv2ray::ui::widgets::models::ConnectionListHelper *modelHelper;
+    Qv2ray::ui::widgets::models::ConnectionListHelper *connectionModelHelper;
 };

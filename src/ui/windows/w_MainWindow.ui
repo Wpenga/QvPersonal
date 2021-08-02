@@ -336,6 +336,9 @@
                <height>200</height>
               </size>
              </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::ActionsContextMenu</enum>
+             </property>
              <layout class="QGridLayout" name="speedChart">
               <property name="topMargin">
                <number>0</number>
@@ -397,7 +400,7 @@
               <number>9</number>
              </property>
              <item row="0" column="0">
-              <widget class="QTextBrowser" name="masterLogBrowser">
+              <widget class="QTextBrowser" name="logBrowser">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -405,7 +408,7 @@
                 </size>
                </property>
                <property name="contextMenuPolicy">
-                <enum>Qt::CustomContextMenu</enum>
+                <enum>Qt::ActionsContextMenu</enum>
                </property>
                <property name="lineWrapMode">
                 <enum>QTextEdit::NoWrap</enum>
@@ -564,7 +567,6 @@
   <tabstop>importConfigButton</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../assets/icons/resources.qrc"/>
   <include location="../../../assets/icons/resources.qrc"/>
  </resources>
  <connections/>

@@ -3,18 +3,14 @@
 #include "Qv2rayBase/Plugin/PluginAPIHost.hpp"
 #include "QvPlugin/Gui/QvGUIPluginInterface.hpp"
 
-namespace Qv2ray::ui::common
+namespace Qv2ray::components::GuiPluginHost
 {
     class GuiPluginAPIHost
     {
       public:
         GuiPluginAPIHost();
-        QList<std::pair<Qv2rayPlugin::Qv2rayInterfaceImpl *, Qv2rayPlugin::Gui::Qv2rayGUIInterface *>> GUI_QueryByComponent(
-            Qv2rayPlugin::PLUGIN_GUI_COMPONENT_TYPE c) const;
-
-      private:
-        Qv2rayBase::Plugin::PluginAPIHost *apiHost;
+        QList<std::pair<Qv2rayPlugin::QvPluginMetadata, Qv2rayPlugin::Gui::Qv2rayGUIInterface *>> QueryByGuiComponent(Qv2rayPlugin::PLUGIN_GUI_COMPONENT_TYPE c) const;
     };
-} // namespace Qv2ray::ui::common
+} // namespace Qv2ray::components::GuiPluginHost
 
-inline Qv2ray::ui::common::GuiPluginAPIHost *GUIPluginHost;
+inline Qv2ray::components::GuiPluginHost::GuiPluginAPIHost *GUIPluginHost;

@@ -18,7 +18,7 @@ OutboundEditor::OutboundEditor(QWidget *parent) : QDialog(parent), outboundTag(O
     streamSettingsWidget->SetStreamObject({});
     transportFrame->addWidget(streamSettingsWidget);
 
-    for (const auto &[_, plugin] : GUIPluginHost->GUI_QueryByComponent(Qv2rayPlugin::GUI_COMPONENT_OUTBOUND_EDITOR))
+    for (const auto &[_, plugin] : GUIPluginHost->QueryByGuiComponent(Qv2rayPlugin::GUI_COMPONENT_OUTBOUND_EDITOR))
     {
         const auto editors = plugin->GetOutboundEditors();
         for (const auto &editorInfo : editors)
