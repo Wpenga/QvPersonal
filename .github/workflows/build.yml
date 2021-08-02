@@ -14,12 +14,12 @@ jobs:
     env:
       CC: ${{ matrix.config.cc }}
       CXX: ${{ matrix.config.cxx }}
-    name: '${{ matrix.config.name }} (No RouteEditor: ${{ matrix.no_route_editor }})'
+    name: '${{ matrix.config.name }} (RouteEditor: ${{ matrix.has_route_editor }})'
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
-        no_route_editor: [ON, OFF]
+        has_route_editor: [ON, OFF]
         config:
         - {
             name: "Windows MSVC", artifact: "Windows",
@@ -83,7 +83,7 @@ jobs:
           -DBUILD_TESTING=OFF \
           -DUSE_SYSTEM_LIBUV=OFF \
           -DUSE_SYSTEM_UVW=OFF \
-          -DQV2RAY_NO_NODEEDITOR=${{ matrix.no_route_editor }} \
+          -DQV2RAY_ROUTE_EDITOR=${{ matrix.has_route_editor }} \
           -GNinja
         cmake --build . --parallel
 
