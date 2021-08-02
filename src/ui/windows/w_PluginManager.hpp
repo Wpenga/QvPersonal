@@ -38,7 +38,7 @@ class PluginManageWindow
     void updateColorScheme() override{};
 
     std::shared_ptr<Qv2rayPlugin::Gui::PluginSettingsWidget> currentSettingsWidget;
-    const Qv2rayBase::Plugin::PluginInfo *currentPluginInfo;
+    const Qv2rayBase::Plugin::PluginInfo *currentPluginInfo = nullptr;
     QHash<PluginId, const Qv2rayBase::Plugin::PluginInfo *> plugins;
     bool isLoading = true;
 };

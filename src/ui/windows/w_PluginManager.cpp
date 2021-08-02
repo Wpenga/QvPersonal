@@ -51,7 +51,10 @@ void PluginManageWindow::on_pluginListWidget_currentItemChanged(QListWidgetItem 
     if (!current)
         return;
 
-    currentPluginInfo = plugins[PluginId{ current->data(Qt::UserRole).toString() }];
+    const auto pid = PluginId{ current->data(Qt::UserRole).toString() };
+    if (!plugins.contains(pid))
+        return;
+    currentPluginInfo = plugins[pid];
     const auto &metadata = currentPluginInfo->metadata();
 
     pluginNameLabel->setText(metadata.Name);

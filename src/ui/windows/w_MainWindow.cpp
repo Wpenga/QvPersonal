@@ -491,17 +491,15 @@ void MainWindow::Action_EditComplex()
 
 #ifdef QV2RAY_COMPONENT_RouteEditor
         QvLog() << "Opening route editor.";
-        RouteEditor routeWindow(root, this);
-        root = routeWindow.OpenEditor();
-        if (routeWindow.result() == QDialog::Accepted)
+        RouteEditor editor(root, this);
+        root = editor.OpenEditor();
+        QvProfileManager->UpdateConnection(id.connectionId, root);
 #else
         JsonEditor editor(root.toJson(), this);
         root = ProfileContent::fromJson(editor.OpenEditor());
-        QvProfileManager->UpdateConnection(id.connectionId, root);
-        {
-            QvProfileManager->UpdateConnection(id.connectionId, root);
-        }
 #endif
+        if (editor.result() == QDialog::Accepted)
+            QvProfileManager->UpdateConnection(id.connectionId, root);
     }
 }
 
