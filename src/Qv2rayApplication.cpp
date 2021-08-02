@@ -170,6 +170,7 @@ bool Qv2rayApplication::parseCommandLine(QString *errorMessage, bool *canContinu
 {
     *canContinue = true;
     QStringList filteredArgs;
+    filteredArgs.reserve(QCoreApplication::arguments().size());
     for (const auto &arg : QCoreApplication::arguments())
     {
 #ifdef Q_OS_MACOS

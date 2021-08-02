@@ -44,12 +44,14 @@ class GuiInterface : public Qv2rayPlugin::Gui::Qv2rayGUIInterface
 
 const QvPluginMetadata BuiltinV2RayCorePlugin::GetMetadata() const
 {
-    return { u"V2Ray Core Plugin"_qs,                 //
-             u"Moody"_qs,                             //
-             PluginId{ u"builtin_v2ray_support"_qs }, //
-             u"Basic V2Ray kernel support"_qs,        //
-             u""_qs,                                  //
-             { COMPONENT_KERNEL, COMPONENT_GUI } };
+    return {
+        u"V2Ray Core Plugin"_qs,                 //
+        u"Moody"_qs,                             //
+        PluginId{ u"builtin_v2ray_support"_qs }, //
+        u"Basic V2Ray kernel support"_qs,        //
+        u""_qs,                                  //
+        { COMPONENT_KERNEL, COMPONENT_GUI },     //
+    };
 }
 
 bool BuiltinV2RayCorePlugin::InitializePlugin()
