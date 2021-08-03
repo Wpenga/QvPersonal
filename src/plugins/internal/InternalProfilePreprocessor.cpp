@@ -44,9 +44,6 @@ void ProcessRoutes(RoutingObject &root, bool ForceDirectConnection, bool bypassC
     //
     // For Rules list
     QList<RuleObject> newRulesList;
-    if (bypassLAN)
-        newRulesList << GenerateSingleRouteRule<RULE_IP>({ "geoip:private" }, DEFAULT_FREEDOM_OUTBOUND_TAG);
-
     if (ForceDirectConnection)
     {
         // This is added to disable all proxies, as a alternative influence of #64
@@ -56,30 +53,36 @@ void ProcessRoutes(RoutingObject &root, bool ForceDirectConnection, bool bypassC
     }
     else
     {
-        // Blocked.
-        if (!routeConfig.domains->block->isEmpty())
-            newRulesList << GenerateSingleRouteRule<RULE_DOMAIN>(routeConfig.domains->block, DEFAULT_BLACKHOLE_OUTBOUND_TAG);
-        if (!routeConfig.ips->block->isEmpty())
-            newRulesList << GenerateSingleRouteRule<RULE_IP>(routeConfig.ips->block, DEFAULT_BLACKHOLE_OUTBOUND_TAG);
-
-        // Proxied
-        if (!routeConfig.domains->proxy->isEmpty())
-            newRulesList << GenerateSingleRouteRule<RULE_DOMAIN>(routeConfig.domains->proxy, outTag);
-        if (!routeConfig.ips->proxy->isEmpty())
-            newRulesList << GenerateSingleRouteRule<RULE_IP>(routeConfig.ips->proxy, outTag);
-
-        // Directed
-        if (!routeConfig.domains->direct->isEmpty())
-            newRulesList << GenerateSingleRouteRule<RULE_DOMAIN>(routeConfig.domains->direct, DEFAULT_FREEDOM_OUTBOUND_TAG);
-        if (!routeConfig.ips->direct->isEmpty())
-            newRulesList << GenerateSingleRouteRule<RULE_IP>(routeConfig.ips->direct, DEFAULT_FREEDOM_OUTBOUND_TAG);
-
-        // Check if CN needs proxy, or direct.
-        if (bypassCN)
         {
-            // No proxy agains CN addresses.
-            newRulesList << GenerateSingleRouteRule<RULE_DOMAIN>({ "geosite:cn" }, DEFAULT_FREEDOM_OUTBOUND_TAG);
-            newRulesList << GenerateSingleRouteRule<RULE_IP>({ "geoip:cn" }, DEFAULT_FREEDOM_OUTBOUND_TAG);
+            // Domain rules
+            if (!routeConfig.domains->block->isEmpty())
+                newRulesList << GenerateSingleRouteRule<RULE_DOMAIN>(routeConfig.domains->block, DEFAULT_BLACKHOLE_OUTBOUND_TAG);
+
+            if (!routeConfig.domains->proxy->isEmpty())
+                newRulesList << GenerateSingleRouteRule<RULE_DOMAIN>(routeConfig.domains->proxy, outTag);
+
+            if (!routeConfig.domains->direct->isEmpty())
+                newRulesList << GenerateSingleRouteRule<RULE_DOMAIN>(routeConfig.domains->direct, DEFAULT_FREEDOM_OUTBOUND_TAG);
+
+            if (bypassCN)
+                newRulesList << GenerateSingleRouteRule<RULE_DOMAIN>({ "geosite:cn" }, DEFAULT_FREEDOM_OUTBOUND_TAG);
+        }
+        {
+            // IP rules
+            if (!routeConfig.ips->block->isEmpty())
+                newRulesList << GenerateSingleRouteRule<RULE_IP>(routeConfig.ips->block, DEFAULT_BLACKHOLE_OUTBOUND_TAG);
+
+            if (!routeConfig.ips->proxy->isEmpty())
+                newRulesList << GenerateSingleRouteRule<RULE_IP>(routeConfig.ips->proxy, outTag);
+
+            if (!routeConfig.ips->direct->isEmpty())
+                newRulesList << GenerateSingleRouteRule<RULE_IP>(routeConfig.ips->direct, DEFAULT_FREEDOM_OUTBOUND_TAG);
+
+            if (bypassLAN)
+                newRulesList << GenerateSingleRouteRule<RULE_IP>({ "geoip:private" }, DEFAULT_FREEDOM_OUTBOUND_TAG);
+
+            if (bypassCN)
+                newRulesList << GenerateSingleRouteRule<RULE_IP>({ "geoip:cn" }, DEFAULT_FREEDOM_OUTBOUND_TAG);
         }
     }
 
