@@ -35,7 +35,7 @@ InboundEditor::InboundEditor(const InboundObject &source, QWidget *parent) : QDi
     sniffingSettings = current.options[u"sniffing"_qs].toObject();
 
     isLoading = true;
-    for (const auto &[_, plugin] : GUIPluginHost->GUI_QueryByComponent(Qv2rayPlugin::GUI_COMPONENT_INBOUND_EDITOR))
+    for (const auto &[_, plugin] : GUIPluginHost->QueryByGuiComponent(Qv2rayPlugin::GUI_COMPONENT_INBOUND_EDITOR))
     {
         const auto editors = plugin->GetInboundEditors();
         for (const auto &editorInfo : editors)

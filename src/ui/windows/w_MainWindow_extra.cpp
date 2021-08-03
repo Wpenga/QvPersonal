@@ -7,6 +7,10 @@
 #include "ui/windows/editors/w_JsonEditor.hpp"
 #include "w_MainWindow.hpp"
 
+#ifdef QV2RAY_COMPONENT_RouteEditor
+#include "ui/windows/editors/w_RoutesEditor.hpp"
+#endif
+
 #ifdef Q_OS_MAC
 #include <ApplicationServices/ApplicationServices.h>
 #endif
