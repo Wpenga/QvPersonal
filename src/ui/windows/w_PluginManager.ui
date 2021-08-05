@@ -6,16 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>876</width>
-    <height>557</height>
+    <width>878</width>
+    <height>593</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Plugin Manager</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2" columnstretch="3,5">
+  <layout class="QGridLayout" name="gridLayout_2" columnstretch="7,10">
    <item row="0" column="0">
-    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,2,3,0,0,0">
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,5,3,0,0,0">
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
