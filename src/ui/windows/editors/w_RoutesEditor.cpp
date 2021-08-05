@@ -396,7 +396,7 @@ void RouteEditor::on_defaultOutboundCombo_currentTextChanged(const QString &arg1
     LOADINGCHECK
     if (defaultOutboundTag != arg1)
     {
-        QvLog() << "Default outbound changed:" << arg1;
+        qInfo() << "Default outbound changed:" << arg1;
         defaultOutboundTag = arg1;
     }
 }

@@ -9,9 +9,14 @@
 #include "models/SettingsModels.hpp"
 #include "ui/windows/w_MainWindow.hpp"
 
+#include <QCommandLineParser>
 #include <QDesktopServices>
 #include <QSessionManager>
 #include <QSslSocket>
+#include <QUrl>
+#include <QUrlQuery>
+#include <QVersionNumber>
+#include <QtPlugin>
 #include <openssl/ssl.h>
 
 #define QV_MODULE_NAME "PlatformApplication"
@@ -54,10 +59,10 @@ bool Qv2rayApplication::Initialize()
     QString errorMessage;
     bool canContinue;
     const auto hasError = parseCommandLine(&errorMessage, &canContinue);
-    QvLog() << "Command line:" << errorMessage;
+    qInfo() << "Command line:" << errorMessage;
     if (hasError && !canContinue)
     {
-        QvLog() << "Fatal, Qv2ray cannot continue.";
+        qInfo() << "Fatal, Qv2ray cannot continue.";
         exitReason = EXIT_INITIALIZATION_FAILED;
         return false;
     }
@@ -103,7 +108,7 @@ bool Qv2rayApplication::Initialize()
             StartupArguments.arguments << Qv2rayStartupArguments::NORMAL;
         bool status = sendMessage(JsonToString(StartupArguments.toJson(), QJsonDocument::Compact).toUtf8());
         if (!status)
-            QvLog() << "Cannot send message.";
+            qInfo() << "Cannot send message.";
         exitReason = EXIT_SECONDARY_INSTANCE;
         return false;
     }
@@ -232,24 +237,24 @@ bool Qv2rayApplication::parseCommandLine(QString *errorMessage, bool *canContinu
 
     if (parser.isSet(exitOption))
     {
-        QvDebug() << "exitOption is set.";
+        qDebug() << "exitOption is set.";
         StartupArguments.arguments << Qv2rayStartupArguments::EXIT;
     }
 
     if (parser.isSet(disconnectOption))
     {
-        QvDebug() << "disconnectOption is set.";
+        qDebug() << "disconnectOption is set.";
         StartupArguments.arguments << Qv2rayStartupArguments::DISCONNECT;
     }
 
     if (parser.isSet(reconnectOption))
     {
-        QvDebug() << "reconnectOption is set.";
+        qDebug() << "reconnectOption is set.";
         StartupArguments.arguments << Qv2rayStartupArguments::RECONNECT;
     }
 
 #define ProcessExtraStartupOptions(option)                                                                                                                               \
-    QvDebug() << "Startup Options:" << #option << parser.isSet(option##Option);                                                                                          \
+    qDebug() << "Startup Options:" << #option << parser.isSet(option##Option);                                                                                          \
     StartupArguments.option = parser.isSet(option##Option);
 
     ProcessExtraStartupOptions(noAPI);
@@ -325,8 +330,8 @@ void Qv2rayApplication::onMessageReceived(quint32 clientId, const QByteArray &_m
 
     Qv2rayStartupArguments msg;
     msg.loadJson(JsonFromString(_msg));
-    QvLog() << "Received message, version:" << msg.version << "From client ID:" << clientId;
-    QvLog() << _msg;
+    qInfo() << "Received message, version:" << msg.version << "From client ID:" << clientId;
+    qInfo() << _msg;
 
     if (QVersionNumber::fromString(msg.version) > QVersionNumber::fromString(QV2RAY_VERSION_STRING))
     {

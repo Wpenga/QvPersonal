@@ -72,7 +72,7 @@ void NodeDispatcher::LoadFullConfig(const ProfileContent &root)
     {
         if (!ruleNodes.contains(rule->name))
         {
-            QvLog() << "Could not find rule:" << rule->name;
+            qInfo() << "Could not find rule:" << rule->name;
             continue;
         }
         const auto ruleNodeId = ruleNodes[rule->name];
@@ -81,7 +81,7 @@ void NodeDispatcher::LoadFullConfig(const ProfileContent &root)
         {
             if (!inboundNodes.contains(inboundTag))
             {
-                QvLog() << "Could not find inbound:" << inboundTag;
+                qInfo() << "Could not find inbound:" << inboundTag;
                 continue;
             }
             const auto inboundNodeId = inboundNodes.value(inboundTag);
@@ -90,7 +90,7 @@ void NodeDispatcher::LoadFullConfig(const ProfileContent &root)
 
         if (!outboundNodes.contains(rule->outboundTag))
         {
-            QvLog() << "Could not find outbound:" << rule->outboundTag;
+            qInfo() << "Could not find outbound:" << rule->outboundTag;
             continue;
         }
         const auto &outboundNodeId = outboundNodes[rule->outboundTag];
@@ -122,7 +122,7 @@ void NodeDispatcher::OnNodeDeleted(const QtNodes::Node &node)
 #define CLEANUP(type)                                                                                                                                                    \
     if (!type##Nodes.values().contains(nodeId))                                                                                                                          \
     {                                                                                                                                                                    \
-        QvLog() << "Could not find a(n) " #type " with id:" << nodeId.toString();                                                                                        \
+        qInfo() << "Could not find a(n) " #type " with id:" << nodeId.toString();                                                                                        \
         return;                                                                                                                                                          \
     }                                                                                                                                                                    \
     const auto type##Tag = type##Nodes.key(nodeId);                                                                                                                      \
@@ -205,7 +205,7 @@ QString NodeDispatcher::CreateOutbound(OutboundObject out)
     }
     else
     {
-        QvLog() << "Ignored non-connection outbound for Chain Editor.";
+        qInfo() << "Ignored non-connection outbound for Chain Editor.";
     }
 
     return dataPtr->name;

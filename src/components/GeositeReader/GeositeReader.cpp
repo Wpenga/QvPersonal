@@ -18,13 +18,13 @@ namespace Qv2ray::components::GeositeReader
             return GeositeEntries.value(filepath);
 
         QStringList list;
-        QvLog() << "Reading geosites from:" << filepath;
+        qInfo() << "Reading geosites from:" << filepath;
         QFile f(filepath);
         bool opened = f.open(QFile::OpenModeFlag::ReadOnly);
 
         if (!opened)
         {
-            QvLog() << "File cannot be opened:" << filepath;
+            qInfo() << "File cannot be opened:" << filepath;
             return list;
         }
 
@@ -39,7 +39,7 @@ namespace Qv2ray::components::GeositeReader
                 list << QString::fromStdString(geosite->GetString(1));
         }
 
-        QvLog() << "Loaded" << list.count() << "geosite entries from data file.";
+        qInfo() << "Loaded" << list.count() << "geosite entries from data file.";
         list.sort();
         GeositeEntries[filepath] = list;
         return list;

@@ -75,7 +75,7 @@ void ImportConfigWindow::on_beginImportBtn_clicked()
         {
             auto linkList = SplitLines(linkTxt->toPlainText());
             linkTxt->clear();
-            QvLog() << linkList.count() << "entries found.";
+            qInfo() << linkList.count() << "entries found.";
 
             while (!linkList.isEmpty())
             {

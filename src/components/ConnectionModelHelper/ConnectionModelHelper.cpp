@@ -145,7 +145,7 @@ QStandardItem *ConnectionListHelper::addConnectionItem(const ProfileId &id)
     //
     // Find groups
     if (!groups.contains(id.groupId))
-        QvLog() << "Unexpected";
+        qInfo() << "Unexpected";
     const auto groupIndex = groups.contains(id.groupId) ? groups[id.groupId] : addGroupItem(id.groupId);
     // Append into model
     groupIndex->appendRow(connectionItem);

@@ -575,7 +575,7 @@ void MainWindow::OnEditRequested(const ConnectionId &id)
     if (IsComplexConfig(id))
     {
 #ifdef QV2RAY_COMPONENT_RouteEditor
-        QvLog() << "INFO: Opening route editor.";
+        qInfo() << "INFO: Opening route editor.";
         RouteEditor editor(original, this);
         ProfileContent root = editor.OpenEditor();
 #else
@@ -587,7 +587,7 @@ void MainWindow::OnEditRequested(const ConnectionId &id)
     }
     else
     {
-        QvLog() << "INFO: Opening single connection edit window.";
+        qInfo() << "INFO: Opening single connection edit window.";
         OutboundObject out;
         if (!original.outbounds.isEmpty())
             out = original.outbounds.constFirst();

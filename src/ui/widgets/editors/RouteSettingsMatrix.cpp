@@ -96,7 +96,7 @@ void RouteSettingsMatrixWidget::on_importSchemeBtn_clicked()
     if (decision != Qv2rayBase::MessageOpt::Yes)
         return;
 
-    QvLog() << "Imported route config:" << scheme.name << "by:" << scheme.author;
+    qInfo() << "Imported route config:" << scheme.name << "by:" << scheme.author;
     this->SetRoute(scheme);
 }
 

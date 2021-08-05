@@ -31,7 +31,7 @@ namespace Qv2ray::components::QvStyleManager
         styles.insert(QV2RAY_SYSTEM_STYLE, {});
         for (const auto &key : QStyleFactory::keys())
         {
-            QvLog() << "Found factory style:" << key;
+            qInfo() << "Found factory style:" << key;
             QvStyle style;
             style.Name = key;
             style.Type = QvStyle::QVSTYLE_FACTORY;
@@ -46,7 +46,7 @@ namespace Qv2ray::components::QvStyleManager
                     break;
                 if (fileInfo.suffix() == u"css"_qs || fileInfo.suffix() == u"qss"_qs || fileInfo.suffix() == u"qvstyle"_qs)
                 {
-                    QvLog() << "Found QSS style at:" << fileInfo;
+                    qInfo() << "Found QSS style at:" << fileInfo;
                     QvStyle style;
                     style.Name = fileInfo.baseName();
                     style.qssPath = fileInfo.absoluteFilePath();
@@ -70,7 +70,7 @@ namespace Qv2ray::components::QvStyleManager
 
         if (style == QV2RAY_BUILT_IN_DARK_MODE_NAME)
         {
-            QvLog() << "Applying built-in darkmode theme.";
+            qInfo() << "Applying built-in darkmode theme.";
             // From https://forum.qt.io/topic/101391/windows-10-dark-theme/4
             static const QColor darkColor(45, 45, 45);
             static const QColor disabledColor(70, 70, 70);
@@ -108,14 +108,14 @@ namespace Qv2ray::components::QvStyleManager
         {
             case QvStyle::QVSTYLE_QSS:
             {
-                QvLog() << "Applying UI QSS style:" << s.qssPath;
+                qInfo() << "Applying UI QSS style:" << s.qssPath;
                 const auto content = ReadFile(s.qssPath);
                 qApp->setStyleSheet(content);
                 break;
             }
             case QvStyle::QVSTYLE_FACTORY:
             {
-                QvLog() << "Applying UI style:" << s.Name;
+                qInfo() << "Applying UI style:" << s.Name;
                 const auto _style = QStyleFactory::create(s.Name);
                 qApp->setPalette(_style->standardPalette());
                 qApp->setStyle(_style);

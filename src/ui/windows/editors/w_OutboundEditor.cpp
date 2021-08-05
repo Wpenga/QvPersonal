@@ -128,7 +128,7 @@ void OutboundEditor::reloadGUI()
 
     if (!processed)
     {
-        QvLog() << "Outbound type:" << outboundProtocol << " is not supported.";
+        qInfo() << "Outbound type:" << outboundProtocol << " is not supported.";
         QvBaselib->Warn(tr("Unknown outbound."), tr("The specified outbound type is invalid, this may be caused by a plugin failure.") + NEWLINE +
                                                      tr("Please use the JsonEditor or reload the plugin."));
         reject();

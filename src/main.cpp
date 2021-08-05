@@ -1,5 +1,6 @@
 #include "Qv2rayApplication.hpp"
 
+#include <QProcess>
 #include <csignal>
 #include <iostream>
 
@@ -52,7 +53,7 @@ int main(int argc, char *argv[])
         if (reason == EXIT_INITIALIZATION_FAILED)
         {
             init_msgbox(u"Qv2ray Initialization Failed"_qs, "PreInitialization Failed." NEWLINE "For more information, please see the log.");
-            QvLog() << "Qv2ray initialization failed:" << reason;
+            qInfo() << "Qv2ray initialization failed:" << reason;
         }
         return reason;
     }
@@ -62,7 +63,7 @@ int main(int argc, char *argv[])
     const auto reason = app.GetExitReason();
     if (reason == EXIT_NEW_VERSION_TRIGGER)
     {
-        QvLog() << "Starting new version of Qv2ray:" << app.StartupArguments._qvNewVersionPath;
+        qInfo() << "Starting new version of Qv2ray:" << app.StartupArguments._qvNewVersionPath;
         QProcess::startDetached(app.StartupArguments._qvNewVersionPath, {});
     }
     return reason;

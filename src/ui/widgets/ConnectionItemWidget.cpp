@@ -101,7 +101,7 @@ void ConnectionItemWidget::OnConnected(const ProfileId &id)
     if (id == ProfileId{ connectionId, groupId })
     {
         connNameLabel->setText("● " + originalItemName);
-        QvDebug() << "ConnectionItemWidgetOnConnected signal received for:" << id.connectionId;
+        qDebug() << "ConnectionItemWidgetOnConnected signal received for:" << id.connectionId;
     }
 }
 

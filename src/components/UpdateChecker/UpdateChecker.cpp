@@ -5,6 +5,8 @@
 #include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 #include "semver.hpp"
 
+#include <QJsonDocument>
+
 #define QV_MODULE_NAME "UpdateChecker"
 
 const inline QStringList UpdateChannelLink{
@@ -39,24 +41,24 @@ namespace Qv2ray::components::UpdateChecker
             const auto currentVersion = semver::version::from_string(currentVersionStr.toStdString());
             const auto ignoredVersion = semver::version::from_string(ignoredVersionStr.toStdString());
 
-            QvLog() << "Received update info:";
-            QvLog() << " --> Latest: " << newVersionStr;
-            QvLog() << " --> Current: " << currentVersionStr;
-            QvLog() << " --> Ignored: " << ignoredVersionStr;
+            qInfo() << "Received update info:";
+            qInfo() << " --> Latest: " << newVersionStr;
+            qInfo() << " --> Current: " << currentVersionStr;
+            qInfo() << " --> Ignored: " << ignoredVersionStr;
             // If the version is newer than us.
             // And new version is newer than the ignored version.
             hasUpdate = (newVersion > currentVersion && newVersion > ignoredVersion);
         }
         catch (std::exception e)
         {
-            QvLog() << "Some strange exception occured, cannot check update." << e.what();
+            qInfo() << "Some strange exception occured, cannot check update." << e.what();
         }
         if (hasUpdate)
         {
             const auto name = root["name"].toString();
             if (name.contains("NO_RELEASE"))
             {
-                QvLog() << "Found the recent release title with NO_RELEASE tag. Ignoring";
+                qInfo() << "Found the recent release title with NO_RELEASE tag. Ignoring";
                 return;
             }
             const auto link = root["html_url"].toString("");
@@ -77,7 +79,7 @@ namespace Qv2ray::components::UpdateChecker
         }
         else
         {
-            QvLog() << "No suitable updates found on channel" << GlobalConfig->updateConfig->UpdateChannel;
+            qInfo() << "No suitable updates found on channel" << GlobalConfig->updateConfig->UpdateChannel;
         }
     }
 
@@ -85,7 +87,7 @@ namespace Qv2ray::components::UpdateChecker
     {
 #ifndef QV2RAY_NO_AUTOUPDATE
         const auto updateChannel = GlobalConfig->updateConfig->UpdateChannel;
-        QvLog() << "Start checking update for channel ID: " << updateChannel;
+        qInfo() << "Start checking update for channel ID: " << updateChannel;
         Qv2rayBase::Utils::NetworkRequestHelper::StaticAsyncGet(UpdateChannelLink[updateChannel], QvApp, &VersionUpdate);
 #endif
     }

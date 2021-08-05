@@ -133,7 +133,7 @@ void InboundEditor::loadUI()
 
     if (!processed)
     {
-        QvLog() << "Inbound protocol:" << inboundProtocol << "is not supported.";
+        qInfo() << "Inbound protocol:" << inboundProtocol << "is not supported.";
         QvBaselib->Warn(tr("Unknown inbound."), tr("The specified inbound type is invalid, this may be caused by a plugin failure.") + NEWLINE +
                                                     tr("Please use the JsonEditor or reload the plugin."));
         reject();

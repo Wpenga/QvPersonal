@@ -83,7 +83,7 @@ void MainWindow::CheckForSubscriptionsUpdate()
         {
             updateList << std::pair{ info.name, entry };
             updateNamesList << info.name;
-            QvLog() << "Subscription update:" << info.name << TimeToString(info.updated) << info.subscription_config.updateInterval;
+            qInfo() << "Subscription update:" << info.name << TimeToString(info.updated) << info.subscription_config.updateInterval;
         }
     }
 
@@ -105,12 +105,12 @@ void MainWindow::CheckForSubscriptionsUpdate()
     {
         if (result == Qv2rayBase::MessageOpt::Yes)
         {
-            QvLog() << "Updating subscription:" << name;
+            qInfo() << "Updating subscription:" << name;
             QvProfileManager->UpdateSubscription(id, true);
         }
         else if (result == Qv2rayBase::MessageOpt::Ignore)
         {
-            QvLog() << "Ignored subscription update:" << name;
+            qInfo() << "Ignored subscription update:" << name;
             QvProfileManager->IgnoreSubscriptionUpdate(id);
         }
     }
@@ -269,7 +269,7 @@ void MainWindow::Action_EditComplex()
         ProfileContent root = QvProfileManager->GetConnection(id.connectionId);
 
 #ifdef QV2RAY_COMPONENT_RouteEditor
-        QvLog() << "Opening route editor.";
+        qInfo() << "Opening route editor.";
         RouteEditor editor(root, this);
         root = editor.OpenEditor();
         QvProfileManager->UpdateConnection(id.connectionId, root);
@@ -327,7 +327,7 @@ void MainWindow::Action_DuplicateConnection()
             connlist.append(widget->Profile());
     }
 
-    QvLog() << "Selected" << connlist.count() << "items.";
+    qInfo() << "Selected" << connlist.count() << "items.";
 
     const auto strDupConnTitle = tr("Duplicating Connection(s)", "", connlist.count());
     const auto strDupConnContent = tr("Are you sure to duplicate these connection(s)?", "", connlist.count());
