@@ -12,6 +12,7 @@
 #include <QCommandLineParser>
 #include <QDesktopServices>
 #include <QSessionManager>
+#include <QSettings>
 #include <QSslSocket>
 #include <QUrl>
 #include <QUrlQuery>
