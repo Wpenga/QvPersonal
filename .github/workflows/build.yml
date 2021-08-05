@@ -102,13 +102,13 @@ jobs:
         path: QvPersonal.7z
 
     - name: Get the version
-      if: github.event_name == 'release' && matrix.config.has_release && matrix.no_route_editor == 'OFF'
+      if: github.event_name == 'release' && matrix.config.has_release && matrix.has_route_editor == 'ON'
       id: get_version
       run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
 
     - name: Upload to GitHub Release
       uses: svenstaro/upload-release-action@v2
-      if: github.event_name == 'release' && matrix.config.has_release
+      if: github.event_name == 'release' && matrix.config.has_release && matrix.has_route_editor == 'ON'
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: QvPersonal.7z
