@@ -102,7 +102,6 @@ void ConnectionItemWidget::OnConnected(const ProfileId &id)
     {
         connNameLabel->setText("● " + originalItemName);
         QvDebug() << "ConnectionItemWidgetOnConnected signal received for:" << id.connectionId;
-        emit RequestWidgetFocus(this);
     }
 }
 

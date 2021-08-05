@@ -485,9 +485,11 @@ void MainWindow::OnConnected(const ProfileId &id)
     }
     QvApp->GetTrayManager()->SetTrayTooltip("Qv2ray " QV2RAY_VERSION_STRING NEWLINE + tr("Connected: ") + name);
     connetionStatusLabel->setText(tr("Connected: ") + name);
-    //
+
     GlobalConfig->appearanceConfig->RecentConnections->removeAll(id);
     GlobalConfig->appearanceConfig->RecentConnections->push_front(id);
+
+    on_locateBtn_clicked();
 }
 
 void MainWindow::on_connectionFilterTxt_textEdited(const QString &arg1)

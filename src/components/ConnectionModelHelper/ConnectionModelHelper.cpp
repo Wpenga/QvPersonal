@@ -152,14 +152,6 @@ QStandardItem *ConnectionListHelper::addConnectionItem(const ProfileId &id)
     const auto connectionIndex = connectionItem->index();
     //
     auto widget = new ConnectionItemWidget(id);
-    connect(widget, &ConnectionItemWidget::RequestWidgetFocus,
-            [this, connectionIndex]()
-            {
-                parentView->setCurrentIndex(connectionIndex);
-                parentView->scrollTo(connectionIndex);
-                emit parentView->clicked(connectionIndex);
-            });
-
     parentView->setIndexWidget(connectionIndex, widget);
     pairs[id] = connectionItem;
     connections[id.connectionId].append(connectionItem);

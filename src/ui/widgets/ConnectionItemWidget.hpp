@@ -32,8 +32,7 @@ class ConnectionItemWidget
     {
         return !connectionId.isNull();
     }
-  signals:
-    void RequestWidgetFocus(const ConnectionItemWidget *me);
+
   private slots:
     void OnConnected(const ProfileId &id);
     void OnDisConnected(const ProfileId &id);
