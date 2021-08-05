@@ -129,14 +129,19 @@ SubscriptionResult OOCProvider::FetchDecodeSubscription(const SubscriptionProvid
     const auto &[err, errorString, data] = InternalSubscriptionSupportPlugin::NetworkRequestHelper()->Get(url, pinnedCertChecker);
 
     if (err != QNetworkReply::NoError)
-        InternalSubscriptionSupportPlugin::Log(errorString);
+    {
+        qCritical().noquote() << errorString;
+        InternalSubscriptionSupportPlugin::ShowMessageBox(QObject::tr("Cannot Contact OOC API Server"), errorString);
+        return {};
+    }
 
     const auto shadowsocks = QJsonDocument::fromJson(data).object().value(u"shadowsocks"_qs).toArray();
-    QStringList unsupportedNodes;
 
     SubscriptionResult result;
     SubscriptionResult::result_type_t<SR_Tags> tags;
     SubscriptionResult::result_type_t<SR_OutboundObjects> outbounds;
+
+    QStringList unsupportedNodes;
     for (const auto &ss : shadowsocks)
     {
         // id, group, owner omitted.
@@ -144,7 +149,7 @@ SubscriptionResult OOCProvider::FetchDecodeSubscription(const SubscriptionProvid
         if (ss.toObject().contains(u"pluginName"_qs))
         {
             // SIP003 plugins not supported.
-            qDebug() << "Unsupported node:" << name;
+            qWarning() << "Unsupported node:" << name;
             unsupportedNodes << name;
             continue;
         }
