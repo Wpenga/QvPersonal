@@ -20,7 +20,7 @@ class ConnectionItemWidget
     void BeginRename();
     void CancelRename();
 
-    inline const ProfileId Identifier() const
+    inline const ProfileId Profile() const
     {
         return { this->connectionId, this->groupId };
     }

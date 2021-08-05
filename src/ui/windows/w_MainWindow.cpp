@@ -132,49 +132,58 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         //
         // Actions for right click the connection list
         //
-        connectionActions.Start = new QAction(connectionMenu);
-        connectionActions.Edit = new QAction(connectionMenu);
-        connectionActions.EditJson = new QAction(connectionMenu);
-        connectionActions.EditComplex = new QAction(connectionMenu);
-        connectionActions.TestLatency = new QAction(connectionMenu);
-        connectionActions.SetAutoConnection = new QAction(connectionMenu);
-        connectionActions.RenameConnection = new QAction(connectionMenu);
-        connectionActions.DuplicateConnection = new QAction(connectionMenu);
-        connectionActions.ResetStats = new QAction(connectionMenu);
-        connectionActions.UpdateSubscription = new QAction(connectionMenu);
-        connectionActions.DeleteConnection = new QAction(connectionMenu);
+        connActions.Start = new QAction(connMenu);
+        connActions.Edit = new QAction(connMenu);
+        connActions.EditAsMenu = new QMenu(connMenu);
+        connActions.editAsActions.Json = new QAction(connActions.EditAsMenu);
+        connActions.editAsActions.Complex = new QAction(connActions.EditAsMenu);
+        connActions.CopyMenu = new QMenu(connMenu);
+        connActions.copyActions.Link = new QAction(connActions.CopyMenu);
+        connActions.TestLatency = new QAction(connMenu);
+        connActions.SetAutoConnection = new QAction(connMenu);
+        connActions.RenameConnection = new QAction(connMenu);
+        connActions.DuplicateConnection = new QAction(connMenu);
+        connActions.ResetStats = new QAction(connMenu);
+        connActions.UpdateSubscription = new QAction(connMenu);
+        connActions.DeleteConnection = new QAction(connMenu);
 
-        connect(connectionActions.Start, &QAction::triggered, this, &MainWindow::Action_Start);
-        connect(connectionActions.Edit, &QAction::triggered, this, &MainWindow::Action_Edit);
-        connect(connectionActions.EditJson, &QAction::triggered, this, &MainWindow::Action_EditJson);
-        connect(connectionActions.EditComplex, &QAction::triggered, this, &MainWindow::Action_EditComplex);
-        connect(connectionActions.TestLatency, &QAction::triggered, this, &MainWindow::Action_TestLatency);
-        connect(connectionActions.SetAutoConnection, &QAction::triggered, this, &MainWindow::Action_SetAutoConnection);
-        connect(connectionActions.RenameConnection, &QAction::triggered, this, &MainWindow::Action_RenameConnection);
-        connect(connectionActions.DuplicateConnection, &QAction::triggered, this, &MainWindow::Action_DuplicateConnection);
-        connect(connectionActions.ResetStats, &QAction::triggered, this, &MainWindow::Action_ResetStats);
-        connect(connectionActions.UpdateSubscription, &QAction::triggered, this, &MainWindow::Action_UpdateSubscription);
-        connect(connectionActions.DeleteConnection, &QAction::triggered, this, &MainWindow::Action_DeleteConnections);
+        connect(connActions.Start, &QAction::triggered, this, &MainWindow::Action_Start);
+        connect(connActions.Edit, &QAction::triggered, this, &MainWindow::Action_Edit);
+        connect(connActions.editAsActions.Json, &QAction::triggered, this, &MainWindow::Action_EditJson);
+        connect(connActions.editAsActions.Complex, &QAction::triggered, this, &MainWindow::Action_EditComplex);
+        connect(connActions.copyActions.Link, &QAction::triggered, this, &MainWindow::Action_Copy_Link);
+        connect(connActions.TestLatency, &QAction::triggered, this, &MainWindow::Action_TestLatency);
+        connect(connActions.SetAutoConnection, &QAction::triggered, this, &MainWindow::Action_SetAutoConnection);
+        connect(connActions.RenameConnection, &QAction::triggered, this, &MainWindow::Action_RenameConnection);
+        connect(connActions.DuplicateConnection, &QAction::triggered, this, &MainWindow::Action_DuplicateConnection);
+        connect(connActions.ResetStats, &QAction::triggered, this, &MainWindow::Action_ResetStats);
+        connect(connActions.UpdateSubscription, &QAction::triggered, this, &MainWindow::Action_UpdateSubscription);
+        connect(connActions.DeleteConnection, &QAction::triggered, this, &MainWindow::Action_DeleteConnections);
 
-        connectionMenu->addAction(connectionActions.Start);
-        connectionMenu->addSeparator();
-        connectionMenu->addAction(connectionActions.Edit);
-        connectionMenu->addAction(connectionActions.EditJson);
-        connectionMenu->addAction(connectionActions.EditComplex);
-        connectionMenu->addSeparator();
+        connMenu->addAction(connActions.Start);
+        connMenu->addSeparator();
+        connMenu->addAction(connActions.Edit);
+        {
+            connActions.EditAsMenu->addAction(connActions.editAsActions.Json);
+            connActions.EditAsMenu->addAction(connActions.editAsActions.Complex);
+        }
+        connMenu->addMenu(connActions.EditAsMenu);
+        connMenu->addSeparator();
+        {
+            connActions.CopyMenu->addAction(connActions.copyActions.Link);
+        }
+        connMenu->addMenu(connActions.CopyMenu);
+        connMenu->addSeparator();
+        connMenu->addAction(connActions.TestLatency);
+        connMenu->addAction(connActions.SetAutoConnection);
+        connMenu->addAction(connActions.RenameConnection);
+        connMenu->addAction(connActions.DuplicateConnection);
+        connMenu->addAction(connActions.ResetStats);
+        connMenu->addSeparator();
+        connMenu->addAction(connActions.UpdateSubscription);
+        connMenu->addSeparator();
 
-        connectionMenu->addAction(connectionActions.TestLatency);
-
-        connectionMenu->addSeparator();
-        connectionMenu->addAction(connectionActions.SetAutoConnection);
-        connectionMenu->addSeparator();
-        connectionMenu->addAction(connectionActions.RenameConnection);
-        connectionMenu->addAction(connectionActions.DuplicateConnection);
-        connectionMenu->addAction(connectionActions.ResetStats);
-        connectionMenu->addAction(connectionActions.UpdateSubscription);
-        connectionMenu->addSeparator();
-
-        connectionMenu->addAction(connectionActions.DeleteConnection);
+        connMenu->addAction(connActions.DeleteConnection);
     }
 
     {
@@ -425,21 +434,20 @@ void MainWindow::on_connectionTreeView_customContextMenuRequested(QPoint pos)
 {
     Q_UNUSED(pos)
 
-    auto _pos = QCursor::pos();
+    const auto _pos = QCursor::pos();
     const auto item = connectionTreeView->indexAt(connectionTreeView->mapFromGlobal(_pos));
     if (item.isValid())
     {
         bool isConnection = GetIndexWidget(item)->IsConnection();
         // Disable connection-specific settings.
-        connectionActions.Start->setEnabled(isConnection);
-        connectionActions.SetAutoConnection->setEnabled(isConnection);
-        connectionActions.Edit->setEnabled(isConnection);
-        connectionActions.EditJson->setEnabled(isConnection);
-        connectionActions.EditComplex->setEnabled(isConnection);
-        connectionActions.RenameConnection->setEnabled(isConnection);
-        connectionActions.DuplicateConnection->setEnabled(isConnection);
-        connectionActions.UpdateSubscription->setEnabled(!isConnection);
-        connectionMenu->popup(_pos);
+        connActions.Start->setEnabled(isConnection);
+        connActions.SetAutoConnection->setEnabled(isConnection);
+        connActions.Edit->setEnabled(isConnection);
+        connActions.EditAsMenu->setEnabled(isConnection);
+        connActions.RenameConnection->setEnabled(isConnection);
+        connActions.DuplicateConnection->setEnabled(isConnection);
+        connActions.UpdateSubscription->setEnabled(!isConnection);
+        connMenu->popup(_pos);
     }
 }
 
@@ -598,7 +606,7 @@ void MainWindow::OnEditJsonRequested(const ConnectionId &id)
 
 void MainWindow::on_locateBtn_clicked()
 {
-    auto id = QvKernelManager->CurrentConnection();
+    const auto id = QvKernelManager->CurrentConnection();
     if (id.isNull())
         return;
     const auto index = connectionModelHelper->GetConnectionPairIndex(id);
@@ -643,7 +651,7 @@ void MainWindow::on_newConnectionBtn_clicked()
     {
         const auto alias = w.GetFriendlyName();
         const auto item = connectionTreeView->currentIndex();
-        const auto id = item.isValid() ? GetIndexWidget(item)->Identifier().groupId : DefaultGroupId;
+        const auto id = item.isValid() ? GetIndexWidget(item)->Profile().groupId : DefaultGroupId;
         QvProfileManager->CreateConnection(root, alias, id);
     }
 }
@@ -660,7 +668,7 @@ void MainWindow::on_newComplexConnectionBtn_clicked()
     if (w.result() == QDialog::Accepted)
     {
         const auto item = connectionTreeView->currentIndex();
-        const auto id = item.isValid() ? GetIndexWidget(item)->Identifier().groupId : DefaultGroupId;
+        const auto id = item.isValid() ? GetIndexWidget(item)->Profile().groupId : DefaultGroupId;
         QvProfileManager->CreateConnection(root, u"New Connection"_qs, id);
     }
 }
@@ -684,7 +692,7 @@ void MainWindow::on_connectionTreeView_clicked(const QModelIndex &index)
     const auto widget = GetIndexWidget(index);
     if (widget == nullptr)
         return;
-    connectionInfoWidget->ShowDetails(widget->Identifier());
+    connectionInfoWidget->ShowDetails(widget->Profile());
 }
 
 void MainWindow::on_preferencesBtn_clicked()

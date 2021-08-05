@@ -71,6 +71,7 @@ class MainWindow
     void Action_Edit();
     void Action_EditJson();
     void Action_EditComplex();
+    void Action_Copy_Link();
     void Action_UpdateSubscription();
     void Action_TestLatency();
     void Action_RenameConnection();
@@ -109,21 +110,33 @@ class MainWindow
     LogHighlighter::LogHighlighter *coreLogHighlighter;
     ConnectionInfoWidget *connectionInfoWidget;
 
-    QMenu *connectionMenu = new QMenu(this);
+    QMenu *connMenu = new QMenu(this);
     struct
     {
         QAction *Start;
         QAction *SetAutoConnection;
         QAction *UpdateSubscription;
+
         QAction *Edit;
-        QAction *EditJson;
-        QAction *EditComplex;
+        QMenu *EditAsMenu;
+        struct
+        {
+            QAction *Json;
+            QAction *Complex;
+        } editAsActions;
+
+        QMenu *CopyMenu;
+        struct
+        {
+            QAction *Link;
+        } copyActions;
+
         QAction *RenameConnection;
         QAction *DuplicateConnection;
         QAction *TestLatency;
         QAction *ResetStats;
         QAction *DeleteConnection;
-    } connectionActions;
+    } connActions;
 
     QMenu *sortMenu = new QMenu(this);
     struct

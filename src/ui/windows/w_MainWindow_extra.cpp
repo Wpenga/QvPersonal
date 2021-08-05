@@ -15,6 +15,8 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
+#include <QClipboard>
+
 #define QV_MODULE_NAME "MainWindowExtra"
 
 void MainWindow::MWToggleVisibility()
@@ -128,14 +130,13 @@ void MainWindow::updateColorScheme()
     updownImageBox->setStyleSheet("image: url(" + STYLE_RESX("netspeed_arrow") + ")");
     updownImageBox_2->setStyleSheet("image: url(" + STYLE_RESX("netspeed_arrow") + ")");
 
-    connectionActions.Start->setIcon(QIcon(STYLE_RESX("start")));
-    connectionActions.Edit->setIcon(QIcon(STYLE_RESX("edit")));
-    connectionActions.EditJson->setIcon(QIcon(STYLE_RESX("code")));
-    connectionActions.EditComplex->setIcon(QIcon(STYLE_RESX("edit")));
-    connectionActions.DuplicateConnection->setIcon(QIcon(STYLE_RESX("copy")));
-    connectionActions.DeleteConnection->setIcon(QIcon(STYLE_RESX("ashbin")));
-    connectionActions.ResetStats->setIcon(QIcon(STYLE_RESX("ashbin")));
-    connectionActions.TestLatency->setIcon(QIcon(STYLE_RESX("ping_gauge")));
+    connActions.Start->setIcon(QIcon(STYLE_RESX("start")));
+    connActions.Edit->setIcon(QIcon(STYLE_RESX("edit")));
+    connActions.editAsActions.Json->setIcon(QIcon(STYLE_RESX("code")));
+    connActions.editAsActions.Complex->setIcon(QIcon(STYLE_RESX("edit")));
+    connActions.DuplicateConnection->setIcon(QIcon(STYLE_RESX("copy")));
+    connActions.DeleteConnection->setIcon(QIcon(STYLE_RESX("ashbin")));
+    connActions.TestLatency->setIcon(QIcon(STYLE_RESX("ping_gauge")));
 
     clearChartBtn->setIcon(QIcon(STYLE_RESX("ashbin")));
     clearlogButton->setIcon(QIcon(STYLE_RESX("ashbin")));
@@ -148,17 +149,20 @@ void MainWindow::updateColorScheme()
 void MainWindow::RetranslateMenuActions()
 {
     QvApp->GetTrayManager()->Retranslate();
-    connectionActions.Start->setText(tr("Connect to this"));
-    connectionActions.SetAutoConnection->setText(tr("Set as automatically connected"));
-    connectionActions.EditJson->setText(tr("Edit as JSON"));
-    connectionActions.UpdateSubscription->setText(tr("Update Subscription"));
-    connectionActions.EditComplex->setText(tr("Edit as Complex Config"));
-    connectionActions.RenameConnection->setText(tr("Rename"));
-    connectionActions.Edit->setText(tr("Edit"));
-    connectionActions.DuplicateConnection->setText(tr("Duplicate to the Same Group"));
-    connectionActions.TestLatency->setText(tr("Test Latency"));
-    connectionActions.ResetStats->setText(tr("Clear Usage Data"));
-    connectionActions.DeleteConnection->setText(tr("Delete Connection"));
+    connActions.Start->setText(tr("Connect to this"));
+    connActions.SetAutoConnection->setText(tr("Set as automatically connected"));
+    connActions.EditAsMenu->setTitle(tr("Edit Using..."));
+    connActions.editAsActions.Json->setText(tr("JSON Editor"));
+    connActions.editAsActions.Complex->setText(tr("Complex Config Editor"));
+    connActions.CopyMenu->setTitle(tr("Copy..."));
+    connActions.copyActions.Link->setText(tr("Share Link"));
+    connActions.UpdateSubscription->setText(tr("Update Subscription"));
+    connActions.RenameConnection->setText(tr("Rename"));
+    connActions.Edit->setText(tr("Edit"));
+    connActions.DuplicateConnection->setText(tr("Duplicate to the Same Group"));
+    connActions.TestLatency->setText(tr("Test Latency"));
+    connActions.ResetStats->setText(tr("Clear Usage Data"));
+    connActions.DeleteConnection->setText(tr("Delete Connection"));
 
     sortMenu->setTitle(tr("Sort connection list."));
     sortActions.SortByName_Asc->setText(tr("By connection name, A-Z"));
@@ -214,7 +218,7 @@ void MainWindow::Action_SetAutoConnection()
     if (current.isValid())
     {
         const auto widget = GetIndexWidget(current);
-        const auto identifier = widget->Identifier();
+        const auto identifier = widget->Profile();
         GlobalConfig->behaviorConfig->AutoConnectProfileId = identifier;
         GlobalConfig->behaviorConfig->AutoConnectBehavior = Qv2rayBehaviorConfig::AUTOCONNECT_FIXED;
         if (!GlobalConfig->behaviorConfig->QuietMode)
@@ -235,7 +239,7 @@ void MainWindow::Action_UpdateSubscription()
         {
             if (widget->IsConnection())
                 return;
-            const auto gid = widget->Identifier().groupId;
+            const auto gid = widget->Profile().groupId;
             if (QvProfileManager->GetGroupObject(gid).subscription_config.isSubscription)
                 QvProfileManager->UpdateSubscription(gid, true);
             else
@@ -247,13 +251,13 @@ void MainWindow::Action_UpdateSubscription()
 void MainWindow::Action_Edit()
 {
     CheckCurrentWidget;
-    OnEditRequested(widget->Identifier().connectionId);
+    OnEditRequested(widget->Profile().connectionId);
 }
 
 void MainWindow::Action_EditJson()
 {
     CheckCurrentWidget;
-    OnEditJsonRequested(widget->Identifier().connectionId);
+    OnEditJsonRequested(widget->Profile().connectionId);
 }
 
 void MainWindow::Action_EditComplex()
@@ -261,7 +265,7 @@ void MainWindow::Action_EditComplex()
     CheckCurrentWidget;
     if (widget->IsConnection())
     {
-        const auto id = widget->Identifier();
+        const auto id = widget->Profile();
         ProfileContent root = QvProfileManager->GetConnection(id.connectionId);
 
 #ifdef QV2RAY_COMPONENT_RouteEditor
@@ -278,6 +282,34 @@ void MainWindow::Action_EditComplex()
     }
 }
 
+void MainWindow::Action_Copy_Link()
+{
+    QStringList links;
+    for (const auto &current : connectionTreeView->selectionModel()->selectedIndexes())
+    {
+        if (!current.isValid())
+            continue;
+        const auto widget = GetIndexWidget(current);
+        if (!widget)
+            continue;
+        if (widget->IsConnection())
+        {
+            if (const auto shareLink = ConvertConfigToString(widget->Profile().connectionId); shareLink)
+                links << *shareLink;
+        }
+        else
+        {
+            const auto conns = QvProfileManager->GetConnections(widget->Profile().groupId);
+            links.reserve(conns.size());
+            for (const auto &connection : conns)
+                if (const auto link = ConvertConfigToString(connection); link)
+                    links.append(*link);
+        }
+    }
+    links.removeDuplicates();
+    qApp->clipboard()->setText(links.join('\n'));
+}
+
 void MainWindow::Action_RenameConnection()
 {
     CheckCurrentWidget;
@@ -292,7 +324,7 @@ void MainWindow::Action_DuplicateConnection()
     {
         auto widget = GetIndexWidget(item);
         if (widget->IsConnection())
-            connlist.append(widget->Identifier());
+            connlist.append(widget->Profile());
     }
 
     QvLog() << "Selected" << connlist.count() << "items.";
@@ -320,9 +352,9 @@ void MainWindow::Action_TestLatency()
         if (!widget)
             continue;
         if (widget->IsConnection())
-            QvProfileManager->StartLatencyTest(widget->Identifier().connectionId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
+            QvProfileManager->StartLatencyTest(widget->Profile().connectionId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
         else
-            QvProfileManager->StartLatencyTest(widget->Identifier().groupId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
+            QvProfileManager->StartLatencyTest(widget->Profile().groupId, GlobalConfig->behaviorConfig->DefaultLatencyTestEngine);
     }
 }
 
@@ -335,9 +367,9 @@ void MainWindow::Action_ResetStats()
         if (widget)
         {
             if (widget->IsConnection())
-                QvProfileManager->ClearConnectionUsage(widget->Identifier());
+                QvProfileManager->ClearConnectionUsage(widget->Profile());
             else
-                QvProfileManager->ClearGroupUsage(widget->Identifier().groupId);
+                QvProfileManager->ClearGroupUsage(widget->Profile().groupId);
         }
     }
 }
@@ -353,7 +385,7 @@ void MainWindow::Action_DeleteConnections()
         if (!widget)
             continue;
 
-        const auto identifier = widget->Identifier();
+        const auto identifier = widget->Profile();
         if (widget->IsConnection())
         {
             // Simply add the connection id
