@@ -97,6 +97,7 @@ jobs:
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
+      if: matrix.has_route_editor == 'ON'
       with:
         name: QvPersonal-${{ github.sha }}-${{ matrix.config.artifact }}.7z
         path: QvPersonal.7z
