@@ -122,9 +122,7 @@ endif()
 # ==================================================================================
 # Qv2ray Builtin Plugins
 # ==================================================================================
-include(src/plugins/protocols/plugin.cmake)
-include(src/plugins/subscription-adapters/plugin.cmake)
-include(src/plugins/v2ray/plugin.cmake)
+add_subdirectory(src/plugins)
 
 # ==================================================================================
 # Qv2ray

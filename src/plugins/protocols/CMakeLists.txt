@@ -31,7 +31,6 @@ qv2ray_add_plugin(${PROTOCOL_PLUGIN_TARGET} Widgets
 target_sources(${PROTOCOL_PLUGIN_TARGET} PRIVATE
     ${PLUGIN_UI_SOURCE}
     ${CMAKE_CURRENT_LIST_DIR}/resx.qrc
-#    ${CMAKE_CURRENT_LIST_DIR}/../PluginsCommon/V2RayModels.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BuiltinProtocolPlugin.hpp
     ${CMAKE_CURRENT_LIST_DIR}/BuiltinProtocolPlugin.cpp
     ${CMAKE_CURRENT_LIST_DIR}/core/OutboundHandler.cpp

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "QvPlugin/Gui/QvGUIPluginInterface.hpp"
-#include "src/plugins/PluginsCommon/V2RayModels.hpp"
+#include "V2RayModels.hpp"
 #include "ui_trojan.h"
 
 class TrojanOutboundEditor
