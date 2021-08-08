@@ -25,5 +25,5 @@ class TrojanOutboundEditor
     }
 
   private:
-    Qv2ray::Models::TrojanclientObject trojan;
+    Qv2ray::Models::TrojanClientObject trojan;
 };

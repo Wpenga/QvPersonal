@@ -217,7 +217,7 @@ void V2RayProfileGenerator::ProcessOutboundConfig(const OutboundObject &out)
 
     if (out.outboundSettings.protocol == u"trojan"_qs)
     {
-        Qv2ray::Models::TrojanclientObject trojan;
+        Qv2ray::Models::TrojanClientObject trojan;
         trojan.loadJson(out.outboundSettings.protocolSettings);
 
         QJsonObject singleServer{

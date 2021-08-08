@@ -19,204 +19,13 @@ using namespace Qv2ray::Models;
 QString SerializeVLESS(const QString &name, const IOConnectionSettings &connection);
 QString SerializeVMess(const QString &name, const IOConnectionSettings &connection);
 QString SerializeSS(const QString &name, const IOConnectionSettings &connection);
+QString SerializeTrojan(const QString &name, const IOConnectionSettings &connection);
 
 std::optional<std::pair<QString, IOConnectionSettings>> DeserializeVLESS(const QString &link);
 std::optional<std::pair<QString, IOConnectionSettings>> DeserializeVMess(const QString &link);
 std::optional<std::pair<QString, IOConnectionSettings>> DeserializeSS(const QString &link);
-
-// This generates global config containing only one outbound....
-std::optional<std::pair<QString, IOConnectionSettings>> DeserializeOldVMess(const QString &link)
-{
-    QString vmess = link.trimmed();
-
-    if (!vmess.startsWith(u"vmess://"_qs, Qt::CaseInsensitive))
-    {
-        // QObject::tr("VMess string should start with 'vmess://'");
-        return std::nullopt;
-    }
-
-    const auto b64Str = vmess.mid(8, vmess.length() - 8);
-    if (b64Str.isEmpty())
-    {
-        // QObject::tr("VMess string should be a valid base64 string");
-        return std::nullopt;
-    }
-
-    auto vmessConf = QJsonDocument::fromJson(SafeBase64Decode(b64Str).toUtf8()).object();
-
-    if (vmessConf.isEmpty())
-    {
-        // QObject::tr("JSON should not be empty");
-        return std::nullopt;
-    }
-
-    // --------------------------------------------------------------------------------------
-
-    // vmess v1 upgrader
-    if (!vmessConf.contains(u"v"_qs))
-    {
-        // LOG("Detected deprecated vmess v1. Trying to upgrade...");
-        if (const auto network = vmessConf[u"net"_qs].toString(); network == u"ws"_qs || network == u"h2"_qs)
-        {
-            const QStringList hostComponents = vmessConf[u"host"_qs].toString().replace(' ', '\0').split(';');
-            if (const auto nParts = hostComponents.length(); nParts == 1)
-                vmessConf[u"path"_qs] = hostComponents[0], vmessConf[u"host"_qs] = u""_qs;
-            else if (nParts == 2)
-                vmessConf[u"path"_qs] = hostComponents[0], vmessConf[u"host"_qs] = hostComponents[1];
-            else
-                vmessConf[u"path"_qs] = u"/"_qs, vmessConf[u"host"_qs] = u""_qs;
-        }
-    }
-
-    QString ps, add, id, net, type, host, path, tls, scy, sni;
-    int port;
-    //
-    // __vmess_checker__func(key, values)
-    //
-    //   - Key     =    Key in JSON and the variable name.
-    //   - Values  =    Candidate variable list, if not match, the first one is used as default.
-    //
-    //   - [[val.size() <= 1]] is used when only the default value exists.
-    //
-    //   - It can be empty, if so,           if the key is not in the JSON, or the value is empty,  report an error.
-    //   - Else if it contains one thing.    if the key is not in the JSON, or the value is empty,  use that one.
-    //   - Else if it contains many things,  when the key IS in the JSON but not within the THINGS, use the first in the THINGS
-    //   - Else -------------------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  use the JSON value
-    //
-#define __vmess_checker__func(key, vals)                                                                                                                                 \
-    do                                                                                                                                                                   \
-    {                                                                                                                                                                    \
-        const auto _key = u"" #key##_qs;                                                                                                                                 \
-        auto val = QStringList() vals;                                                                                                                                   \
-        if (vmessConf.contains(_key) && !vmessConf[_key].toVariant().toString().trimmed().isEmpty() &&                                                                   \
-            (val.size() <= 1 || val.contains(vmessConf[_key].toVariant().toString())))                                                                                   \
-        {                                                                                                                                                                \
-            key = vmessConf[u"" #key##_qs].toVariant().toString();                                                                                                       \
-        }                                                                                                                                                                \
-        else if (!val.isEmpty())                                                                                                                                         \
-        {                                                                                                                                                                \
-            key = val.first();                                                                                                                                           \
-        }                                                                                                                                                                \
-        else                                                                                                                                                             \
-        {                                                                                                                                                                \
-            return std::nullopt;                                                                                                                                         \
-        }                                                                                                                                                                \
-    } while (false)
-
-    // Strict check of VMess protocol, to check if the specified value
-    // is in the correct range.
-    //
-    // Get Alias (AKA ps) from address and port.
-    {
-        __vmess_checker__func(ps, << vmessConf[u"add"_qs].toString() + u":"_qs + vmessConf[u"port"_qs].toVariant().toString()); //
-        __vmess_checker__func(add, );
-        __vmess_checker__func(id, );
-        __vmess_checker__func(scy, << u"aes-128-gcm"_qs       //
-                                   << u"chacha20-poly1305"_qs //
-                                   << u"auto"_qs              //
-                                   << u"none"_qs              //
-                                   << u"zero"_qs);            //
-
-        __vmess_checker__func(type, << u"none"_qs           //
-                                    << u"http"_qs           //
-                                    << u"srtp"_qs           //
-                                    << u"utp"_qs            //
-                                    << u"wechat-video"_qs); //
-
-        __vmess_checker__func(net, << u"tcp"_qs    //
-                                   << u"http"_qs   //
-                                   << u"h2"_qs     //
-                                   << u"ws"_qs     //
-                                   << u"kcp"_qs    //
-                                   << u"quic"_qs   //
-                                   << u"grpc"_qs); //
-
-        __vmess_checker__func(tls, << u"none"_qs  //
-                                   << u"tls"_qs); //
-
-        path = vmessConf.contains("path") ? vmessConf["path"].toVariant().toString() : (net == "quic" ? "" : "/");
-        host = vmessConf.contains("host") ? vmessConf["host"].toVariant().toString() : (net == "quic" ? "none" : "");
-    }
-
-    // Respect connection type rather than obfs type
-    if (QStringList{ "srtp", "utp", "wechat-video" }.contains(type))
-    {
-        if (net != "quic" && net != "kcp")
-        {
-            // ("Reset obfs settings from " + type + " to none");
-            type = "none";
-        }
-    }
-
-    port = vmessConf[u"port"_qs].toVariant().toInt();
-
-    //
-    // Apply the settings.
-
-    IOConnectionSettings conn;
-    VMessClientObject client;
-    client.id = id;
-    client.security = scy;
-    conn.port = port;
-    conn.address = add;
-    conn.protocol = u"vmess"_qs;
-    conn.protocolSettings = IOProtocolSettings{ client.toJson() };
-
-    //
-    //
-    // Stream Settings
-    StreamSettingsObject streaming;
-
-    if (net == "tcp")
-    {
-        streaming.tcpSettings->header->type = type;
-    }
-    else if (net == "http" || net == "h2")
-    {
-        // Fill hosts for HTTP
-        for (const auto &_host : host.split(','))
-            if (!_host.isEmpty())
-                streaming.httpSettings->host << _host.trimmed();
-
-        streaming.httpSettings->path = path;
-    }
-    else if (net == "ws")
-    {
-        if (!host.isEmpty())
-            (*streaming.wsSettings->headers)["Host"] = host;
-        streaming.wsSettings->path = path;
-    }
-    else if (net == "kcp")
-    {
-        streaming.kcpSettings->header->type = type;
-    }
-    else if (net == "quic")
-    {
-        streaming.quicSettings->security = host;
-        streaming.quicSettings->header->type = type;
-        streaming.quicSettings->key = path;
-    }
-    else if (net == "grpc")
-    {
-        streaming.grpcSettings->serviceName = path;
-    }
-
-    streaming.security = tls;
-    if (tls == "tls")
-    {
-        if (sni.isEmpty() && !host.isEmpty())
-            sni = host;
-        streaming.tlsSettings->serverName = sni;
-    }
-
-    // Network type
-    // NOTE(DuckSoft): Damn vmess:// just don't write 'http' properly
-    if (net == "h2")
-        net = "http";
-    streaming.network = net;
-    conn.streamSettings = IOStreamSettings{ streaming.toJson() };
-    return std::make_pair(ps, conn);
-}
+std::optional<std::pair<QString, IOConnectionSettings>> DeserializeOldVMess(const QString &link);
+std::optional<std::pair<QString, IOConnectionSettings>> DeserializeTrojan(const QString &link);
 
 std::optional<QString> BuiltinSerializer::Serialize(const QString &name, const IOConnectionSettings &outbound) const
 {
@@ -236,18 +45,18 @@ std::optional<QString> BuiltinSerializer::Serialize(const QString &name, const I
             url.setUserName(out[u"pass"_qs].toString());
         return url.toString();
     }
+
     if (protocol == u"vless"_qs)
-    {
         return SerializeVLESS(name, outbound);
-    }
+
     if (protocol == u"vmess"_qs)
-    {
         return SerializeVMess(name, outbound);
-    }
+
     if (protocol == u"shadowsocks"_qs)
-    {
         return SerializeSS(name, outbound);
-    }
+
+    if (protocol == u"trojan"_qs)
+        return SerializeTrojan(name, outbound);
 
     return std::nullopt;
 }
@@ -275,7 +84,20 @@ std::optional<std::pair<QString, IOConnectionSettings>> BuiltinSerializer::Deser
     if (link.startsWith(u"vless://"_qs))
         return DeserializeVLESS(link);
 
+    if (link.startsWith(u"trojan://"_qs))
+        return DeserializeTrojan(link);
+
     return std::nullopt;
+}
+
+std::optional<PluginIOBoundData> BuiltinSerializer::GetOutboundInfo(const IOConnectionSettings &) const
+{
+    return std::nullopt;
+}
+
+bool BuiltinSerializer::SetOutboundInfo(IOConnectionSettings &, const PluginIOBoundData &) const
+{
+    return true;
 }
 
 QString SerializeVLESS(const QString &name, const IOConnectionSettings &conn)
@@ -473,6 +295,28 @@ QString SerializeSS(const QString &name, const IOConnectionSettings &connection)
     return url.toString(QUrl::ComponentFormattingOption::FullyEncoded);
 }
 
+QString SerializeTrojan(const QString &name, const IOConnectionSettings &connection)
+{
+    QUrl url;
+    url.setScheme(u"trojan"_qs);
+    url.setHost(connection.address);
+    url.setPort(connection.port.from);
+    url.setUserInfo(connection.protocolSettings[u"password"_qs].toString());
+    url.setFragment(name);
+    return url.toString();
+}
+
+std::optional<std::pair<QString, IOConnectionSettings>> DeserializeTrojan(const QString &link)
+{
+    QUrl url{ link };
+    IOConnectionSettings conn;
+    conn.address = url.host();
+    conn.port = url.port();
+    conn.protocol = u"trojan"_qs;
+    conn.protocolSettings.insert(u"password"_qs, url.userInfo());
+    return std::make_pair(QUrlQuery{ url.query() }.queryItemValue(u"password"_qs), conn);
+}
+
 const static QStringList NetworkType{ "tcp", "http", "ws", "kcp", "quic" };
 const static QStringList QuicSecurityTypes{ "none", "aes-128-gcm", "chacha20-poly1305" };
 const static QStringList QuicKcpHeaderTypes{ "none", "srtp", "utp", "wechat-video", "dtls", "wireguard" };
@@ -628,6 +472,199 @@ std::optional<std::pair<QString, IOConnectionSettings>> DeserializeVLESS(const Q
     conn.protocolSettings = IOProtocolSettings{ outbound };
     conn.streamSettings = IOStreamSettings{ stream };
     return std::make_pair(remarks, conn);
+}
+
+std::optional<std::pair<QString, IOConnectionSettings>> DeserializeOldVMess(const QString &link)
+{
+    QString vmess = link.trimmed();
+
+    if (!vmess.startsWith(u"vmess://"_qs, Qt::CaseInsensitive))
+    {
+        // QObject::tr("VMess string should start with 'vmess://'");
+        return std::nullopt;
+    }
+
+    const auto b64Str = vmess.mid(8, vmess.length() - 8);
+    if (b64Str.isEmpty())
+    {
+        // QObject::tr("VMess string should be a valid base64 string");
+        return std::nullopt;
+    }
+
+    auto vmessConf = QJsonDocument::fromJson(SafeBase64Decode(b64Str).toUtf8()).object();
+
+    if (vmessConf.isEmpty())
+    {
+        // QObject::tr("JSON should not be empty");
+        return std::nullopt;
+    }
+
+    // --------------------------------------------------------------------------------------
+
+    // vmess v1 upgrader
+    if (!vmessConf.contains(u"v"_qs))
+    {
+        // LOG("Detected deprecated vmess v1. Trying to upgrade...");
+        if (const auto network = vmessConf[u"net"_qs].toString(); network == u"ws"_qs || network == u"h2"_qs)
+        {
+            const QStringList hostComponents = vmessConf[u"host"_qs].toString().replace(' ', '\0').split(';');
+            if (const auto nParts = hostComponents.length(); nParts == 1)
+                vmessConf[u"path"_qs] = hostComponents[0], vmessConf[u"host"_qs] = u""_qs;
+            else if (nParts == 2)
+                vmessConf[u"path"_qs] = hostComponents[0], vmessConf[u"host"_qs] = hostComponents[1];
+            else
+                vmessConf[u"path"_qs] = u"/"_qs, vmessConf[u"host"_qs] = u""_qs;
+        }
+    }
+
+    QString ps, add, id, net, type, host, path, tls, scy, sni;
+    int port;
+    //
+    // __vmess_checker__func(key, values)
+    //
+    //   - Key     =    Key in JSON and the variable name.
+    //   - Values  =    Candidate variable list, if not match, the first one is used as default.
+    //
+    //   - [[val.size() <= 1]] is used when only the default value exists.
+    //
+    //   - It can be empty, if so,           if the key is not in the JSON, or the value is empty,  report an error.
+    //   - Else if it contains one thing.    if the key is not in the JSON, or the value is empty,  use that one.
+    //   - Else if it contains many things,  when the key IS in the JSON but not within the THINGS, use the first in the THINGS
+    //   - Else -------------------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  use the JSON value
+    //
+#define __vmess_checker__func(key, vals)                                                                                                                                 \
+    do                                                                                                                                                                   \
+    {                                                                                                                                                                    \
+        const auto _key = u"" #key##_qs;                                                                                                                                 \
+        auto val = QStringList() vals;                                                                                                                                   \
+        if (vmessConf.contains(_key) && !vmessConf[_key].toVariant().toString().trimmed().isEmpty() &&                                                                   \
+            (val.size() <= 1 || val.contains(vmessConf[_key].toVariant().toString())))                                                                                   \
+        {                                                                                                                                                                \
+            key = vmessConf[u"" #key##_qs].toVariant().toString();                                                                                                       \
+        }                                                                                                                                                                \
+        else if (!val.isEmpty())                                                                                                                                         \
+        {                                                                                                                                                                \
+            key = val.first();                                                                                                                                           \
+        }                                                                                                                                                                \
+        else                                                                                                                                                             \
+        {                                                                                                                                                                \
+            return std::nullopt;                                                                                                                                         \
+        }                                                                                                                                                                \
+    } while (false)
+
+    // Strict check of VMess protocol, to check if the specified value
+    // is in the correct range.
+    //
+    // Get Alias (AKA ps) from address and port.
+    {
+        __vmess_checker__func(ps, << vmessConf[u"add"_qs].toString() + u":"_qs + vmessConf[u"port"_qs].toVariant().toString()); //
+        __vmess_checker__func(add, );
+        __vmess_checker__func(id, );
+        __vmess_checker__func(scy, << u"aes-128-gcm"_qs       //
+                                   << u"chacha20-poly1305"_qs //
+                                   << u"auto"_qs              //
+                                   << u"none"_qs              //
+                                   << u"zero"_qs);            //
+
+        __vmess_checker__func(type, << u"none"_qs           //
+                                    << u"http"_qs           //
+                                    << u"srtp"_qs           //
+                                    << u"utp"_qs            //
+                                    << u"wechat-video"_qs); //
+
+        __vmess_checker__func(net, << u"tcp"_qs    //
+                                   << u"http"_qs   //
+                                   << u"h2"_qs     //
+                                   << u"ws"_qs     //
+                                   << u"kcp"_qs    //
+                                   << u"quic"_qs   //
+                                   << u"grpc"_qs); //
+
+        __vmess_checker__func(tls, << u"none"_qs  //
+                                   << u"tls"_qs); //
+
+        path = vmessConf.contains("path") ? vmessConf["path"].toVariant().toString() : (net == "quic" ? "" : "/");
+        host = vmessConf.contains("host") ? vmessConf["host"].toVariant().toString() : (net == "quic" ? "none" : "");
+    }
+
+    // Respect connection type rather than obfs type
+    if (QStringList{ "srtp", "utp", "wechat-video" }.contains(type))
+    {
+        if (net != "quic" && net != "kcp")
+        {
+            // ("Reset obfs settings from " + type + " to none");
+            type = "none";
+        }
+    }
+
+    port = vmessConf[u"port"_qs].toVariant().toInt();
+
+    //
+    // Apply the settings.
+
+    IOConnectionSettings conn;
+    VMessClientObject client;
+    client.id = id;
+    client.security = scy;
+    conn.port = port;
+    conn.address = add;
+    conn.protocol = u"vmess"_qs;
+    conn.protocolSettings = IOProtocolSettings{ client.toJson() };
+
+    //
+    //
+    // Stream Settings
+    StreamSettingsObject streaming;
+
+    if (net == "tcp")
+    {
+        streaming.tcpSettings->header->type = type;
+    }
+    else if (net == "http" || net == "h2")
+    {
+        // Fill hosts for HTTP
+        for (const auto &_host : host.split(','))
+            if (!_host.isEmpty())
+                streaming.httpSettings->host << _host.trimmed();
+
+        streaming.httpSettings->path = path;
+    }
+    else if (net == "ws")
+    {
+        if (!host.isEmpty())
+            (*streaming.wsSettings->headers)["Host"] = host;
+        streaming.wsSettings->path = path;
+    }
+    else if (net == "kcp")
+    {
+        streaming.kcpSettings->header->type = type;
+    }
+    else if (net == "quic")
+    {
+        streaming.quicSettings->security = host;
+        streaming.quicSettings->header->type = type;
+        streaming.quicSettings->key = path;
+    }
+    else if (net == "grpc")
+    {
+        streaming.grpcSettings->serviceName = path;
+    }
+
+    streaming.security = tls;
+    if (tls == "tls")
+    {
+        if (sni.isEmpty() && !host.isEmpty())
+            sni = host;
+        streaming.tlsSettings->serverName = sni;
+    }
+
+    // Network type
+    // NOTE(DuckSoft): Damn vmess:// just don't write 'http' properly
+    if (net == "h2")
+        net = "http";
+    streaming.network = net;
+    conn.streamSettings = IOStreamSettings{ streaming.toJson() };
+    return std::make_pair(ps, conn);
 }
 
 std::optional<std::pair<QString, IOConnectionSettings>> DeserializeVMess(const QString &link)

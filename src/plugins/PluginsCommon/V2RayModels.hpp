@@ -314,7 +314,7 @@ namespace Qv2ray::Models
         QJS_JSON(F(id, security, experiments))
     };
 
-    struct TrojanclientObject
+    struct TrojanClientObject
     {
         Bindable<QString> password;
         QJS_JSON(F(password))
