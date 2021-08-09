@@ -116,7 +116,7 @@ if(QV2RAY_ROUTE_EDITOR)
         find_package(NodeEditor REQUIRED)
     else()
         set(QT_VERSION_MAJOR 6)
-        add_subdirectory(3rdparty/QNodeEditor)
+        add_subdirectory(3rdparty/QNodeEditor EXCLUDE_FROM_ALL)
     endif()
 endif()
 
