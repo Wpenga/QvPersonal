@@ -8,7 +8,6 @@ target_include_directories(qv2ray PRIVATE ${Iconv_INCLUDE_DIR})
 
 set(MACOSX_ICON "${CMAKE_SOURCE_DIR}/assets/icons/qv2ray.icns")
 set(MACOSX_PLIST "${CMAKE_SOURCE_DIR}/assets/MacOSXBundleInfo.plist.in")
-configure_file("${CMAKE_SOURCE_DIR}/assets/package_dmg.json.in" "${CMAKE_SOURCE_DIR}/assets/package_dmg.json" @ONLY)
 
 set_source_files_properties(${QV2RAY_QM_FILES}
     PROPERTIES
@@ -43,6 +42,7 @@ list(APPEND DIRS "${CMAKE_BINARY_DIR}")
 
 # For QtNodes
 list(APPEND DIRS "${CMAKE_BINARY_DIR}/3rdparty/QNodeEditor")
+list(APPEND DIRS "${CMAKE_BINARY_DIR}/lib")
 
 # For Qv2rayBase
 list(APPEND DIRS "${CMAKE_BINARY_DIR}/src/Qv2rayBase")
