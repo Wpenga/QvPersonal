@@ -25,13 +25,12 @@ namespace Qv2ray::Models
 #endif
         Bindable<UIStyleType> DarkModeTrayIcon;
         Bindable<QString> UITheme{ _system_theme };
-        Bindable<QString> Language;
         Bindable<qsizetype> RecentJumpListSize{ 10 };
         Bindable<QList<ProfileId>> RecentConnections;
         Bindable<int> MaximizeLogLines{ 500 };
         Bindable<bool> ShowTrayIcon{ true };
-        QJS_COMPARE(Qv2rayAppearanceConfig, DarkModeTrayIcon, UITheme, Language, RecentJumpListSize, RecentConnections, MaximizeLogLines, ShowTrayIcon)
-        QJS_JSON(P(DarkModeTrayIcon, UITheme, Language, RecentJumpListSize, RecentConnections, MaximizeLogLines, ShowTrayIcon))
+        QJS_COMPARE(Qv2rayAppearanceConfig, DarkModeTrayIcon, UITheme, RecentJumpListSize, RecentConnections, MaximizeLogLines, ShowTrayIcon)
+        QJS_JSON(P(DarkModeTrayIcon, UITheme, RecentJumpListSize, RecentConnections, MaximizeLogLines, ShowTrayIcon))
     };
 
     struct Qv2rayBehaviorConfig

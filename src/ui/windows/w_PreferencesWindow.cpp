@@ -32,13 +32,6 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(u"PreferenceWin
     QvMessageBusConnect();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    // We add locales
-    {
-        languageComboBox->setDisabled(true);
-        // Since we can't have languages detected. It worths nothing to translate these.
-        languageComboBox->setToolTip(u"Cannot find any language providers."_qs);
-    }
-
     // Set auto start button state
     SetAutoStartButtonsState(GetLaunchAtLoginStatus());
     themeCombo->addItems(StyleManager->AllStyles());
@@ -51,7 +44,6 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) : QvDialog(u"PreferenceWin
     AppConfig.appearanceConfig->RecentJumpListSize.ReadWriteBind(jumpListCountSB, "value", &QSpinBox::valueChanged);
     AppConfig.appearanceConfig->UITheme.ReadWriteBind(themeCombo, "currentText", &QComboBox::currentIndexChanged);
     AppConfig.appearanceConfig->DarkModeTrayIcon.ReadWriteBind(darkTrayCB, "checked", &QCheckBox::stateChanged);
-    AppConfig.appearanceConfig->Language.ReadWriteBind(languageComboBox, "currentText", &QComboBox::currentIndexChanged);
     AppConfig.appearanceConfig->ShowTrayIcon.ReadWriteBind(showTrayCB, "checked", &QCheckBox::stateChanged);
     AppConfig.behaviorConfig->QuietMode.ReadWriteBind(quietModeCB, "checked", &QCheckBox::stateChanged);
 
