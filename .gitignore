@@ -13,6 +13,7 @@ compile_commands.json
 CMakeSettings.json
 out/
 build**/
+*build/
 
 # IntelliJ-based IDE Trash
 .idea/
