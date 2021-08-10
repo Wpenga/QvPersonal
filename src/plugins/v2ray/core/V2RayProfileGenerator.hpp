@@ -26,10 +26,10 @@ class V2RayProfileGenerator
     explicit V2RayProfileGenerator(const ProfileContent &);
 
 #ifdef QV2RAY_V2RAY_PLUGIN_USE_PROTOBUF
-    void GenerateDNSConfig(const QJsonObject &, ::google::protobuf::Any *);
-    void GenerateInboundConfig(const InboundObject &, ::v2ray::core::InboundHandlerConfig *);
-    void GenerateOutboundConfig(const OutboundObject &, ::v2ray::core::OutboundHandlerConfig *);
-    void GenerateStreamSettings(const IOStreamSettings &, ::v2ray::core::transport::internet::StreamConfig *);
+    static void GenerateDNSConfig(const QJsonObject &, ::google::protobuf::Any *);
+    static void GenerateInboundConfig(const InboundObject &, ::v2ray::core::InboundHandlerConfig *);
+    static void GenerateOutboundConfig(const OutboundObject &, ::v2ray::core::OutboundHandlerConfig *);
+    static void GenerateStreamSettings(const IOStreamSettings &, ::v2ray::core::transport::internet::StreamConfig *);
 #else
     void ProcessRoutingRule(const RuleObject &);
     void ProcessInboundConfig(const InboundObject &);

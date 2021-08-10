@@ -17,6 +17,7 @@ inline void OutboundMarkSettingFilter(QJsonObject &root, int mark)
 
 V2RayProfileGenerator::V2RayProfileGenerator(const ProfileContent &profile) : profile(profile){};
 
+#ifndef QV2RAY_V2RAY_PLUGIN_USE_PROTOBUF
 QByteArray V2RayProfileGenerator::GenerateConfiguration(const ProfileContent &p)
 {
     return V2RayProfileGenerator(p).Generate();
@@ -315,8 +316,7 @@ QJsonObject V2RayProfileGenerator::GenerateStreamSettings(const IOStreamSettings
 {
     return stream;
 }
-
-#ifdef QV2RAY_V2RAY_PLUGIN_USE_PROTOBUF
+#else
 // App Settings
 #include "v2ray/app/browserforwarder/config.pb.h"
 #include "v2ray/app/dns/config.pb.h"
@@ -405,7 +405,7 @@ QByteArray V2RayProfileGenerator::GenerateConfiguration(const ProfileContent &pr
     for (const auto &out : profile.outbounds)
         GenerateOutboundConfig(out, config.add_outbound());
 
-    GenerateDNSConfig(profile.dnsOptions, config.add_app());
+    GenerateDNSConfig(profile.routing.dns, config.add_app());
 
     return QByteArray::fromStdString(config.SerializeAsString());
 }
@@ -419,7 +419,8 @@ void V2RayProfileGenerator::GenerateDNSConfig(const QJsonObject &_dns, google::p
     conf.set_client_ip(dns.clientIp->toStdString());
     conf.set_tag(dns.tag->toStdString());
     conf.set_disablecache(dns.disableCache);
-    conf.set_query_strategy((QueryStrategy) *dns.queryStrategy);
+#pragma message("TODO: QueryStrategy")
+    // conf.set_query_strategy((QueryStrategy) *dns.queryStrategy);
     conf.set_disablefallback(dns.disableFallback);
 
     for (auto it = dns.hosts.constKeyValueBegin(); it != dns.hosts.constKeyValueEnd(); it++)
@@ -822,7 +823,7 @@ void V2RayProfileGenerator::GenerateOutboundConfig(const OutboundObject &out, v2
         {
             Account acc;
             acc.set_id(vmess.id->toStdString());
-            acc.set_alter_id(vmess.alterId);
+            // acc.set_alter_id(vmess.alterId);
             acc.mutable_security_settings()->set_type(
                 [](const QString &s)
                 {
@@ -910,7 +911,7 @@ void V2RayProfileGenerator::GenerateOutboundConfig(const OutboundObject &out, v2
         {
             Account acc;
             acc.set_id(vless.id->toStdString());
-            acc.set_flow(vless.flow->toStdString());
+            // acc.set_flow(vless.flow->toStdString());
             acc.set_encryption(vless.encryption->toStdString());
             s->add_user()->mutable_account()->PackFrom(acc);
         }

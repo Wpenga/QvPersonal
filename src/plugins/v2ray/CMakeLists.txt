@@ -63,6 +63,8 @@ macro(proto_gen_v2ray_files proto)
     list(APPEND PROTO_SOURCES ${PROTO_SOURCE_FILE} ${PROTO_GRPC_SOURCE_FILE})
 endmacro()
 
+option(QV2RAY_V2RAY_PLUGIN_USE_PROTOBUF "Use protobuf as V2Ray configuration API" OFF)
+
 set(PROTO_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/3rdparty/v2ray-core/")
 if(QV2RAY_V2RAY_PLUGIN_USE_PROTOBUF)
     file(GLOB_RECURSE PROTO_FILES "${PROTO_SOURCE_DIR}/*.proto")
