@@ -78,7 +78,7 @@ jobs:
         cmake .. \
           -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
           -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_PREFIX=installed \
+          -DCMAKE_INSTALL_PREFIX=QvPersonal \
           -DBUILD_TESTING=OFF \
           -DUSE_SYSTEM_LIBUV=OFF \
           -DUSE_SYSTEM_UVW=OFF \
@@ -91,7 +91,7 @@ jobs:
         cmake --install .
 
     - name: Generate 7zip
-      run: 7z a QvPersonal.7z -- build/installed
+      run: cd build && 7z a ../QvPersonal.7z -- ./QvPersonal
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
