@@ -196,6 +196,7 @@ target_link_libraries(qv2ray PRIVATE
     Qv2ray::QREncode
     Qv2ray::Qv2rayBase
     Qv2ray::QvPluginInterface
+    Qv2ray::AllPlugins
     OpenSSL::SSL
     OpenSSL::Crypto
     SingleApplication
@@ -203,13 +204,6 @@ target_link_libraries(qv2ray PRIVATE
 
 if(QV2RAY_ROUTE_EDITOR)
     target_link_libraries(qv2ray PRIVATE NodeEditor::nodes)
-endif()
-
-if(QV2RAY_STATIC_PLUGINS)
-    target_link_libraries(qv2ray PRIVATE
-        QvPlugin-BuiltinSubscriptionSupport
-        QvPlugin-BuiltinProtocolSupport
-        QvPlugin-BuiltinV2RaySupport)
 endif()
 
 # BEGIN SPECIAL CASE
