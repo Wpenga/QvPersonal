@@ -14,12 +14,11 @@ jobs:
     env:
       CC: ${{ matrix.config.cc }}
       CXX: ${{ matrix.config.cxx }}
-    name: '${{ matrix.config.name }} (RouteEditor: ${{ matrix.has_route_editor }})'
+    name: '${{ matrix.config.name }}'
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
-        has_route_editor: [ON, OFF]
         config:
         - {
             name: "Windows MSVC", artifact: "Windows",
@@ -83,7 +82,6 @@ jobs:
           -DBUILD_TESTING=OFF \
           -DUSE_SYSTEM_LIBUV=OFF \
           -DUSE_SYSTEM_UVW=OFF \
-          -DQV2RAY_ROUTE_EDITOR=${{ matrix.has_route_editor }} \
           -GNinja
         cmake --build . --parallel
 
@@ -97,19 +95,18 @@ jobs:
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
-      if: matrix.has_route_editor == 'ON'
       with:
         name: QvPersonal-${{ github.sha }}-${{ matrix.config.artifact }}.7z
         path: QvPersonal.7z
 
     - name: Get the version
-      if: github.event_name == 'release' && matrix.config.has_release && matrix.has_route_editor == 'ON'
+      if: github.event_name == 'release' && matrix.config.has_release
       id: get_version
       run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
 
     - name: Upload to GitHub Release
       uses: svenstaro/upload-release-action@v2
-      if: github.event_name == 'release' && matrix.config.has_release && matrix.has_route_editor == 'ON'
+      if: github.event_name == 'release' && matrix.config.has_release
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: QvPersonal.7z
