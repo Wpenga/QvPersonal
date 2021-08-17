@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10.1)
-project(qv2ray VERSION 3.0.0)
-set(QV2RAY_PROJECT_VERSION_SUFFIX "-beta1")
+project(QvPersonal VERSION 3.0.0)
+set(QV2RAY_PROJECT_VERSION_SUFFIX "beta1")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -188,7 +188,7 @@ qt6_add_executable(qv2ray
 
 qv2ray_add_plugin_moc_sources(qv2ray)
 
-target_compile_definitions(qv2ray PRIVATE -DQV2RAY_VERSION_STRING="${CMAKE_PROJECT_VERSION}${QV2RAY_PROJECT_VERSION_SUFFIX}")
+target_compile_definitions(qv2ray PRIVATE -DQV2RAY_VERSION_STRING="${CMAKE_PROJECT_VERSION}-${QV2RAY_PROJECT_VERSION_SUFFIX}")
 target_include_directories(qv2ray PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_include_directories(qv2ray PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/components)
 
