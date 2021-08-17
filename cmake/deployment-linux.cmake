@@ -1,5 +1,4 @@
 install(TARGETS qv2ray RUNTIME DESTINATION bin)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/assets/qv2ray.metainfo.xml DESTINATION share/metainfo)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/assets/qv2ray.desktop DESTINATION share/applications)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/assets/icons/qv2ray.svg DESTINATION share/icons/hicolor/scalable/apps)
 
@@ -7,7 +6,6 @@ if(BUILD_SHARED_LIBS)
     if(QV2RAY_QV2RAYBASE_PROVIDER STREQUAL "module")
         install(TARGETS Qv2rayBase)
     endif()
-
     if(QV2RAY_QNODEEDITOR_PROVIDER STREQUAL "module" AND QV2RAY_ROUTE_EDITOR)
         install(TARGETS nodes)
     endif()
