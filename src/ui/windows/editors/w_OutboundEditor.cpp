@@ -3,10 +3,7 @@
 #include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 #include "ui/widgets/editors/StreamSettingsWidget.hpp"
 
-#include <QFile>
 #include <QIntValidator>
-
-#define QV_MODULE_NAME "OutboundEditor"
 
 constexpr auto OUTBOUND_TAG_PROXY = "Proxy";
 

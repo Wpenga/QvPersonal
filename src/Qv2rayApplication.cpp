@@ -20,8 +20,6 @@
 #include <QtPlugin>
 #include <openssl/ssl.h>
 
-#define QV_MODULE_NAME "PlatformApplication"
-
 constexpr auto QV2RAY_GUI_EXTRASETTINGS_KEY = "qv2ray-gui-settings";
 
 #ifdef QT_DEBUG

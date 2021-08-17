@@ -27,8 +27,6 @@
 #include <QScrollBar>
 #include <QToolTip>
 
-#define QV_MODULE_NAME "MainWindow"
-
 #define CheckCurrentWidget                                                                                                                                               \
     auto widget = GetIndexWidget(connectionTreeView->currentIndex());                                                                                                    \
     if (widget == nullptr)                                                                                                                                               \

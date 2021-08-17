@@ -3,8 +3,6 @@
 #include "Qv2rayBase/Common/ProfileHelpers.hpp"
 #include "ui/node/widgets/RuleWidget.hpp"
 
-#define QV_MODULE_NAME "Node::RuleNodeModel"
-
 RuleNodeModel::RuleNodeModel(std::shared_ptr<NodeDispatcher> _dispatcher, std::shared_ptr<node_data_t> data) : NodeDataModel()
 {
     dataptr = data;

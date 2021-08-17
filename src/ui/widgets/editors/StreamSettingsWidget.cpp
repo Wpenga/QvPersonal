@@ -5,7 +5,6 @@
 #include "ui/windows/editors/w_JsonEditor.hpp"
 
 #include <QStringBuilder>
-#define QV_MODULE_NAME "StreamSettingsWidget"
 
 StreamSettingsWidget::StreamSettingsWidget(QWidget *parent) : QWidget(parent)
 {
@@ -38,7 +37,7 @@ void StreamSettingsWidget::SetStreamObject(const Qv2ray::Models::StreamSettingsO
     transportCombo->setCurrentText(stream.network);
     // TLS XTLS
     {
-        const static QMap<QString, int> securityIndexMap{ { "none", 0 }, { "tls", 1 }, { "xtls", 2 } };
+        const static QMap<QString, int> securityIndexMap{ { "none", 0 }, { "tls", 1 } };
         if (securityIndexMap.contains(stream.security))
             securityTypeCB->setCurrentIndex(securityIndexMap[stream.security]);
         else

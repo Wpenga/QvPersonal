@@ -7,8 +7,6 @@
 #include <QFileDialog>
 #include <QInputDialog>
 
-#define QV_MODULE_NAME "RouteSettingsMatrix"
-
 RouteSettingsMatrixWidget::RouteSettingsMatrixWidget(QWidget *parent) : QWidget(parent)
 {
     setupUi(this);

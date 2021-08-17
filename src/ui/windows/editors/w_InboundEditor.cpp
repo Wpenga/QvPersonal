@@ -7,7 +7,6 @@
 
 #include <QGridLayout>
 
-#define QV_MODULE_NAME "InboundEditor"
 #define CHECKLOADING                                                                                                                                                     \
     if (isLoading)                                                                                                                                                       \
         return;

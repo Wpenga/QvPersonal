@@ -8,8 +8,6 @@
 
 #include <QFileDialog>
 
-#define QV_MODULE_NAME "ImportWindow"
-
 constexpr auto LINK_PAGE = 0;
 constexpr auto MANUAL_PAGE = 1;
 

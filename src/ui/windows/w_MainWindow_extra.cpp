@@ -17,8 +17,6 @@
 
 #include <QClipboard>
 
-#define QV_MODULE_NAME "MainWindowExtra"
-
 void MainWindow::MWToggleVisibility()
 {
     if (isHidden() || isMinimized())

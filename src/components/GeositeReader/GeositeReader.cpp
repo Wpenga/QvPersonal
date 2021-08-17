@@ -6,8 +6,6 @@
 #include <QFile>
 #include <QMap>
 
-#define QV_MODULE_NAME "GeositeReader"
-
 namespace Qv2ray::components::GeositeReader
 {
     QMap<QString, QStringList> GeositeEntries;

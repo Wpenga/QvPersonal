@@ -8,8 +8,6 @@
 #include <unistd.h>
 #endif
 
-#define QV_MODULE_NAME "Init"
-
 int globalArgc;
 char **globalArgv;
 void init_msgbox(const QString &title, const QString &text);

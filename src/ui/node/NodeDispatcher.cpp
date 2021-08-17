@@ -7,10 +7,6 @@
 #include "models/OutboundNodeModel.hpp"
 #include "models/RuleNodeModel.hpp"
 
-#include <nodes/Node>
-
-#define QV_MODULE_NAME "NodeDispatcher"
-
 NodeDispatcher::NodeDispatcher(QObject *parent) : QObject(parent)
 {
 }
@@ -62,14 +58,14 @@ void NodeDispatcher::LoadFullConfig(const ProfileContent &root)
 {
     isOperationLocked = true;
     // Show connections in the node graph
-    for (auto in : root.inbounds)
+    for (auto in : qAsConst(root.inbounds))
     {
         if (in.name.isEmpty())
             in.name = GenerateRandomString();
         auto _ = CreateInbound(in);
     }
 
-    for (auto out : root.outbounds)
+    for (auto out : qAsConst(root.outbounds))
     {
         if (out.objectType == OutboundObject::ORIGINAL && out.name.isEmpty())
             out.name = GenerateRandomString();

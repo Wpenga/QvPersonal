@@ -6,8 +6,6 @@
 #include "ui/node/widgets/ChainWidget.hpp"
 #include "ui/node/widgets/InboundOutboundWidget.hpp"
 
-#define QV_MODULE_NAME "Node::OutboundNodeModel"
-
 OutboundNodeModel::OutboundNodeModel(std::shared_ptr<NodeDispatcher> _dispatcher, std::shared_ptr<node_data_t> data) : NodeDataModel()
 {
     dataptr = data;

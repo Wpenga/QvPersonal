@@ -9,8 +9,6 @@
 
 #include <QStyleFactory>
 
-#define QV_MODULE_NAME "ConnectionItemWidget"
-
 ConnectionItemWidget::ConnectionItemWidget(QWidget *parent) : QWidget(parent)
 {
     setupUi(this);

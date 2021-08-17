@@ -7,8 +7,6 @@
 
 #include <QJsonDocument>
 
-#define QV_MODULE_NAME "UpdateChecker"
-
 const inline QStringList UpdateChannelLink{
     /*{ 0, "https://api.github.com/repos/moodyhunter/QvPersonal/releases/latest" },*/
     "https://api.github.com/repos/moodyhunter/QvPersonal/releases?per_page=1",
