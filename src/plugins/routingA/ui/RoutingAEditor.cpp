@@ -8,7 +8,7 @@
     uR"(\[\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*\])"_qs
 #define REGEX_IPV4_ADDR uR"((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5]))"_qs
 
-LogHighlighter::LogHighlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
+RoutingAHighlighter::RoutingAHighlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
 {
     highlightingRules.clear();
 
@@ -72,7 +72,7 @@ LogHighlighter::LogHighlighter(QTextDocument *parent) : QSyntaxHighlighter(paren
     }
 }
 
-void LogHighlighter::highlightBlock(const QString &text)
+void RoutingAHighlighter::highlightBlock(const QString &text)
 {
     for (const HighlightingRule &rule : qAsConst(highlightingRules))
     {
@@ -93,8 +93,8 @@ RoutingAEditor::RoutingAEditor(QWidget *parent) : Qv2rayPlugin::Gui::PluginMainW
     auto font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     logBrowser->setFont(font);
     routingAText->setFont(font);
-    new LogHighlighter(routingAText->document());
-    new LogHighlighter(logBrowser->document());
+    new RoutingAHighlighter(routingAText->document());
+    new RoutingAHighlighter(logBrowser->document());
 }
 
 void RoutingAEditor::changeEvent(QEvent *e)

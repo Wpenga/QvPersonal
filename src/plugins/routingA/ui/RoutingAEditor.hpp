@@ -6,12 +6,12 @@
 #include <QRegularExpression>
 #include <QSyntaxHighlighter>
 
-class LogHighlighter : public QSyntaxHighlighter
+class RoutingAHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 
   public:
-    explicit LogHighlighter(QTextDocument *parent = nullptr);
+    explicit RoutingAHighlighter(QTextDocument *parent = nullptr);
 
   protected:
     void highlightBlock(const QString &text) override;
