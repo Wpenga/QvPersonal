@@ -69,7 +69,7 @@ if(NOT QV2RAY_AUTO_UPDATE)
     add_definitions(-DQV2RAY_NO_AUTOUPDATE=1)
 endif()
 
-option(QV2RAY_ROUTE_EDITOR "Build without complex configuration editor support." ON)
+option(QV2RAY_ROUTE_EDITOR "Build without complex configuration editor support." OFF)
 
 # ==================================================================================
 # Default Core/Assets Path
