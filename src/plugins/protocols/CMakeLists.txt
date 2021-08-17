@@ -41,5 +41,4 @@ target_sources(${PROTOCOL_PLUGIN_TARGET} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/ui/PluginSettingsWidget.ui
     )
 
-target_include_directories(${PROTOCOL_PLUGIN_TARGET} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(${PROTOCOL_PLUGIN_TARGET} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../PluginsCommon)

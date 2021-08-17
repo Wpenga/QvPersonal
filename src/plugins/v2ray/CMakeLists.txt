@@ -107,8 +107,6 @@ endif()
 
 target_compile_definitions(QvPlugin-BuiltinV2RaySupport PRIVATE QT_NO_CAST_FROM_ASCII)
 
-target_compile_definitions(QvPlugin-BuiltinV2RaySupport PRIVATE)
-target_include_directories(QvPlugin-BuiltinV2RaySupport PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(QvPlugin-BuiltinV2RaySupport PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../PluginsCommon)
 target_include_directories(QvPlugin-BuiltinV2RaySupport PRIVATE ${PROTO_GENERATED_DIR})
 target_link_libraries(QvPlugin-BuiltinV2RaySupport

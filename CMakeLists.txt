@@ -19,8 +19,6 @@ endif()
 
 message("Build shared library: " ${BUILD_SHARED_LIBS})
 
-option(USE_MINGW "Use MinGW on Windows" OFF)
-
 if(WIN32)
     include(cmake/versioninfo/generate_product_version.cmake)
     generate_product_version(
@@ -57,14 +55,14 @@ cmake_policy(SET CMP0087 NEW)
 # ==================================================================================
 
 set(QV2RAY_DEFAULT_VASSETS_PATH "unset" CACHE STRING "Default V2Ray assets path")
-set(QV2RAY_DEFAULT_VCORE_PATH "unset" CACHE STRING "Default V2Ray core path")
+set(QV2RAY_DEFAULT_VCORE_PATH   "unset" CACHE STRING "Default V2Ray core path")
 
 set(QV2RAY_QV2RAYBASE_PROVIDER        "module" CACHE STRING "Qv2rayBase Provider")
 set(QV2RAY_SINGLEAPPLICATION_PROVIDER "module" CACHE STRING "SingleApplication Provider")
 set(QV2RAY_QNODEEDITOR_PROVIDER       "module" CACHE STRING "QNodeEditor Provider")
 
-option(QV2RAY_HAS_BUILTIN_THEMES  "Build with builtin themes" ON)
-option(QV2RAY_AUTO_UPDATE "Has auto update checker" ON)
+option(QV2RAY_HAS_BUILTIN_THEMES    "Build with builtin themes" ON)
+option(QV2RAY_AUTO_UPDATE           "Has auto update checker"   ON)
 if(NOT QV2RAY_AUTO_UPDATE)
     add_definitions(-DQV2RAY_NO_AUTOUPDATE=1)
 endif()
@@ -134,7 +132,6 @@ include(cmake/qv2ray-sources.cmake)
 if(QV2RAY_HAS_BUILTIN_THEMES)
     include(3rdparty/uistyles/uistyles.cmake)
 endif()
-
 
 # ==================================================================================
 # Qv2ray Build Info
@@ -226,9 +223,8 @@ endif()
 # END SPECIAL CASE
 
 # ==================================================================================
-# Platform-dependent installation process and deployment
+# Platform-specific installation and deployment
 # ==================================================================================
-
 if(APPLE)
     include(cmake/deployment-macos.cmake)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")

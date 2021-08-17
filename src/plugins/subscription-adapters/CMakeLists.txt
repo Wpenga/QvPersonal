@@ -10,5 +10,4 @@ target_sources(QvPlugin-BuiltinSubscriptionSupport PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/core/SubscriptionAdapter.hpp
     )
 
-target_include_directories(QvPlugin-BuiltinSubscriptionSupport PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(QvPlugin-BuiltinSubscriptionSupport PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../PluginsCommon)

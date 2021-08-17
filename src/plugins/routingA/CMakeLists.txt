@@ -6,18 +6,17 @@ qv2ray_add_plugin(QvPlugin-RoutingAEditor Widgets
     DEV_INTERFACE)
 
 target_sources(QvPlugin-RoutingAEditor PRIVATE
-    RoutingAPlugin.cpp
-    RoutingAPlugin.hpp
-    RoutingA_GuiInterface.hpp
-    core/libRoutingA-ActionTable.cpp
-    core/libRoutingA.cpp
-    core/libRoutingA.hpp
-    common/RoutingAConverter.cpp
-    common/RoutingAConverter.hpp
-    ui/RoutingAEditor.cpp
-    ui/RoutingAEditor.ui
-    ui/RoutingAEditor.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/RoutingAPlugin.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RoutingAPlugin.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/RoutingA_GuiInterface.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/core/libRoutingA-ActionTable.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/core/libRoutingA.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/core/libRoutingA.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/common/RoutingAConverter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/common/RoutingAConverter.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/ui/RoutingAEditor.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ui/RoutingAEditor.ui
+    ${CMAKE_CURRENT_LIST_DIR}/ui/RoutingAEditor.hpp
     )
 
-target_include_directories(QvPlugin-RoutingAEditor PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(QvPlugin-RoutingAEditor PRIVATE ${CMAKE_CURRENT_LIST_DIR}/../PluginsCommon)
