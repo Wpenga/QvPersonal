@@ -59,15 +59,12 @@ set(QV2RAY_DEFAULT_VCORE_PATH   "unset" CACHE STRING "Default V2Ray core path")
 
 set(QV2RAY_QV2RAYBASE_PROVIDER        "module" CACHE STRING "Qv2rayBase Provider")
 set(QV2RAY_SINGLEAPPLICATION_PROVIDER "module" CACHE STRING "SingleApplication Provider")
-set(QV2RAY_QNODEEDITOR_PROVIDER       "module" CACHE STRING "QNodeEditor Provider")
 
 option(QV2RAY_HAS_BUILTIN_THEMES    "Build with builtin themes" ON)
 option(QV2RAY_AUTO_UPDATE           "Has auto update checker"   ON)
 if(NOT QV2RAY_AUTO_UPDATE)
     add_definitions(-DQV2RAY_NO_AUTOUPDATE=1)
 endif()
-
-option(QV2RAY_ROUTE_EDITOR "Build without complex configuration editor support." OFF)
 
 # ==================================================================================
 # Default Core/Assets Path
@@ -107,15 +104,6 @@ if(QV2RAY_SINGLEAPPLICATION_PROVIDER STREQUAL "package")
     find_path(SINGLEAPPLICATION_DIR NAMES singleapplication.h PATH_SUFFIXES singleapplication)
 else()
     add_subdirectory(3rdparty/SingleApplication)
-endif()
-
-if(QV2RAY_ROUTE_EDITOR)
-    if(QV2RAY_QNODEEDITOR_PROVIDER STREQUAL "package")
-        find_package(NodeEditor REQUIRED)
-    else()
-        set(QT_VERSION_MAJOR 6)
-        add_subdirectory(3rdparty/QNodeEditor EXCLUDE_FROM_ALL)
-    endif()
 endif()
 
 # ==================================================================================
@@ -201,10 +189,6 @@ target_link_libraries(qv2ray PRIVATE
     OpenSSL::Crypto
     SingleApplication
     )
-
-if(QV2RAY_ROUTE_EDITOR)
-    target_link_libraries(qv2ray PRIVATE NodeEditor::nodes)
-endif()
 
 # BEGIN SPECIAL CASE
 if(USE_SYSTEM_LIBUV)

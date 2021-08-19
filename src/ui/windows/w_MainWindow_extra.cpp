@@ -7,10 +7,6 @@
 #include "ui/windows/editors/w_JsonEditor.hpp"
 #include "w_MainWindow.hpp"
 
-#ifdef QV2RAY_COMPONENT_RouteEditor
-#include "ui/windows/editors/w_RoutesEditor.hpp"
-#endif
-
 #ifdef Q_OS_MAC
 #include <ApplicationServices/ApplicationServices.h>
 #endif
@@ -131,7 +127,6 @@ void MainWindow::updateColorScheme()
     connActions.Start->setIcon(QIcon(STYLE_RESX("start")));
     connActions.Edit->setIcon(QIcon(STYLE_RESX("edit")));
     connActions.editAsActions.Json->setIcon(QIcon(STYLE_RESX("code")));
-    connActions.editAsActions.Complex->setIcon(QIcon(STYLE_RESX("edit")));
     connActions.DuplicateConnection->setIcon(QIcon(STYLE_RESX("copy")));
     connActions.DeleteConnection->setIcon(QIcon(STYLE_RESX("ashbin")));
     connActions.TestLatency->setIcon(QIcon(STYLE_RESX("ping_gauge")));
@@ -151,7 +146,6 @@ void MainWindow::RetranslateMenuActions()
     connActions.SetAutoConnection->setText(tr("Set as automatically connected"));
     connActions.EditAsMenu->setTitle(tr("Edit Using..."));
     connActions.editAsActions.Json->setText(tr("JSON Editor"));
-    connActions.editAsActions.Complex->setText(tr("Complex Config Editor"));
     connActions.CopyMenu->setTitle(tr("Copy..."));
     connActions.copyActions.Link->setText(tr("Share Link"));
     connActions.UpdateSubscription->setText(tr("Update Subscription"));
@@ -256,28 +250,6 @@ void MainWindow::Action_EditJson()
 {
     CheckCurrentWidget;
     OnEditJsonRequested(widget->Profile().connectionId);
-}
-
-void MainWindow::Action_EditComplex()
-{
-    CheckCurrentWidget;
-    if (widget->IsConnection())
-    {
-        const auto id = widget->Profile();
-        ProfileContent root = QvProfileManager->GetConnection(id.connectionId);
-
-#ifdef QV2RAY_COMPONENT_RouteEditor
-        qInfo() << "Opening route editor.";
-        RouteEditor editor(root, this);
-        root = editor.OpenEditor();
-        QvProfileManager->UpdateConnection(id.connectionId, root);
-#else
-        JsonEditor editor(root.toJson(), this);
-        root = ProfileContent::fromJson(editor.OpenEditor());
-#endif
-        if (editor.result() == QDialog::Accepted)
-            QvProfileManager->UpdateConnection(id.connectionId, root);
-    }
 }
 
 void MainWindow::Action_Copy_Link()

@@ -11,11 +11,6 @@
 #include "ui/widgets/ConnectionInfoWidget.hpp"
 #include "ui/windows/editors/w_JsonEditor.hpp"
 #include "ui/windows/editors/w_OutboundEditor.hpp"
-
-#ifdef QV2RAY_COMPONENT_RouteEditor
-#include "ui/windows/editors/w_RoutesEditor.hpp"
-#endif
-
 #include "ui/windows/w_AboutWindow.hpp"
 #include "ui/windows/w_GroupManager.hpp"
 #include "ui/windows/w_ImportConfig.hpp"
@@ -134,7 +129,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         connActions.Edit = new QAction(connMenu);
         connActions.EditAsMenu = new QMenu(connMenu);
         connActions.editAsActions.Json = new QAction(connActions.EditAsMenu);
-        connActions.editAsActions.Complex = new QAction(connActions.EditAsMenu);
         connActions.CopyMenu = new QMenu(connMenu);
         connActions.copyActions.Link = new QAction(connActions.CopyMenu);
         connActions.TestLatency = new QAction(connMenu);
@@ -148,7 +142,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         connect(connActions.Start, &QAction::triggered, this, &MainWindow::Action_Start);
         connect(connActions.Edit, &QAction::triggered, this, &MainWindow::Action_Edit);
         connect(connActions.editAsActions.Json, &QAction::triggered, this, &MainWindow::Action_EditJson);
-        connect(connActions.editAsActions.Complex, &QAction::triggered, this, &MainWindow::Action_EditComplex);
         connect(connActions.copyActions.Link, &QAction::triggered, this, &MainWindow::Action_Copy_Link);
         connect(connActions.TestLatency, &QAction::triggered, this, &MainWindow::Action_TestLatency);
         connect(connActions.SetAutoConnection, &QAction::triggered, this, &MainWindow::Action_SetAutoConnection);
@@ -163,7 +156,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         connMenu->addAction(connActions.Edit);
         {
             connActions.EditAsMenu->addAction(connActions.editAsActions.Json);
-            connActions.EditAsMenu->addAction(connActions.editAsActions.Complex);
         }
         connMenu->addMenu(connActions.EditAsMenu);
         connMenu->addSeparator();
@@ -572,14 +564,8 @@ void MainWindow::OnEditRequested(const ConnectionId &id)
     const auto original = QvProfileManager->GetConnection(id);
     if (IsComplexConfig(id))
     {
-#ifdef QV2RAY_COMPONENT_RouteEditor
-        qInfo() << "INFO: Opening route editor.";
-        RouteEditor editor(original, this);
-        ProfileContent root = editor.OpenEditor();
-#else
         JsonEditor editor(original.toJson(), this);
         const auto root = ProfileContent::fromJson(editor.OpenEditor());
-#endif
         if (editor.result() == QDialog::Accepted)
             QvProfileManager->UpdateConnection(id, root);
     }
@@ -658,13 +644,8 @@ void MainWindow::on_newConnectionBtn_clicked()
 
 void MainWindow::on_newComplexConnectionBtn_clicked()
 {
-#ifdef QV2RAY_COMPONENT_RouteEditor
-    RouteEditor w({}, this);
-    const auto root = w.OpenEditor();
-#else
     JsonEditor w({}, this);
     const auto root = ProfileContent::fromJson(w.OpenEditor());
-#endif
     if (w.result() == QDialog::Accepted)
     {
         const auto item = connectionTreeView->currentIndex();

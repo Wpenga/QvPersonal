@@ -70,7 +70,6 @@ class MainWindow
     void Action_SetAutoConnection();
     void Action_Edit();
     void Action_EditJson();
-    void Action_EditComplex();
     void Action_Copy_Link();
     void Action_UpdateSubscription();
     void Action_TestLatency();
@@ -122,7 +121,6 @@ class MainWindow
         struct
         {
             QAction *Json;
-            QAction *Complex;
         } editAsActions;
 
         QMenu *CopyMenu;

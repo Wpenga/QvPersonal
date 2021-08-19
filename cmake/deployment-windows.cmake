@@ -5,10 +5,6 @@ install(TARGETS qv2ray RUNTIME DESTINATION .)
 # For Global Target
 list(APPEND DIRS "${CMAKE_BINARY_DIR}")
 
-# For QtNodes
-list(APPEND DIRS "${CMAKE_BINARY_DIR}/3rdparty/QNodeEditor")
-list(APPEND DIRS "${CMAKE_BINARY_DIR}/bin")
-
 # For Qv2rayBase
 list(APPEND DIRS "${CMAKE_BINARY_DIR}/src/Qv2rayBase")
 list(APPEND DIRS "${CMAKE_CURRENT_BINARY_DIR}")

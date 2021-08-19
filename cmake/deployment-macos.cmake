@@ -40,10 +40,6 @@ install(TARGETS qv2ray BUNDLE DESTINATION .)
 # For Global Target
 list(APPEND DIRS "${CMAKE_BINARY_DIR}")
 
-# For QtNodes
-list(APPEND DIRS "${CMAKE_BINARY_DIR}/3rdparty/QNodeEditor")
-list(APPEND DIRS "${CMAKE_BINARY_DIR}/lib")
-
 # For Qv2rayBase
 list(APPEND DIRS "${CMAKE_BINARY_DIR}/src/Qv2rayBase")
 list(APPEND DIRS "${CMAKE_CURRENT_BINARY_DIR}")

@@ -49,9 +49,9 @@ QByteArray V2RayProfileGenerator::Generate()
 
     // Override log level
     const auto settings = BuiltinV2RayCorePlugin::PluginInstance->settings;
-    rootconf[u"log"_qs] = QJsonObject{ { u"loglevel"_qs, [](auto l)
+    rootconf[u"log"_qs] = QJsonObject{ { u"loglevel"_qs, [&]()
                                          {
-                                             switch (l)
+                                             switch (settings.LogLevel)
                                              {
                                                  case V2RayCorePluginSettings::None: return u"none"_qs;
                                                  case V2RayCorePluginSettings::Error: return u"error"_qs;
@@ -60,7 +60,7 @@ QByteArray V2RayProfileGenerator::Generate()
                                                  case V2RayCorePluginSettings::Debug: return u"debug"_qs;
                                                  default: return u"warning"_qs;
                                              }
-                                         }(settings.LogLevel) } };
+                                         }() } };
 
     // Browser Forwarder
     {
@@ -86,31 +86,45 @@ QByteArray V2RayProfileGenerator::Generate()
 
         //
         // Policy
-        rootconf[u"policy"_qs] = QJsonObject{ { u"system"_qs, QJsonObject{ { u"statsInboundUplink"_qs, true },
-                                                                           { u"statsInboundDownlink"_qs, true },
-                                                                           { u"statsOutboundUplink"_qs, true },
-                                                                           { u"statsOutboundDownlink"_qs, true } } } };
+        rootconf[u"policy"_qs] = QJsonObject{
+            { u"system"_qs,
+              QJsonObject{
+                  { u"statsInboundUplink"_qs, true },
+                  { u"statsInboundDownlink"_qs, true },
+                  { u"statsOutboundUplink"_qs, true },
+                  { u"statsOutboundDownlink"_qs, true },
+              } },
+        };
 
         //
         // Inbound
-        inbounds.push_front(QJsonObject{ { u"tag"_qs, QString::fromUtf8(DEFAULT_API_IN_TAG) },
-                                         { u"listen"_qs, u"127.0.0.1"_qs },
-                                         { u"port"_qs, *settings.APIPort },
-                                         { u"protocol"_qs, u"dokodemo-door"_qs },
-                                         { u"settings"_qs, QJsonObject{ { u"address"_qs, u"127.0.0.1"_qs } } } });
+        inbounds.push_front(QJsonObject{
+            { u"tag"_qs, QString::fromUtf8(DEFAULT_API_IN_TAG) },
+            { u"listen"_qs, u"127.0.0.1"_qs },
+            { u"port"_qs, *settings.APIPort },
+            { u"protocol"_qs, u"dokodemo-door"_qs },
+            { u"settings"_qs, QJsonObject{ { u"address"_qs, u"127.0.0.1"_qs } } },
+        });
         //
         // Rule
-        rules.push_front(QJsonObject{ { u"type"_qs, u"field"_qs },
-                                      { u"outboundTag"_qs, QString::fromUtf8(DEFAULT_API_TAG) },
-                                      { u"inboundTag"_qs, QJsonArray{ QString::fromUtf8(DEFAULT_API_IN_TAG) } } });
+        rules.push_front(QJsonObject{
+            { u"type"_qs, u"field"_qs },
+            { u"outboundTag"_qs, QString::fromUtf8(DEFAULT_API_TAG) },
+            { u"inboundTag"_qs, QJsonArray{ QString::fromUtf8(DEFAULT_API_IN_TAG) } },
+        });
 
         //
         // API
-        rootconf[u"api"_qs] = QJsonObject{ { u"tag"_qs, QString::fromUtf8(DEFAULT_API_TAG) },
-                                           { u"services"_qs, QJsonArray{ u"ReflectionService"_qs, //
-                                                                         u"HandlerService"_qs,    //
-                                                                         u"LoggerService"_qs,     //
-                                                                         u"StatsService"_qs } } };
+        rootconf[u"api"_qs] = QJsonObject{
+            { u"tag"_qs, QString::fromUtf8(DEFAULT_API_TAG) },
+            { u"services"_qs,
+              QJsonArray{
+                  u"ReflectionService"_qs,
+                  u"HandlerService"_qs,
+                  u"LoggerService"_qs,
+                  u"StatsService"_qs,
+              } },
+        };
     }
 
     if (!rules.isEmpty())
@@ -260,7 +274,7 @@ void V2RayProfileGenerator::ProcessOutboundConfig(const OutboundObject &out)
             { u"users"_qs, QJsonArray{ QJsonObject{
                                { u"id"_qs, *serv.id },
                                { u"security"_qs, *serv.security },
-                               { u"experiments    "_qs, *serv.experiments },
+                               { u"experiments"_qs, *serv.experiments },
                            } } },
         };
 
