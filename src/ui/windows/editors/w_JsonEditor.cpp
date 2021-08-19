@@ -3,6 +3,49 @@
 #include "Qv2rayBase/Common/Utils.hpp"
 #include "ui/WidgetUIBase.hpp"
 
+QTextCharFormat JSONHighlighter::getFormat(const Mode name)
+{
+    QTextCharFormat format;
+    switch (name)
+    {
+        case MKeyword: format.setForeground(QColor(0x25, 0x77, 0xdc)); break;
+        case MString: format.setForeground(QColor(0xff, 0xb6, 0x4f)); break;
+        case MNumber: format.setForeground(QColor(0x8f, 0xdc, 0x74)); break;
+    }
+    return format;
+}
+
+void JSONHighlighter::highlightBlock(const QString &text)
+{
+    static const QRegularExpression m_keyRegex = QRegularExpression{ uR"(("[^\r\n:]+?")\s*:)"_qs };
+    static const QVector<std::pair<QRegularExpression, Mode>> m_highlightRules{
+        { QRegularExpression(uR"(\bnull\b)"_qs), MKeyword },               //
+        { QRegularExpression(uR"(\btrue\b)"_qs), MKeyword },               //
+        { QRegularExpression(uR"(\bfalse\b)"_qs), MKeyword },              //
+        { QRegularExpression(uR"(\b(0b|0x){0,1}[\d.']+\b)"_qs), MNumber }, //
+        { QRegularExpression(uR"("[^\n"]*")"_qs), MString },               //
+    };
+
+    for (auto &&rule : m_highlightRules)
+    {
+        auto matchIterator = rule.first.globalMatch(text);
+        while (matchIterator.hasNext())
+        {
+            const auto match = matchIterator.next();
+            setFormat(match.capturedStart(), match.capturedLength(), getFormat(rule.second));
+        }
+    }
+
+    // Special treatment for key regex
+    auto matchIterator = m_keyRegex.globalMatch(text);
+
+    while (matchIterator.hasNext())
+    {
+        const auto match = matchIterator.next();
+        setFormat(match.capturedStart(1), match.capturedLength(1), getFormat(MKeyword));
+    }
+}
+
 JsonEditor::JsonEditor(QJsonObject rootObject, QWidget *parent) : QDialog(parent)
 {
     setupUi(this);
@@ -23,6 +66,7 @@ JsonEditor::JsonEditor(QJsonObject rootObject, QWidget *parent) : QDialog(parent
     }
 
     jsonEditor->setText(JsonToString(rootObject));
+    new JSONHighlighter(jsonEditor->document());
     jsonTree->expandAll();
     jsonTree->resizeColumnToContents(0);
 }
@@ -97,9 +141,4 @@ void JsonEditor::on_formatJsonBtn_clicked()
         jsonTree->expandAll();
         jsonTree->resizeColumnToContents(0);
     }
-}
-
-void JsonEditor::on_removeCommentsBtn_clicked()
-{
-    jsonEditor->setPlainText(JsonToString(JsonFromString(jsonEditor->toPlainText())));
 }

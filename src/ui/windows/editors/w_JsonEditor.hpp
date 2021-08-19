@@ -5,6 +5,25 @@
 #include "ui_w_JsonEditor.h"
 
 #include <QDialog>
+#include <QSyntaxHighlighter>
+
+class JSONHighlighter : public QSyntaxHighlighter
+{
+    Q_OBJECT
+    enum Mode
+    {
+        MString,
+        MNumber,
+        MKeyword
+    };
+
+  public:
+    explicit JSONHighlighter(QTextDocument *document = nullptr) : QSyntaxHighlighter(document){};
+    static QTextCharFormat getFormat(const Mode name);
+
+  protected:
+    void highlightBlock(const QString &text) override;
+};
 
 class JsonEditor
     : public QDialog
@@ -24,8 +43,6 @@ class JsonEditor
     void on_jsonEditor_textChanged();
 
     void on_formatJsonBtn_clicked();
-
-    void on_removeCommentsBtn_clicked();
 
   private:
     QJsonModel model;
