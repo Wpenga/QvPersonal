@@ -49,9 +49,7 @@ class GroupManager
     void on_groupIsSubscriptionGroup_clicked(bool checked);
     void on_groupNameTxt_textEdited(const QString &arg1);
     void onRCMDeleteConnectionTriggered();
-    void onRCMExportConnectionTriggered();
     void on_deleteSelectedConnBtn_clicked();
-    void on_exportSelectedConnBtn_clicked();
     void on_connectionsTable_customContextMenuRequested(const QPoint &pos);
     void on_subscriptionTypeCB_currentIndexChanged(int arg1);
 
@@ -66,14 +64,11 @@ class GroupManager
     //
     void setupSubscriptionProviderSettingsWidget();
     //
-    void exportConnectionFilter(ProfileContent &root);
-    //
     ConfigurableEditor *subscriptionProviderOptionsEditor = nullptr;
     DnsSettingsWidget *dnsSettingsWidget = nullptr;
     RouteSettingsMatrixWidget *routeSettingsWidget = nullptr;
     //
     QMenu *connectionListRCMenu = new QMenu(this);
-    QAction *exportConnectionAction = new QAction(tr("Export Connection(s)"), connectionListRCMenu);
     QAction *deleteConnectionAction = new QAction(tr("Delete Connection(s)"), connectionListRCMenu);
     QMenu *connectionListRCMenu_CopyToMenu = new QMenu(tr("Copy to..."));
     QMenu *connectionListRCMenu_MoveToMenu = new QMenu(tr("Move to..."));

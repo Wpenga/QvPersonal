@@ -33,9 +33,7 @@ QvMessageBusSlotImpl(OutboundEditor)
 {
     switch (msg)
     {
-        MBShowDefaultImpl;
-        MBHideDefaultImpl;
-        MBRetranslateDefaultImpl;
+
         case Qv2ray::components::MessageBus::UPDATE_COLORSCHEME: break;
     }
 }

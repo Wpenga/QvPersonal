@@ -73,6 +73,5 @@ class StreamSettingsWidget
     void on_grpcServiceNameTxt_textEdited(const QString &arg1);
 
   private:
-    QvMessageBusSlotDecl;
     Qv2ray::Models::StreamSettingsObject stream;
 };

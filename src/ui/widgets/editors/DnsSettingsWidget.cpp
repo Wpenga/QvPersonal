@@ -56,9 +56,6 @@ QvMessageBusSlotImpl(DnsSettingsWidget)
 {
     switch (msg)
     {
-        MBRetranslateDefaultImpl;
-        case MessageBus::HIDE_WINDOWS:
-        case MessageBus::SHOW_WINDOWS: break;
         case MessageBus::UPDATE_COLORSCHEME:
         {
             updateColorScheme();

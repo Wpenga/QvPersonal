@@ -56,14 +56,12 @@ GroupManager::GroupManager(QWidget *parent) : QvDialog("GroupManager", parent)
     routeSettingsGB->layout()->addWidget(routeSettingsWidget);
 
     connectionListRCMenu->addSection(tr("Connection Management"));
-    connectionListRCMenu->addAction(exportConnectionAction);
     connectionListRCMenu->addAction(deleteConnectionAction);
     connectionListRCMenu->addSeparator();
     connectionListRCMenu->addMenu(connectionListRCMenu_CopyToMenu);
     connectionListRCMenu->addMenu(connectionListRCMenu_MoveToMenu);
     connectionListRCMenu->addMenu(connectionListRCMenu_LinkToMenu);
 
-    connect(exportConnectionAction, &QAction::triggered, this, &GroupManager::onRCMExportConnectionTriggered);
     connect(deleteConnectionAction, &QAction::triggered, this, &GroupManager::onRCMDeleteConnectionTriggered);
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnConnectionLinkedWithGroup, [this] { reloadConnectionsList(currentGroupId); });
     connect(QvProfileManager, &Qv2rayBase::Profile::ProfileManager::OnGroupCreated, this, &GroupManager::reloadGroupRCMActions);
@@ -98,58 +96,6 @@ void GroupManager::onRCMDeleteConnectionTriggered()
     for (const auto &item : list)
         QvProfileManager->RemoveFromGroup(ConnectionId(item), currentGroupId);
     reloadConnectionsList(currentGroupId);
-}
-
-void GroupManager::onRCMExportConnectionTriggered()
-{
-    const auto list = GET_SELECTED_CONNECTION_IDS(SELECTED_ROWS_INDEX);
-    QFileDialog d;
-    switch (list.count())
-    {
-        case 0: return;
-        case 1:
-        {
-#pragma message("TODO")
-            //            const auto id = ConnectionId(list.first());
-            //            auto filePath = d.getSaveFileName(this, GetDisplayName(id));
-            //            if (filePath.isEmpty())
-            //                return;
-            //            auto root = RouteManager->GenerateFinalConfig({ id, currentGroupId }, false);
-            //            //
-            //            // Apply export filter
-            //            exportConnectionFilter(root);
-            //            //
-            //            if (filePath.endsWith(".json"))
-            //            {
-            //                filePath += ".json";
-            //            }
-            //            //
-            //            WriteFile(JsonToString(root), filePath);
-            //            QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(filePath).absoluteDir().absolutePath()));
-            //            break;
-        }
-        default:
-        {
-            const auto path = d.getExistingDirectory();
-            if (path.isEmpty())
-                return;
-            for (const auto &connId : list)
-            {
-#pragma message("TODO")
-                //                ConnectionId id(connId);
-                //                auto root = RouteManager->GenerateFinalConfig({ id, currentGroupId });
-                //                //
-                //                // Apply export filter
-                //                exportConnectionFilter(root);
-                //                //
-
-                //                const auto fileName = RemoveInvalidFileName(GetDisplayName(id)) + ".json";
-                //                StringToFile(JsonToString(root), path + "/" + fileName);
-            }
-            QvBaselib->OpenURL(QUrl::fromLocalFile(path));
-            break;
-        }
-    }
 }
 
 void GroupManager::reloadGroupRCMActions()
@@ -329,9 +275,9 @@ QvMessageBusSlotImpl(GroupManager)
 {
     switch (msg)
     {
-        MBShowDefaultImpl;
-        MBHideDefaultImpl;
-        MBRetranslateDefaultImpl;
+       
+        
+        
         MBUpdateColorSchemeDefaultImpl
     }
 }
@@ -499,20 +445,6 @@ void GroupManager::on_groupNameTxt_textEdited(const QString &arg1)
 void GroupManager::on_deleteSelectedConnBtn_clicked()
 {
     onRCMDeleteConnectionTriggered();
-}
-
-void GroupManager::on_exportSelectedConnBtn_clicked()
-{
-    if (connectionsTable->selectedItems().isEmpty())
-    {
-        connectionsTable->selectAll();
-    }
-    onRCMExportConnectionTriggered();
-}
-
-void GroupManager::exportConnectionFilter(ProfileContent &root)
-{
-#pragma message("TODO")
 }
 
 #undef GET_SELECTED_CONNECTION_IDS

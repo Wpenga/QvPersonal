@@ -217,9 +217,7 @@ QvMessageBusSlotImpl(PreferencesWindow)
 {
     switch (msg)
     {
-        MBShowDefaultImpl;
-        MBHideDefaultImpl;
-        MBRetranslateDefaultImpl;
+
         case MessageBus::UPDATE_COLORSCHEME: break;
     }
 }

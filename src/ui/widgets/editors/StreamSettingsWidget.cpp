@@ -9,21 +9,9 @@
 StreamSettingsWidget::StreamSettingsWidget(QWidget *parent) : QWidget(parent)
 {
     setupUi(this);
-    QvMessageBusConnect();
     stream.wsSettings->earlyDataHeaderName.ReadWriteBind(wsEarlyDataHeaderTxt, "text", &QLineEdit::textEdited);
     stream.sockopt->tcpKeepAliveInterval.ReadWriteBind(tcpKeepAliveIntervalSB, "value", &QSpinBox::valueChanged);
     stream.httpSettings->method.ReadWriteBind(httpMethodTxt, "text", &QLineEdit::textEdited);
-}
-
-QvMessageBusSlotImpl(StreamSettingsWidget)
-{
-    switch (msg)
-    {
-        MBRetranslateDefaultImpl;
-        case MessageBus::UPDATE_COLORSCHEME:
-        case MessageBus::HIDE_WINDOWS:
-        case MessageBus::SHOW_WINDOWS: break;
-    }
 }
 
 Qv2ray::Models::StreamSettingsObject StreamSettingsWidget::GetStreamSettings() const

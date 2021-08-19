@@ -34,15 +34,7 @@ QvMessageBusSlotImpl(MainWindow)
 {
     switch (msg)
     {
-        MBShowDefaultImpl;
-        MBHideDefaultImpl;
         MBUpdateColorSchemeDefaultImpl;
-        case MessageBus::RETRANSLATE:
-        {
-            retranslateUi(this);
-            RetranslateMenuActions();
-            break;
-        }
     }
 }
 

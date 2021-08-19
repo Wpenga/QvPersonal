@@ -152,21 +152,14 @@
    <item row="1" column="1">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
        <string>Connections</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="0">
-        <widget class="QPushButton" name="deleteSelectedConnBtn">
-         <property name="text">
-          <string>Delete Selection</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="2">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
         <widget class="QTableWidget" name="connectionsTable">
          <property name="contextMenuPolicy">
           <enum>Qt::CustomContextMenu</enum>
@@ -199,10 +192,10 @@
          </column>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="exportSelectedConnBtn">
+       <item>
+        <widget class="QPushButton" name="deleteSelectedConnBtn">
          <property name="text">
-          <string>Export Selection</string>
+          <string>Delete Selection</string>
          </property>
         </widget>
        </item>

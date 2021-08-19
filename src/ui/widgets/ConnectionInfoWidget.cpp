@@ -15,10 +15,7 @@ QvMessageBusSlotImpl(ConnectionInfoWidget)
 {
     switch (msg)
     {
-        MBRetranslateDefaultImpl;
         MBUpdateColorSchemeDefaultImpl;
-        case MessageBus::HIDE_WINDOWS:
-        case MessageBus::SHOW_WINDOWS: break;
     }
 }
 
