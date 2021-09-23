@@ -1,6 +1,7 @@
 name: Build for Desktop
 
 on:
+  workflow_dispatch:
   push:
   release:
     types: [prereleased]
